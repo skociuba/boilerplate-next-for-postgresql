@@ -13,13 +13,14 @@
     "panel": {
       "links": {
         "main": "Strona główna",
-        "example": "Przykładowa strona"
+        "users": "Użytkownicy",
+        "edit": "Edycja"
       }
     }
   },
   "layout": {
-    "examplePage": {
-      "title": "Przykładowa strona"
+    "users": {
+      "title": "Użytkownicy"
     },
     "homePage": {
       "title": "Strona główna"

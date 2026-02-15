@@ -20,8 +20,8 @@ const Page = () => {
   return (
     <Layout
       {...{
-        title: 'examplePage.title',
-        breakpoints: [{ children: 'main', href: '/' }],
+        title: 'users.title',
+        breakpoints: [{ children: 'main', href: '/' }, { children: 'users' }],
         hideOnMobile: { title: true, subTitle: true },
         loading: isLoading,
         error: error?.message

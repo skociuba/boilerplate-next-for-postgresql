@@ -21,8 +21,12 @@ const Page = ({ params }: { params: { id: string } }) => {
   return (
     <Layout
       {...{
-        title: 'examplePage.title',
-        breakpoints: [{ children: 'main', href: '/' }],
+        title: 'users.title',
+        breakpoints: [
+          { children: 'main', href: '/' },
+          { children: 'users', href: '/users' },
+          { children: 'edit' }
+        ],
         hideOnMobile: { title: true, subTitle: true },
         loading: isLoading,
         error: error?.message
