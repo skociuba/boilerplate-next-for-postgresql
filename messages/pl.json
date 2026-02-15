@@ -1,0 +1,37 @@
+{
+  "Navbar": {
+    "links": {
+      "home": "Strona główna",
+      "customers": "Użytkownicy"
+    },
+    "language": {
+      "pl": "Polski",
+      "en": "Angielski"
+    }
+  },
+  "breakpoints": {
+    "panel": {
+      "links": {
+        "main": "Strona główna",
+        "example": "Przykładowa strona"
+      }
+    }
+  },
+  "layout": {
+    "examplePage": {
+      "title": "Przykładowa strona"
+    },
+    "homePage": {
+      "title": "Strona główna"
+    }
+  },
+  "Home": {
+    "title": "Templatka",
+    "content": "To jest przykładowa treść"
+  },
+  "NotFound": {
+    "title": "Nie znaleziono",
+    "content": "Strona nie istnieje",
+    "button": "Wróć do strony głównej"
+  }
+}
