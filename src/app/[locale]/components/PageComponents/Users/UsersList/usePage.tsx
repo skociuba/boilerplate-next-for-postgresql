@@ -1,5 +1,18 @@
 'use client';
 
+import { useApiMutation } from '../../../../hooks/api/useApiMutation';
+
 export const usePage = () => {
-  return {};
+  const { mutate } = useApiMutation({
+    route: 'USER',
+    method: 'DELETE'
+  });
+
+  const handleDelete = (id: string) => {
+    mutate({ id: id });
+  };
+
+  return {
+    handleDelete
+  };
 };

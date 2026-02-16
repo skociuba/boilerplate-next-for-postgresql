@@ -1,7 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 
-import { Layout } from '../../components/Example/Layout';
+import { Layout } from '../../components/Layout/Layout';
 import { useApiQuery } from '../../hooks/api/useApiQuery';
 
 const UsersList = dynamic(

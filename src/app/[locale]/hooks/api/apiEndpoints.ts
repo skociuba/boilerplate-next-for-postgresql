@@ -3,7 +3,7 @@ export type ApiEndpointsType = {
   method: ('GET' | 'POST' | 'PUT' | 'DELETE')[];
 };
 
-export type ApiKeysType = 'USERS' | 'USER';
+export type ApiKeysType = 'USERS' | 'USER' | 'USER_EDIT' | 'USER_ADD' | 'USER_DELETE';
 
 export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USERS: {
@@ -13,5 +13,17 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USER: {
     endpoint: `/users`,
     method: ['GET']
+  },
+  USER_EDIT: {
+    endpoint: `/users`,
+    method: ['POST']
+  },
+  USER_ADD: {
+    endpoint: `/users`,
+    method: ['POST']
+  },
+  USER_DELETE: {
+    endpoint: `/users`,
+    method: ['DELETE']
   }
 };

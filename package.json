@@ -29,6 +29,7 @@
     "@tanstack/react-query": "^5.31.0",
     "@tanstack/react-query-devtools": "^5.31.0",
     "clsx": "2.1.1",
+    "formik": "^2.4.9",
     "lucide-react": "^0.455.0",
     "next": "14.2.9",
     "next-intl": "^3.7.0",
@@ -39,6 +40,7 @@
     "react-loading-skeleton": "^3.5.0",
     "react-toastify": "^10.0.6",
     "tailwind-merge": "2.5.2",
+    "yup": "^1.7.1",
     "zod": "3.23.8"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 'use client';
 import dynamic from 'next/dynamic';
 
-import { Layout } from '../../../../components/Example/Layout';
+import { Layout } from '../../../../components/Layout/Layout';
 import { useApiQuery } from '../../../../hooks/api/useApiQuery';
 
 const UserForm = dynamic(
@@ -32,7 +32,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         error: error?.message
       }}
     >
-      <UserForm data={data?.[0]} />
+      <UserForm oldValues={data?.[0]} route="USER_EDIT" method="PUT"  />
     </Layout>
   );
 };

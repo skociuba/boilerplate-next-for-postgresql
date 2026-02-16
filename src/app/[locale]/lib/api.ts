@@ -9,6 +9,7 @@ type fetchRequestProps = {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   getFile?: boolean;
   refresh?: boolean;
+  multipart?: boolean;
   id?: string;
   params?: { [key: string]: string };
   values?: {
@@ -165,18 +166,25 @@ export const fetchRequest = async ({
   values,
   id,
   params,
-  getFile
+  getFile,
+  multipart = false
 }: fetchRequestProps) => {
   try {
     const requestOptions = {
       method: method,
       headers: {
-        Accept: 'application/json'
+        Accept: 'application/json',
+        ...(multipart ? {} : { 'Content-Type': 'application/json' })
       },
-      body: method === 'GET' ? null : generateFormData({ values, method })
+      body:
+        method === 'GET'
+          ? null
+          : multipart
+            ? generateFormData({ values, method })
+            : JSON.stringify(values)
     };
 
-    const url = generateRequestUrl({ route, id, method, values, params });
+    const url = generateRequestUrl({ route, id, method, values, params, multipart });
 
     const res = await fetch(url, requestOptions);
 

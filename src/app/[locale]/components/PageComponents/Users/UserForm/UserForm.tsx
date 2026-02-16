@@ -2,18 +2,28 @@
 
 import { User } from '../../../../../../interfaces';
 import { Button } from '../../../Button';
+import { Form } from '../../../ui/Form';
+import Input from '../../../ui/Input';
+import { usePage } from './usePage';
 
-export const UserForm = ({ data }: { data: User }) => {
+export const UserForm = (props: any) => {
+  const { form } = usePage(props);
+
   return (
     <div className="ml-8 mt-24 min-h-screen">
-      {data && (
-        <div key={data.id} className="flex items-center justify-between mb-4">
-          {data.name} - {data.email}
-          <Button type="link" href={`/users`}>
-            wróć
+      <Form {...{ form, className: 'flex flex-col gap-4 ' }}>
+        <Input name="name" />
+        <Input name="email" />
+
+        <div className="flex gap-4">
+          <Button variant="tertiary" type="link" href={`/users`}>
+            Cancel
+          </Button>
+          <Button variant="primary" type="submit">
+            Submit
           </Button>
         </div>
-      )}
+      </Form>
     </div>
   );
 };
