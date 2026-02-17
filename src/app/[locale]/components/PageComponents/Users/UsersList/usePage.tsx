@@ -1,7 +1,7 @@
 'use client';
 
-import { useApiMutation } from '../../../../hooks/api/useApiMutation';
-import { User } from './../../../../../../interfaces';
+import { useApiMutation } from '@/hooks/api/useApiMutation';
+import { User } from '#/interfaces';
 export const usePage = ({ refetch }: { refetch: () => void }) => {
   const { mutate } = useApiMutation({
     route: 'USER',

@@ -1,9 +1,11 @@
 'use client';
 
-import { FormProps } from '../../../../../../interfaces';
-import { Button } from '../../../Button';
-import { Form } from '../../../ui/Form';
-import Input from '../../../ui/Input';
+import { FormProps } from '#/interfaces';
+
+import { Button } from '@/components/Button';
+import { Form } from '@/components/ui/Form';
+import Input from '@/components/ui/Input';
+
 import { usePage } from './usePage';
 
 export const UserForm = (props: FormProps) => {

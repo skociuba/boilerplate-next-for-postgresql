@@ -1,13 +1,12 @@
 'use client';
+import { useApiQuery } from '@/hooks/api/useApiQuery';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 
-import { Layout } from '../../../../components/Layout/Layout';
-import { useApiQuery } from '../../../../hooks/api/useApiQuery';
+import { Layout } from '@/components/Layout/Layout';
 
 const UserForm = dynamic(
-  () =>
-    import('../../../../components/PageComponents/Users/UserForm/UserForm').then((m) => m.UserForm),
+  () => import('@/components/PageComponents/Users/UserForm/UserForm').then((m) => m.UserForm),
   {
     ssr: false
   }

@@ -1,7 +1,9 @@
 'use client';
 
-import { Button } from '../../../Button';
-import { User, Users } from './../../../../../../interfaces';
+import { User, Users } from '#/interfaces';
+
+import { Button } from '@/components/Button';
+
 import { usePage } from './usePage';
 export const UsersList = ({ data, refetch }: { data: Users; refetch: () => void }) => {
   const { handleDelete } = usePage({ refetch });
