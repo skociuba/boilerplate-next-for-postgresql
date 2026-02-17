@@ -1,5 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 
 import { Layout } from '../../../../components/Layout/Layout';
 import { useApiQuery } from '../../../../hooks/api/useApiQuery';
@@ -17,6 +18,7 @@ const Page = ({ params }: { params: { id: string } }) => {
     route: 'USER',
     id: params.id
   });
+  const router = useRouter();
 
   return (
     <Layout
@@ -32,7 +34,14 @@ const Page = ({ params }: { params: { id: string } }) => {
         error: error?.message
       }}
     >
-      <UserForm oldValues={data?.[0]} route="USER_EDIT" method="PUT"  />
+      <UserForm
+        oldValues={data?.[0]}
+        route="USER_EDIT"
+        method="PUT"
+        handleSubmit={() => {
+          router.push('/users');
+        }}
+      />
     </Layout>
   );
 };

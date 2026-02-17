@@ -13,7 +13,7 @@ const UsersList = dynamic(
 );
 
 const Page = () => {
-  const { data, isLoading, error } = useApiQuery({
+  const { data, refetch, isLoading, error } = useApiQuery({
     route: 'USERS'
   });
 
@@ -27,7 +27,7 @@ const Page = () => {
         error: error?.message
       }}
     >
-      <UsersList data={data} />
+      <UsersList data={data} refetch={refetch} />
     </Layout>
   );
 };

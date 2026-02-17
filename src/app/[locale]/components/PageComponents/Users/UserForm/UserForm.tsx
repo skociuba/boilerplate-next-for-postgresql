@@ -1,12 +1,12 @@
 'use client';
 
-import { User } from '../../../../../../interfaces';
+import { FormProps } from '../../../../../../interfaces';
 import { Button } from '../../../Button';
 import { Form } from '../../../ui/Form';
 import Input from '../../../ui/Input';
 import { usePage } from './usePage';
 
-export const UserForm = (props: any) => {
+export const UserForm = (props: FormProps) => {
   const { form } = usePage(props);
 
   return (

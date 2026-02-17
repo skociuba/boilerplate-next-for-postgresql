@@ -1,18 +1,10 @@
 'use client';
 
-import { User } from '../../../../../../interfaces';
+import { FormProps } from '../../../../../../interfaces';
 import { useApiMutation } from '../../../../hooks/api/useApiMutation';
 import { useForm } from '../../../ui/useForm';
 import { exampleValidationSchema, initialValues } from './pageModel';
-export const usePage = ({
-  oldValues,
-  handleSubmit,
-  ...props
-}: {
-  oldValues: User;
-  handleSubmit: () => void;
-  id: string;
-}) => {
+export const usePage = ({ oldValues, handleSubmit, ...props }: FormProps) => {
   const { mutate } = useApiMutation(props);
 
   const form = useForm({
