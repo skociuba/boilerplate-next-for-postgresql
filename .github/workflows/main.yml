@@ -25,11 +25,11 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push backend image
+      - name: Build and push frontend image
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: ./Dockerfile.prod
+          file: ./Dockerfile
           push: true
           tags: |
             sebastiankociuba/node-frontend:latest
