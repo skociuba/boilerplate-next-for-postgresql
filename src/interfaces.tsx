@@ -1,6 +1,6 @@
 import { FormikValues } from 'formik';
 
-import { UseApiMutationProps } from './app/[locale]/hooks/api/useApiMutation';
+import { UseApiMutationProps } from '@/hooks/api/useApiMutation';
 
 export type User = {
   id?: string;

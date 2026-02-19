@@ -1,11 +1,12 @@
 'use client';
-import { useApiQuery } from '@/hooks/api/useApiQuery';
 import dynamic from 'next/dynamic';
 
-import { Layout } from '@/components/Layout/Layout';
+import { Layout } from '@/components/layout/Layout/Layout';
+
+import { useApiQuery } from '@/hooks/api/useApiQuery';
 
 const UsersList = dynamic(
-  () => import('@/components/PageComponents/Users/UsersList/UsersList').then((m) => m.UsersList),
+  () => import('@/components/features/Users/UsersList/UsersList').then((m) => m.UsersList),
   {
     ssr: false
   }

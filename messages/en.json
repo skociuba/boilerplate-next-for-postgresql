@@ -13,13 +13,15 @@
     "panel": {
       "links": {
         "main": "Main Page",
+        "users": "Users",
+        "edit": "Edit",
         "example": "Example Page"
       }
     }
   },
   "layout": {
-    "examplePage": {
-      "title": "Example Page"
+    "users": {
+      "title": "Users"
     },
     "homePage": {
       "title": "Main Page"
@@ -33,5 +35,12 @@
     "title": "Not Found",
     "content": "Page does not exist",
     "button": "Back to main page"
+  },
+  "form": {
+    "label": {
+      "name": "Name",
+      "email": "Email",
+      "password": "Password"
+    }
   }
 }

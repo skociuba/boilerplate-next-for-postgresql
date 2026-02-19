@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@/tests/test-utils';
+import { render, screen, waitFor } from '#/tests/test-utils';
 import { NextIntlClientProvider } from 'next-intl';
 
 import Page from './page';

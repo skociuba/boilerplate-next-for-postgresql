@@ -1,10 +1,12 @@
+import ReactQueryProvider from '@/providers/ReactQueryProvider';
+import { ThemeProvider } from '@/providers/ThemeProvider';
+
 import { NextIntlClientProvider, useMessages } from 'next-intl';
 import { Inter } from 'next/font/google';
 
+import Navbar from '@/layout/Navbar';
+
 import './styles/globals.css';
-import Navbar from './components/Navbar';
-import ReactQueryProvider from './providers/ReactQueryProvider';
-import { ThemeProvider } from './providers/ThemeProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 type RootLayoutProps = { children: React.ReactNode; params: { locale: string } };

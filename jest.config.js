@@ -1,6 +1,12 @@
-// You can learn more about each option below in the Jest docs: https://jestjs.io/docs/configuration.
+const nextJest = require('next/jest');
 
-module.exports = {
+const createJestConfig = nextJest({
+  // Provide the path to your Next.js app to load next.config.js and .env files in your test environment
+  dir: './'
+});
+
+// Add any custom config to be passed to Jest
+const customJestConfig = {
   roots: ['<rootDir>'],
   testEnvironment: 'jest-environment-jsdom',
   testRegex: '(/__tests__/.*|(\\.|/)(test))\\.[jt]sx?$',
@@ -51,10 +57,15 @@ module.exports = {
 
     // Handle module aliases
     '^@/components/(.*)$': '<rootDir>/src/components/$1',
-    '^@/pages/(.*)$': '<rootDir>/src/pages/$1',
-    '^@/lib(.*)$': '<rootDir>/src/lib$1',
-    '^@/hooks(.*)$': '<rootDir>/hooks$1',
-    '^@/mocks(.*)$': '<rootDir>/__mocks__$1',
-    '^@/tests(.*)$': '<rootDir>/.jest$1'
+    '^@/ui/(.*)$': '<rootDir>/src/components/ui/$1',
+    '^@/layout/(.*)$': '<rootDir>/src/components/layout/$1',
+    '^@/features/(.*)$': '<rootDir>/src/components/features/$1',
+    '^@/lib/(.*)$': '<rootDir>/src/lib/$1',
+    '^@/hooks/(.*)$': '<rootDir>/src/hooks/$1',
+    '^#/tests/(.*)$': '<rootDir>/.jest/$1',
+    '^#/(.*)$': '<rootDir>/src/$1',
+    '^@/(.*)$': '<rootDir>/src/app/[locale]/$1'
   }
 };
+
+module.exports = createJestConfig(customJestConfig);

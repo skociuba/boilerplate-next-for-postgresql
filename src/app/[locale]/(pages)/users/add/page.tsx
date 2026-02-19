@@ -1,11 +1,11 @@
 'use client';
+import { useRouter } from '#/navigation';
 import dynamic from 'next/dynamic';
-import { useRouter } from 'next/navigation';
 
-import { Layout } from '@/components/Layout/Layout';
+import { Layout } from '@/components/layout/Layout/Layout';
 
 const UserForm = dynamic(
-  () => import('@/components/PageComponents/Users/UserForm/UserForm').then((m) => m.UserForm),
+  () => import('@/components/features/Users/UserForm/UserForm').then((m) => m.UserForm),
   {
     ssr: false
   }
