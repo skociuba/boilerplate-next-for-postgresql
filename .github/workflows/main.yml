@@ -34,3 +34,34 @@ jobs:
           tags: |
             sebastiankociuba/node-frontend:latest
             sebastiankociuba/node-frontend:${{ github.sha }}
+  deploy:
+    name: Deploy Frontend Container
+    needs: [build]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -e
+
+            cd /var/www/frontend-node
+
+            # Pobranie najnowszego obrazu
+            sudo docker pull sebastiankociuba/node-frontend:latest
+
+            # Zatrzymanie i usunięcie w jednej linii (szybsze)
+            sudo docker rm -f nextjs-app || true
+
+            # Uruchomienie
+            sudo docker run -d --restart unless-stopped \
+              -p 3000:3000 \
+              --name nextjs-app \
+              sebastiankociuba/node-frontend:latest
+
+            # Sprzątanie nieużywanych obrazów
+            sudo docker image prune -f
