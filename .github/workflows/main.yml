@@ -59,7 +59,7 @@ jobs:
 
             # Uruchomienie
             sudo docker run -d --restart unless-stopped \
-              -p 3000:3000 \
+              -p 3002:3000 \
               --name nextjs-app \
               sebastiankociuba/node-frontend:latest
 
