@@ -51,17 +51,11 @@ jobs:
 
             cd /var/www/frontend-node
 
-            # Pobranie najnowszego obrazu
-            sudo docker pull sebastiankociuba/node-frontend:latest
+            # Pobranie najnowszego obrazu (docker-compose używa tagu zdefiniowanego w image: w docker-compose.yml)
+            sudo docker-compose pull
 
-            # Zatrzymanie i usunięcie w jednej linii (szybsze)
-            sudo docker rm -f nextjs-app || true
-
-            # Uruchomienie
-            sudo docker run -d --restart unless-stopped \
-              -p 3002:3000 \
-              --name nextjs-app \
-              sebastiankociuba/node-frontend:latest
+            # Restart usług
+            sudo docker-compose up -d
 
             # Sprzątanie nieużywanych obrazów
             sudo docker image prune -f
