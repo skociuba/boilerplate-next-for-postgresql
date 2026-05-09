@@ -63,6 +63,9 @@ jobs:
 
             cd /var/www/frontend-node
 
+            # Zatrzymanie i usunięcie starego kontenera
+            sudo docker-compose down || true
+
             # Pobranie najnowszego obrazu (docker-compose używa tagu zdefiniowanego w image: w docker-compose.yml)
             sudo docker-compose pull
 
