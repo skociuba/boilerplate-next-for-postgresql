@@ -15,9 +15,6 @@
     --deploy: #0f6e66;
     --deploy-bg: #e8f5f3;
     --deploy-border: #b9ddd7;
-    --bad: #b3261e;
-    --bad-bg: #fbeceb;
-    --bad-border: #f0c7c4;
     --ok: #2f7d3c;
     --code-bg: #101720;
     --code-ink: #d9e2ec;
@@ -43,9 +40,6 @@
       --deploy: #6fc9bd;
       --deploy-bg: #12241f;
       --deploy-border: #244b42;
-      --bad: #e5786f;
-      --bad-bg: #2b1715;
-      --bad-border: #4a2521;
       --ok: #6fbf78;
       --code-bg: #0b1016;
       --code-ink: #d9e2ec;
@@ -67,9 +61,6 @@
     --deploy: #6fc9bd;
     --deploy-bg: #12241f;
     --deploy-border: #244b42;
-    --bad: #e5786f;
-    --bad-bg: #2b1715;
-    --bad-border: #4a2521;
     --ok: #6fbf78;
     --code-bg: #0b1016;
     --code-ink: #d9e2ec;
@@ -142,18 +133,6 @@
     border-radius: 4px;
     padding: 0.05em 0.4em;
   }
-
-  .legend {
-    display: flex;
-    gap: 1.25rem;
-    flex-wrap: wrap;
-    margin-top: 1rem;
-    font-size: 0.85rem;
-  }
-  .legend-item { display: flex; align-items: center; gap: 0.45rem; color: var(--ink-soft); }
-  .swatch { width: 0.7rem; height: 0.7rem; border-radius: 3px; flex: none; }
-  .swatch.build { background: var(--build); }
-  .swatch.deploy { background: var(--deploy); }
 
   .diagram-card {
     background: var(--surface);
@@ -235,36 +214,43 @@
   }
   .verdict .mark { font-family: var(--font-display); font-weight: 700; color: var(--ok); font-size: 1.1rem; }
 
-  .issues { display: flex; flex-direction: column; gap: 0.9rem; }
-  .issue {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1rem 1.25rem;
+  .tab-bar {
+    display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1rem;
   }
-  .issue-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
-  .sev {
+  .tab-btn {
     font-family: var(--font-mono);
-    font-size: 0.68rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 0.15em 0.55em;
-    border-radius: 999px;
-    color: var(--bad);
-    background: var(--bad-bg);
-    border: 1px solid var(--bad-border);
+    font-size: 0.82rem;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 0.6rem 0.05rem;
+    color: var(--ink-faint);
+    cursor: pointer;
   }
-  .sev.low { color: var(--ink-soft); background: var(--surface-2); border-color: var(--border); }
-  .issue-title { font-weight: 600; font-size: 0.95rem; }
-  .issue p { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
-  .fix {
-    font-size: 0.85rem;
-    background: var(--surface-2);
-    border-radius: 6px;
-    padding: 0.5rem 0.75rem;
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--deploy); }
+  .tab-btn:focus-visible { outline: 2px solid var(--deploy); outline-offset: 2px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  table.line-table { font-size: 0.86rem; }
+  .line-table .ln {
+    font-family: var(--font-mono);
+    color: var(--ink-faint);
+    text-align: right;
+    width: 2.2rem;
+  }
+  .line-table .code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    white-space: pre;
     color: var(--ink);
   }
-  .fix b { color: var(--ok); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .line-table .why { color: var(--ink-soft); }
 
   pre.code-block {
     font-family: var(--font-mono);
@@ -310,37 +296,35 @@
   <header class="hero">
     <span class="eyebrow">next-boilerplate · VPS-2-FE</span>
     <h1>Jak działa Twój pipeline CI/CD</h1>
-    <p class="sub">Rozbiór na czynniki pierwsze trzech plików, które razem budują i wystawiają frontend: <code>main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code> — plus ocena podejścia i ściągawka na później.</p>
+    <p class="sub">Rozbiór na czynniki pierwsze plików, które razem budują i wystawiają frontend: <code>main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code> + <code>docker-compose.prod.yml</code> — plus ocena podejścia i ściągawka na później.</p>
   </header>
 
   <section>
     <h2>Cały przepływ w jednym obrazku</h2>
     <div class="diagram-card">
-```mermaid
+      <pre class="mermaid">
 flowchart LR
-    A["git push\nna gałąź trigger"] --> B["GitHub Actions\njob: build"]
-    B -->|"docker build\n(Dockerfile)"| C["obraz\nnode-frontend"]
-    C -->|"docker push"| D[("Docker Hub\nrejestr obrazów")]
-    B --> E["GitHub Actions\njob: deploy"]
-    E -->|"SCP"| F["docker-compose.yml\nna serwerze"]
-    E -->|"SSH"| G["VPS\ndocker-compose pull + up -d"]
-    D -.->|"pull"| G
-    G --> H["kontener VPS-2-FE\nport 3002 → 3000"]
+    push(["git push na master"]) --> build
 
-    style A fill:#eef1f5,stroke:#7c8797,color:#19212c
-    style B fill:#fdf3e6,stroke:#b45309,color:#19212c
-    style C fill:#fdf3e6,stroke:#b45309,color:#19212c
-    style D fill:#fdf3e6,stroke:#b45309,color:#19212c
-    style E fill:#e8f5f3,stroke:#0f6e66,color:#19212c
-    style F fill:#e8f5f3,stroke:#0f6e66,color:#19212c
-    style G fill:#e8f5f3,stroke:#0f6e66,color:#19212c
-    style H fill:#e8f5f3,stroke:#0f6e66,color:#19212c
-```
+    subgraph gh["GitHub Actions"]
+        build["job: build"] -->|"docker build\n(Dockerfile)"| image["obraz\nnode-frontend"]
+        image -->|"docker push"| hub[("Docker Hub")]
+        build --> deploy["job: deploy"]
+    end
+
+    subgraph vps["Serwer (VPS)"]
+        compose["docker-compose.prod.yml"]
+        run["compose pull + up -d"]
+        container(["kontener VPS-2-FE\nport 3002 → 3000"])
+    end
+
+    deploy -->|"SCP"| compose
+    deploy -->|"SSH"| run
+    hub -.->|"pull"| run
+    run --> container
+      </pre>
     </div>
-    <div class="legend">
-      <span class="legend-item"><span class="swatch build"></span> dzieje się na GitHub (build)</span>
-      <span class="legend-item"><span class="swatch deploy"></span> dzieje się na serwerze (deploy / runtime)</span>
-    </div>
+    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem;">Lewy podgraf dzieje się na GitHubie (build), prawy — dopiero na Twoim serwerze (deploy i uruchomienie).</p>
   </section>
 
   <section>
@@ -368,17 +352,187 @@ flowchart LR
           <span class="file">main.yml → job deploy</span>
           <span class="tag deploy">most GitHub → serwer</span>
         </div>
-        <p>Nie buduje niczego. Kopiuje aktualny <code>docker-compose.yml</code> na VPS przez SCP, potem łączy się po SSH i każe serwerowi: zabij stare kontenery, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code>, posprzątaj. To jedyny fragment, który dotyka Twojego serwera.</p>
+        <p>Nie buduje niczego. Kopiuje aktualny <code>docker-compose.prod.yml</code> na VPS przez SCP, potem łączy się po SSH i każe serwerowi: zatrzymaj stary kontener, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code>, posprzątaj. To jedyny fragment, który dotyka Twojego serwera.</p>
       </div>
 
       <div class="card deploy">
         <div class="card-head">
           <span class="file">docker-compose.yml</span>
-          <span class="tag deploy">runtime · serwer (i lokalnie)</span>
+          <span class="tag deploy">runtime · tylko lokalnie</span>
         </div>
-        <p><b>Instrukcja uruchomienia kontenera</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Na serwerze wskazuje <code>image:</code>, więc <code>docker-compose pull</code> ściąga gotowca z Docker Hub. Ten sam plik ma też sekcję <code>build:</code>, więc lokalnie możesz nim zbudować obraz od zera zamiast go ściągać.</p>
+        <p><b>Wersja do dewelopmentu.</b> Ma sekcję <code>build:</code>, więc <code>docker-compose up --build</code> zbuduje obraz z Twojego <code>Dockerfile</code> od zera i odpali go lokalnie — do sprawdzenia, czy produkcyjny obraz w ogóle wstaje, zanim cokolwiek trafi na serwer. Ten plik nigdy nie jedzie na VPS.</p>
       </div>
 
+      <div class="card deploy">
+        <div class="card-head">
+          <span class="file">docker-compose.prod.yml</span>
+          <span class="tag deploy">runtime · serwer</span>
+        </div>
+        <p><b>Instrukcja uruchomienia kontenera na produkcji</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Tylko sekcja <code>image:</code>, bez <code>build:</code> — serwer nie ma nawet możliwości zbudowania czegokolwiek, tylko <code>pull</code> gotowca z Docker Hub. Ten plik SCP kopiuje na VPS i on tam realnie żyje.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Plik po pliku, linijka po linijce</h2>
+    <p>Komentarze wyleciały z <code>Dockerfile</code> i <code>main.yml</code> — całe wyjaśnienie jest tutaj, zawsze aktualne z tym, co faktycznie jest w repo.</p>
+
+    <div class="tab-bar" role="tablist">
+      <button class="tab-btn active" role="tab" aria-selected="true" data-tab="t-dockerfile">Dockerfile</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t-compose-dev">docker-compose.yml</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t-compose-prod">docker-compose.prod.yml</button>
+      <button class="tab-btn" role="tab" aria-selected="false" data-tab="t-workflow">main.yml</button>
+    </div>
+
+    <div class="tab-panel active" id="t-dockerfile" role="tabpanel">
+      <div class="table-scroll">
+        <table class="line-table">
+          <thead><tr><th>#</th><th>kod</th><th>co robi</th></tr></thead>
+          <tbody>
+            <tr><td class="ln">1</td><td class="code">FROM node:22.1.0-alpine AS deps</td><td class="why">Startowy obraz tego etapu: Node 22.1.0 na Alpine (mały, ok. 40MB). Etap nazwany <code>deps</code> — dalej można się do niego odwołać przez <code>--from=deps</code>.</td></tr>
+            <tr><td class="ln">2</td><td class="code">RUN apk add --no-cache libc6-compat</td><td class="why">Dogrywa bibliotekę zgodności glibc — część paczek npm z natywnymi modułami jej potrzebuje, a Alpine ma domyślnie tylko musl libc.</td></tr>
+            <tr><td class="ln">3</td><td class="code">WORKDIR /app</td><td class="why">Kolejne komendy w tym etapie odpalają się względem <code>/app</code> w obrazie (tworzy katalog, jeśli nie istnieje).</td></tr>
+            <tr><td class="ln">4</td><td class="code">COPY package*.json ./</td><td class="why">Kopiuje tylko <code>package.json</code> i lockfile — celowo bez reszty kodu, żeby Docker mógł cache'ować tę warstwę, dopóki zależności się nie zmienią.</td></tr>
+            <tr><td class="ln">5</td><td class="code">RUN npm ci</td><td class="why">Instaluje zależności dokładnie według lockfile — czysta, powtarzalna instalacja, szybsza niż <code>npm install</code> w CI.</td></tr>
+            <tr><td class="ln">7</td><td class="code">FROM node:22.1.0-alpine AS builder</td><td class="why">Nowy etap od czystego obrazu, nazwany <code>builder</code>. To, co wyprodukował <code>deps</code>, trzeba jawnie skopiować.</td></tr>
+            <tr><td class="ln">8</td><td class="code">WORKDIR /app</td><td class="why">Katalog roboczy dla tego etapu.</td></tr>
+            <tr><td class="ln">9</td><td class="code">COPY --from=deps /app/node_modules ./node_modules</td><td class="why">Przenosi gotowy <code>node_modules</code> z etapu <code>deps</code>, zamiast instalować zależności po raz drugi.</td></tr>
+            <tr><td class="ln">10</td><td class="code">COPY . .</td><td class="why">Dopiero teraz kopiuje resztę repo do obrazu — to, czego nie wykluczył <code>.dockerignore</code>.</td></tr>
+            <tr><td class="ln">12</td><td class="code">ARG NEXT_PUBLIC_BASE_URL</td><td class="why">Deklaruje argument budowania — wartość trzeba podać z zewnątrz przez <code>--build-arg</code> (albo <code>build-args:</code> w workflow) w momencie <code>docker build</code>.</td></tr>
+            <tr><td class="ln">13</td><td class="code">ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL</td><td class="why">Przepisuje ten argument na zmienną środowiskową — dopiero jako <code>ENV</code> widzi ją proces <code>npm run build</code>, który zaraz wypiecze ją do kodu JS.</td></tr>
+            <tr><td class="ln">15</td><td class="code">RUN npm run build</td><td class="why">Właściwy build Next.js. Tu <code>NEXT_PUBLIC_BASE_URL</code> trwale ląduje w bundlu JS wysyłanym do przeglądarki.</td></tr>
+            <tr><td class="ln">17</td><td class="code">FROM node:22.1.0-alpine AS runner</td><td class="why">Trzeci, ostatni etap — od zera, bez śladu po <code>node_modules</code> czy kodzie źródłowym z poprzednich etapów. To on stanie się finalnym, wypychanym obrazem.</td></tr>
+            <tr><td class="ln">18</td><td class="code">WORKDIR /app</td><td class="why">Katalog roboczy obrazu produkcyjnego.</td></tr>
+            <tr><td class="ln">20</td><td class="code">ENV NODE_ENV production</td><td class="why">Next.js i wiele bibliotek zachowuje się inaczej w trybie produkcyjnym: więcej optymalizacji, mniej ostrzeżeń dev.</td></tr>
+            <tr><td class="ln">22</td><td class="code">RUN addgroup --system --gid 1001 nodejs</td><td class="why">Tworzy systemową grupę <code>nodejs</code> o stałym GID — potrzebna do uruchomienia kontenera bez roota.</td></tr>
+            <tr><td class="ln">23</td><td class="code">RUN adduser --system --uid 1001 nextjs</td><td class="why">Tworzy systemowego użytkownika <code>nextjs</code> należącego do tej grupy — to on uruchomi aplikację.</td></tr>
+            <tr><td class="ln">25</td><td class="code">COPY --from=builder /app/public ./public</td><td class="why">Statyczne pliki (obrazki, favicon) z etapu <code>builder</code>.</td></tr>
+            <tr><td class="ln">26</td><td class="code">COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./</td><td class="why">Samowystarczalny build Next.js (dzięki <code>output: 'standalone'</code>) — własny minimalny <code>server.js</code> i tylko potrzebne zależności. <code>--chown</code> od razu ustawia właściciela na nowego użytkownika.</td></tr>
+            <tr><td class="ln">27</td><td class="code">COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static</td><td class="why">Zasoby statyczne z builda (JS/CSS chunks) — standalone output ich automatycznie nie kopiuje, trzeba dorzucić osobno.</td></tr>
+            <tr><td class="ln">29</td><td class="code">USER nextjs</td><td class="why">Od tej linii kontener przestaje działać jako root — realne ograniczenie na wypadek włamania przez aplikację.</td></tr>
+            <tr><td class="ln">31</td><td class="code">EXPOSE 3000</td><td class="why">Dokumentacyjna deklaracja portu — sama go nie otwiera, to robi <code>ports:</code> w compose.</td></tr>
+            <tr><td class="ln">32</td><td class="code">ENV PORT 3000</td><td class="why">Standalone server Next.js czyta tę zmienną, żeby wiedzieć, na jakim porcie nasłuchiwać.</td></tr>
+            <tr><td class="ln">33</td><td class="code">ENV HOSTNAME "0.0.0.0"</td><td class="why">Każe serwerowi nasłuchiwać na wszystkich interfejsach kontenera, nie tylko <code>localhost</code> — inaczej nie byłby osiągalny z zewnątrz.</td></tr>
+            <tr><td class="ln">35</td><td class="code">CMD ["node", "server.js"]</td><td class="why">Komenda uruchamiana przy starcie kontenera: odpala serwer wygenerowany przez standalone build.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="t-compose-dev" role="tabpanel">
+      <div class="table-scroll">
+        <table class="line-table">
+          <thead><tr><th>#</th><th>kod</th><th>co robi</th></tr></thead>
+          <tbody>
+            <tr><td class="ln">1</td><td class="code">services:</td><td class="why">Korzeń pliku Compose — lista usług (kontenerów) do zarządzania. Tu jest tylko jedna.</td></tr>
+            <tr><td class="ln">2</td><td class="code">  next-app:</td><td class="why">Nazwa usługi w obrębie Compose, np. do <code>docker-compose logs next-app</code>.</td></tr>
+            <tr><td class="ln">3</td><td class="code">    build:</td><td class="why">Sekcja, której nie ma w wersji <code>.prod</code> — każe Compose zbudować obraz lokalnie zamiast go ściągać.</td></tr>
+            <tr><td class="ln">4</td><td class="code">      context: .</td><td class="why">Kontekst budowania — bieżący katalog.</td></tr>
+            <tr><td class="ln">5</td><td class="code">      dockerfile: Dockerfile</td><td class="why">Który plik użyć jako przepis.</td></tr>
+            <tr><td class="ln">6</td><td class="code">      args:</td><td class="why">Argumenty budowania przekazywane do <code>ARG</code> w Dockerfile.</td></tr>
+            <tr><td class="ln">7</td><td class="code">        - NEXT_PUBLIC_BASE_URL=${BASE_URL:-http://localhost:8080}</td><td class="why">Wartość bierze się ze zmiennej <code>BASE_URL</code> na hoście; jeśli jej nie ustawisz, domyślnie <code>http://localhost:8080</code>.</td></tr>
+            <tr><td class="ln">8</td><td class="code">    container_name: VPS-2-FE</td><td class="why">Wymusza stałą nazwę kontenera zamiast domyślnej wygenerowanej przez Compose.</td></tr>
+            <tr><td class="ln">9</td><td class="code">    image: sebastiankociuba/node-frontend:latest</td><td class="why">Tag, pod jakim lokalnie zbudowany obraz zostanie zapisany.</td></tr>
+            <tr><td class="ln">10</td><td class="code">    ports:</td><td class="why">Mapowanie portów host↔kontener.</td></tr>
+            <tr><td class="ln">11</td><td class="code">      - "3002:3000"</td><td class="why">Port 3002 na hoście trafia na port 3000 w kontenerze, gdzie faktycznie nasłuchuje aplikacja.</td></tr>
+            <tr><td class="ln">12</td><td class="code">    environment:</td><td class="why">Zmienne środowiskowe wstrzykiwane przy starcie kontenera — to już runtime, nie build-time.</td></tr>
+            <tr><td class="ln">13</td><td class="code">      - NODE_ENV=production</td><td class="why">Tryb produkcyjny dla procesu Node w kontenerze.</td></tr>
+            <tr><td class="ln">14</td><td class="code">      - BASE_URL=${BASE_URL:-http://localhost:8080}</td><td class="why">Runtime env — bez znaczenia dla <code>NEXT_PUBLIC_*</code>, przydałaby się tylko kodowi server-side, który faktycznie ją czyta.</td></tr>
+            <tr><td class="ln">15</td><td class="code">    restart: always</td><td class="why">Kontener wstaje sam po padzie albo restarcie hosta.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="t-compose-prod" role="tabpanel">
+      <div class="table-scroll">
+        <table class="line-table">
+          <thead><tr><th>#</th><th>kod</th><th>co robi</th></tr></thead>
+          <tbody>
+            <tr><td class="ln">1</td><td class="code">services:</td><td class="why">Ten sam korzeń co w wersji dev.</td></tr>
+            <tr><td class="ln">2</td><td class="code">  next-app:</td><td class="why">Ta sama nazwa usługi — to celowe, żeby <code>container_name</code> i porty się zgadzały.</td></tr>
+            <tr><td class="ln">3</td><td class="code">    container_name: VPS-2-FE</td><td class="why">Ta sama stała nazwa kontenera co lokalnie.</td></tr>
+            <tr><td class="ln">4</td><td class="code">    image: sebastiankociuba/node-frontend:latest</td><td class="why">Tu ten tag to już nie cel builda, tylko źródło — <code>docker-compose pull</code> ściągnie dokładnie ten obraz z Docker Hub.</td></tr>
+            <tr><td class="ln">5</td><td class="code">    ports:</td><td class="why">Mapowanie portów, identyczne jak w dev.</td></tr>
+            <tr><td class="ln">6</td><td class="code">      - "3002:3000"</td><td class="why">Port 3002 na VPS-ie trafia na port 3000 w kontenerze.</td></tr>
+            <tr><td class="ln">7</td><td class="code">    environment:</td><td class="why">Zmienne środowiskowe na serwerze.</td></tr>
+            <tr><td class="ln">8</td><td class="code">      - NODE_ENV=production</td><td class="why">Tryb produkcyjny.</td></tr>
+            <tr><td class="ln">9</td><td class="code">      - BASE_URL=${BASE_URL:-http://localhost:8080}</td><td class="why">Bez pliku <code>.env</code> obok tego compose na serwerze poleci sam fallback <code>localhost:8080</code> — wart sprawdzenia, czy to naprawdę to, co ma tam być.</td></tr>
+            <tr><td class="ln">10</td><td class="code">    restart: always</td><td class="why">Samodzielny restart po padzie kontenera albo reboocie VPS-a.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:0.9rem; font-size:0.85rem; color:var(--ink-soft);">Brak sekcji <code>build:</code> nie jest przeoczeniem — to sedno tego pliku: serwer ma fizycznie nie mieć jak niczego zbudować, tylko ściągnąć gotowca.</p>
+    </div>
+
+    <div class="tab-panel" id="t-workflow" role="tabpanel">
+      <div class="table-scroll">
+        <table class="line-table">
+          <thead><tr><th>#</th><th>kod</th><th>co robi</th></tr></thead>
+          <tbody>
+            <tr><td class="ln">1</td><td class="code">name: Deploy Frontend</td><td class="why">Nazwa workflow widoczna w zakładce Actions na GitHubie.</td></tr>
+            <tr><td class="ln">3</td><td class="code">on:</td><td class="why">Sekcja opisująca, co uruchamia ten workflow.</td></tr>
+            <tr><td class="ln">4</td><td class="code">  push:</td><td class="why">Trigger: reakcja na push do repozytorium.</td></tr>
+            <tr><td class="ln">5</td><td class="code">    branches:</td><td class="why">Lista gałęzi, dla których push faktycznie odpala workflow.</td></tr>
+            <tr><td class="ln">6</td><td class="code">      - master</td><td class="why">Jedyna gałąź-trigger — tylko push na <code>master</code> uruchamia cały pipeline.</td></tr>
+            <tr><td class="ln">8</td><td class="code">jobs:</td><td class="why">Lista jobów — każdy job to osobna maszyna wirtualna GitHuba.</td></tr>
+            <tr><td class="ln">9</td><td class="code">  build:</td><td class="why">Nazwa (klucz) pierwszego joba: buduje i wypycha obraz.</td></tr>
+            <tr><td class="ln">10</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Job odpala się na świeżym runnerze Ubuntu dostarczonym przez GitHuba.</td></tr>
+            <tr><td class="ln">12</td><td class="code">    steps:</td><td class="why">Lista kroków wykonywanych po kolei w tym jobie.</td></tr>
+            <tr><td class="ln">13</td><td class="code">      - name: Checkout repository</td><td class="why">Nazwa kroku widoczna w logach.</td></tr>
+            <tr><td class="ln">14</td><td class="code">        uses: actions/checkout@v3</td><td class="why">Klonuje repozytorium na tego commita na runnera — bez tego runner nie ma dostępu do Dockerfile.</td></tr>
+            <tr><td class="ln">16–17</td><td class="code">      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2</td><td class="why">Instaluje emulator QEMU — pozwala budować obrazy pod inne architektury CPU niż runnera.</td></tr>
+            <tr><td class="ln">19–20</td><td class="code">      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2</td><td class="why">Włącza rozszerzony builder Dockera (Buildx), wymagany też przez krok build-push niżej.</td></tr>
+            <tr><td class="ln">22–23</td><td class="code">      - name: Log in to Docker Hub
+        uses: docker/login-action@v2</td><td class="why">Loguje runnera do Docker Hub, żeby mógł wypchnąć obraz.</td></tr>
+            <tr><td class="ln">25</td><td class="code">          username: ${{ secrets.DOCKER_USER }}</td><td class="why">Login do Docker Hub z sekretu repo — nigdy nie jest widoczny w logach.</td></tr>
+            <tr><td class="ln">26</td><td class="code">          password: ${{ secrets.DOCKER_PASSWORD }}</td><td class="why">Hasło/token do Docker Hub, też z sekretu.</td></tr>
+            <tr><td class="ln">28–29</td><td class="code">      - name: Build and push frontend image
+        uses: docker/build-push-action@v4</td><td class="why">Oficjalna akcja GitHuba do budowania i wypychania obrazów w jednym kroku.</td></tr>
+            <tr><td class="ln">31</td><td class="code">          context: .</td><td class="why">Kontekst budowania — katalog, z którego Docker widzi pliki do <code>COPY</code> (tu: cały root repo).</td></tr>
+            <tr><td class="ln">32</td><td class="code">          file: ./Dockerfile</td><td class="why">Który plik użyć jako przepis na obraz.</td></tr>
+            <tr><td class="ln">33</td><td class="code">          push: true</td><td class="why">Po zbudowaniu obraz od razu jedzie na registry, nie zostaje tylko lokalnie na runnerze.</td></tr>
+            <tr><td class="ln">34</td><td class="code">          build-args: |</td><td class="why">Lista argumentów przekazywanych do <code>ARG</code> w Dockerfile.</td></tr>
+            <tr><td class="ln">35</td><td class="code">            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}</td><td class="why">Wartość dla <code>ARG NEXT_PUBLIC_BASE_URL</code> — z repo variable, jeśli ustawiona, inaczej fallback na produkcyjny adres API.</td></tr>
+            <tr><td class="ln">36</td><td class="code">          tags: |</td><td class="why">Lista tagów, pod jakimi obraz trafi do registry.</td></tr>
+            <tr><td class="ln">37</td><td class="code">            sebastiankociuba/node-frontend:latest</td><td class="why">Tag <code>latest</code> — zawsze wskazuje na najnowszy zbudowany obraz.</td></tr>
+            <tr><td class="ln">38</td><td class="code">            sebastiankociuba/node-frontend:${{ github.sha }}</td><td class="why">Dodatkowy tag z pełnym SHA commita — pozwala precyzyjnie wrócić do konkretnej wersji obrazu.</td></tr>
+            <tr><td class="ln">39</td><td class="code">  deploy:</td><td class="why">Nazwa (klucz) drugiego joba — odpowiada za wystawienie kontenera na serwerze.</td></tr>
+            <tr><td class="ln">40</td><td class="code">    name: Deploy Frontend Container</td><td class="why">Czytelna nazwa joba w interfejsie GitHub Actions.</td></tr>
+            <tr><td class="ln">41</td><td class="code">    needs: [build]</td><td class="why">Ten job czeka, aż <code>build</code> zakończy się sukcesem — bez świeżego obrazu nie ma czego deployować.</td></tr>
+            <tr><td class="ln">42</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Też świeży runner Ubuntu — deploy nie dzieje się „na” tym runnerze, on tylko łączy się po SSH/SCP do prawdziwego serwera.</td></tr>
+            <tr><td class="ln">45–46</td><td class="code">      - name: Checkout repository
+        uses: actions/checkout@v3</td><td class="why">Znowu klonuje repo — potrzebny tu tylko po to, by mieć pod ręką <code>docker-compose.prod.yml</code> do wysłania.</td></tr>
+            <tr><td class="ln">48–49</td><td class="code">      - name: Copy docker-compose to server via SCP
+        uses: appleboy/scp-action@master</td><td class="why">Zewnętrzna akcja kopiująca pliki na zdalny serwer przez SCP (po SSH).</td></tr>
+            <tr><td class="ln">51</td><td class="code">          host: ${{ secrets.SSH_HOST }}</td><td class="why">Adres Twojego VPS-a, z sekretu.</td></tr>
+            <tr><td class="ln">52</td><td class="code">          username: ${{ secrets.SSH_USER }}</td><td class="why">Login SSH na serwerze, z sekretu.</td></tr>
+            <tr><td class="ln">53</td><td class="code">          key: ${{ secrets.SSH_KEY }}</td><td class="why">Prywatny klucz SSH używany do zalogowania — bez hasła, bez interakcji.</td></tr>
+            <tr><td class="ln">54</td><td class="code">          source: "docker-compose.prod.yml"</td><td class="why">Plik wysyłany z runnera na serwer.</td></tr>
+            <tr><td class="ln">55</td><td class="code">          target: "/var/www/frontend-node"</td><td class="why">Katalog docelowy na serwerze.</td></tr>
+            <tr><td class="ln">57–58</td><td class="code">      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10</td><td class="why">Akcja łącząca się po SSH i wykonująca zdalny skrypt na serwerze.</td></tr>
+            <tr><td class="ln">60–62</td><td class="code">          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}</td><td class="why">Te same dane logowania co przy SCP wyżej — inny krok, więc trzeba je podać ponownie.</td></tr>
+            <tr><td class="ln">63</td><td class="code">          script: |</td><td class="why">Wieloliniowy skrypt bash, wykonywany bezpośrednio na serwerze.</td></tr>
+            <tr><td class="ln">64</td><td class="code">            set -e</td><td class="why">Przerywa cały skrypt, jeśli którakolwiek komenda zwróci błąd — zapobiega „cichemu”, niedokończonemu deployowi.</td></tr>
+            <tr><td class="ln">66</td><td class="code">            cd /var/www/frontend-node</td><td class="why">Wchodzi do katalogu, gdzie SCP wcześniej podłożył <code>docker-compose.prod.yml</code>.</td></tr>
+            <tr><td class="ln">68</td><td class="code">            if sudo docker compose version >/dev/null 2>&amp;1; then</td><td class="why">Sprawdza po cichu (bez wypisywania wyniku), czy na serwerze działa wtyczka <code>docker compose</code> v2.</td></tr>
+            <tr><td class="ln">69</td><td class="code">              DC="docker compose"</td><td class="why">Jeśli tak — dalsze komendy użyją nowej składni.</td></tr>
+            <tr><td class="ln">70–71</td><td class="code">            else
+              DC="docker-compose"</td><td class="why">W przeciwnym razie — starej, standalone binarki v1.</td></tr>
+            <tr><td class="ln">72</td><td class="code">            fi</td><td class="why">Koniec warunku.</td></tr>
+            <tr><td class="ln">74</td><td class="code">            sudo $DC -f docker-compose.prod.yml down || true</td><td class="why">Zatrzymuje i usuwa poprzedni kontener z tego pliku; <code>|| true</code> nie wywala skryptu, jeśli kontenera jeszcze nie było (pierwszy deploy).</td></tr>
+            <tr><td class="ln">75</td><td class="code">            sudo $DC -f docker-compose.prod.yml pull</td><td class="why">Ściąga obraz z tagiem podanym w <code>image:</code> (<code>:latest</code>) z Docker Hub.</td></tr>
+            <tr><td class="ln">76</td><td class="code">            sudo $DC -f docker-compose.prod.yml up -d</td><td class="why">Odpala nowy kontener w tle (<code>-d</code>), z ustawieniami z tego pliku — porty, restart policy, env.</td></tr>
+            <tr><td class="ln">77</td><td class="code">            sudo docker image prune -f</td><td class="why">Sprząta nieużywane (nietagowane) obrazy Dockera, żeby dysk serwera się nie zapychał po kolejnych deployach.</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 
@@ -399,7 +553,13 @@ flowchart LR
           <tr>
             <td class="mono">docker-compose.yml</td>
             <td>sekcja <code>build:</code> pozwala zbudować i odpalić lokalnie (<code>docker-compose up --build</code>)</td>
-            <td>nie jest używany do budowania, tylko kopiowany na serwer</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td class="mono">docker-compose.prod.yml</td>
+            <td>—</td>
+            <td>nieużywany do budowania, tylko kopiowany przez SCP na serwer</td>
             <td>sekcja <code>image:</code> mówi, co ściągnąć i uruchomić</td>
           </tr>
           <tr>
@@ -428,43 +588,6 @@ flowchart LR
   </section>
 
   <section>
-    <h2>Co warto poprawić</h2>
-    <div class="issues">
-
-      <div class="issue">
-        <div class="issue-head"><span class="sev">realny bug</span><span class="issue-title">Trigger na gałąź „add,edit-delete” prawdopodobnie nie działa jak myślisz</span></div>
-        <p><code>branches: [add,edit-delete]</code> w YAML to jeden string „add,edit-delete” z przecinkiem w nazwie, a nie dwie gałęzie. Deploy odpali się tylko wtedy, gdy naprawdę istnieje gałąź o tej dosłownej nazwie.</p>
-        <div class="fix"><b>fix</b> — jeśli chodziło o dwie gałęzie, zapisz je jako osobne pozycje listy: <code>branches: [main]</code> (albo <code>[add, edit-delete]</code> ze spacją, co YAML czyta jako dwa elementy).</div>
-      </div>
-
-      <div class="issue">
-        <div class="issue-head"><span class="sev">realny bug</span><span class="issue-title">NEXT_PUBLIC_BASE_URL nie dociera do obrazu budowanego na CI</span></div>
-        <p>Next.js wypieka zmienne <code>NEXT_PUBLIC_*</code> do kodu JS <b>w momencie builda</b>, nie przy starcie kontenera. Lokalnie <code>docker-compose.yml</code> przekazuje ją przez <code>args:</code>, ale job <code>build</code> w <code>main.yml</code> woła <code>build-push-action</code> bez żadnego <code>build-args</code> — więc obraz wypychany na Docker Hub ma tę zmienną pustą, niezależnie od tego, co ustawisz w <code>environment:</code> w compose. Ustawienie <code>environment: BASE_URL=...</code> w compose nie naprawia tego — to zmienna runtime, a front potrzebuje jej w buildzie.</p>
-        <div class="fix"><b>fix</b> — dodaj do kroku <code>build-push-action</code> w <code>main.yml</code>: <code>build-args: NEXT_PUBLIC_BASE_URL=https://twojadomena.pl</code>.</div>
-      </div>
-
-      <div class="issue">
-        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title">Zabijanie kontenerów po porcie 3002 przed <code>docker-compose down</code> jest zbędne</span></div>
-        <p>Linijka <code>docker rm -f $(docker ps -aq --filter publish=3002)</code> robi ręcznie to, co i tak zrobi <code>docker-compose down</code> zaraz potem — to podwójne zabezpieczenie, które ma sens tylko jeśli poza compose kiedyś ktoś odpalił kontener ręcznie na tym porcie.</p>
-        <div class="fix"><b>fix</b> — zostaw jako świadomy „bezpiecznik” albo usuń, jeśli masz pewność, że port 3002 zawsze należy do tego compose.</div>
-      </div>
-
-      <div class="issue">
-        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title"><code>docker-compose</code> (v1) zamiast <code>docker compose</code> (v2)</span></div>
-        <p>Binarka <code>docker-compose</code> z myślnikiem to stary, wycofywany plugin Pythona. Jeśli serwer ma nowszego Dockera, komenda <code>docker compose</code> (bez myślnika, jako subcommand) jest szybsza i aktywnie wspierana.</p>
-        <div class="fix"><b>fix</b> — sprawdź na serwerze <code>docker compose version</code>; jeśli działa, podmień komendy w skrypcie SSH.</div>
-      </div>
-
-      <div class="issue">
-        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title">Jeden plik compose do dev i do prod</span></div>
-        <p>Nie jest to błąd — <code>docker-compose pull</code> ignoruje sekcję <code>build:</code>, więc na serwerze i tak leci gotowy obraz. Ale trzymanie <code>build:</code> i <code>image:</code> w jednym pliku, który wysyłasz na produkcję, bywa mylące przy czytaniu za pół roku.</p>
-        <div class="fix"><b>fix</b> — opcjonalnie rozdziel na <code>docker-compose.yml</code> (dev, z <code>build:</code>) i <code>docker-compose.prod.yml</code> (tylko <code>image:</code>), i SCP-uj na serwer tylko ten drugi.</div>
-      </div>
-
-    </div>
-  </section>
-
-  <section>
     <h2>Ściągawka na później</h2>
 
     <h3>Lokalnie — chcę zobaczyć produkcyjny obraz na własnym laptopie</h3>
@@ -477,17 +600,18 @@ docker-compose build
 <span class="c"># podejrzyj, czy zmienna build-time faktycznie wjechała do buildu</span>
 docker-compose build --build-arg NEXT_PUBLIC_BASE_URL=http://localhost:8080</pre>
 
-    <h3>GitHub Actions — co się dzieje po <code>git push</code></h3>
+    <h3>GitHub Actions — co się dzieje po <code>git push</code> na <code>master</code></h3>
     <pre class="code-block"><span class="c"># 1. job "build" na GitHubie</span>
 docker login ...
-docker build -f Dockerfile -t sebastiankociuba/node-frontend:latest .
+docker build -f Dockerfile --build-arg NEXT_PUBLIC_BASE_URL=... \
+  -t sebastiankociuba/node-frontend:latest .
 docker push sebastiankociuba/node-frontend:latest
 
-<span class="c"># 2. job "deploy" — kopiuje plik, potem po SSH:</span>
-docker rm -f $(docker ps -aq --filter publish=3002) || true
-docker-compose down || true
-docker-compose pull
-docker-compose up -d
+<span class="c"># 2. job "deploy" — SCP-uje docker-compose.prod.yml, potem po SSH:</span>
+DC="docker compose"; sudo $DC version || DC="docker-compose"
+sudo $DC -f docker-compose.prod.yml down || true
+sudo $DC -f docker-compose.prod.yml pull
+sudo $DC -f docker-compose.prod.yml up -d
 docker image prune -f</pre>
 
     <h3>Ręcznie na serwerze — debugowanie</h3>
@@ -495,10 +619,11 @@ docker image prune -f</pre>
 ssh user@serwer
 cd /var/www/frontend-node
 
-docker ps                        <span class="c"># czy kontener VPS-2-FE działa</span>
-docker logs -f VPS-2-FE          <span class="c"># logi na żywo</span>
-docker-compose config            <span class="c"># jaki obraz/porty faktycznie zostaną użyte</span>
-docker-compose pull && docker-compose up -d   <span class="c"># ręczny redeploy bez CI</span></pre>
+docker ps                                          <span class="c"># czy kontener VPS-2-FE działa</span>
+docker logs -f VPS-2-FE                             <span class="c"># logi na żywo</span>
+docker compose -f docker-compose.prod.yml config    <span class="c"># jaki obraz/porty faktycznie zostaną użyte</span>
+docker compose -f docker-compose.prod.yml pull && \
+docker compose -f docker-compose.prod.yml up -d     <span class="c"># ręczny redeploy bez CI</span></pre>
 
     <div class="cmd-grid">
       <div class="cmd-card">
@@ -507,13 +632,34 @@ docker-compose pull && docker-compose up -d   <span class="c"># ręczny redeploy
       </div>
       <div class="cmd-card">
         <h3>Kto uruchamia kontener?</h3>
-        <p style="color:var(--ink-soft); font-size:0.9rem; margin:0;">Wyłącznie <b>serwer</b>, wg instrukcji z <code>docker-compose.yml</code>. GitHub nigdy nie odpala kontenera produkcyjnego.</p>
+        <p style="color:var(--ink-soft); font-size:0.9rem; margin:0;">Wyłącznie <b>serwer</b>, wg instrukcji z <code>docker-compose.prod.yml</code>. GitHub nigdy nie odpala kontenera produkcyjnego.</p>
       </div>
     </div>
   </section>
 
   <footer>
-    next-boilerplate · VPS-2-FE — analiza <code>.github/workflows/main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code>
+    next-boilerplate · VPS-2-FE — analiza <code>.github/workflows/main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code> + <code>docker-compose.prod.yml</code>
   </footer>
 
 </div>
+
+<script>
+  (function () {
+    var buttons = document.querySelectorAll(".tab-btn");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        buttons.forEach(function (b) {
+          b.classList.remove("active");
+          b.setAttribute("aria-selected", "false");
+        });
+        document.querySelectorAll(".tab-panel").forEach(function (p) {
+          p.classList.remove("active");
+        });
+        btn.classList.add("active");
+        btn.setAttribute("aria-selected", "true");
+        var panel = document.getElementById(btn.dataset.tab);
+        if (panel) panel.classList.add("active");
+      });
+    });
+  })();
+</script>
