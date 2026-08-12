@@ -31,6 +31,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          build-args: |
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
           tags: |
             sebastiankociuba/node-frontend:latest
             sebastiankociuba/node-frontend:${{ github.sha }}
