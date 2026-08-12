@@ -1,0 +1,519 @@
+<title>Pipeline VPS-2-FE</title>
+
+<style>
+  :root {
+    --bg: #eef1f5;
+    --surface: #ffffff;
+    --surface-2: #f5f7fa;
+    --border: #d7dde5;
+    --ink: #19212c;
+    --ink-soft: #4b5563;
+    --ink-faint: #7c8797;
+    --build: #b45309;
+    --build-bg: #fdf3e6;
+    --build-border: #f0d3ab;
+    --deploy: #0f6e66;
+    --deploy-bg: #e8f5f3;
+    --deploy-border: #b9ddd7;
+    --bad: #b3261e;
+    --bad-bg: #fbeceb;
+    --bad-border: #f0c7c4;
+    --ok: #2f7d3c;
+    --code-bg: #101720;
+    --code-ink: #d9e2ec;
+    --code-accent: #7fd0c3;
+    --radius: 10px;
+    --font-display: -apple-system, "Segoe UI Semibold", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-body: -apple-system, "Segoe UI", "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10151c;
+      --surface: #171e27;
+      --surface-2: #1c2430;
+      --border: #2b3644;
+      --ink: #e8edf3;
+      --ink-soft: #aab4c2;
+      --ink-faint: #7c8797;
+      --build: #e0a458;
+      --build-bg: #2a2013;
+      --build-border: #4a381e;
+      --deploy: #6fc9bd;
+      --deploy-bg: #12241f;
+      --deploy-border: #244b42;
+      --bad: #e5786f;
+      --bad-bg: #2b1715;
+      --bad-border: #4a2521;
+      --ok: #6fbf78;
+      --code-bg: #0b1016;
+      --code-ink: #d9e2ec;
+      --code-accent: #7fd0c3;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #10151c;
+    --surface: #171e27;
+    --surface-2: #1c2430;
+    --border: #2b3644;
+    --ink: #e8edf3;
+    --ink-soft: #aab4c2;
+    --ink-faint: #7c8797;
+    --build: #e0a458;
+    --build-bg: #2a2013;
+    --build-border: #4a381e;
+    --deploy: #6fc9bd;
+    --deploy-bg: #12241f;
+    --deploy-border: #244b42;
+    --bad: #e5786f;
+    --bad-bg: #2b1715;
+    --bad-border: #4a2521;
+    --ok: #6fbf78;
+    --code-bg: #0b1016;
+    --code-ink: #d9e2ec;
+    --code-accent: #7fd0c3;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+  }
+
+  header.hero {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.7rem, 3.4vw, 2.35rem);
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  .sub {
+    color: var(--ink-soft);
+    font-size: 1rem;
+    max-width: 62ch;
+  }
+
+  h2 {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    margin: 0 0 1rem;
+    letter-spacing: -0.005em;
+    text-wrap: balance;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    margin: 0 0 0.4rem;
+  }
+  section { margin-bottom: 3rem; }
+  p { margin: 0 0 0.9rem; max-width: 68ch; }
+  p:last-child { margin-bottom: 0; }
+
+  code, .mono { font-family: var(--font-mono); font-size: 0.88em; }
+  code {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.05em 0.4em;
+  }
+
+  .legend {
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+  }
+  .legend-item { display: flex; align-items: center; gap: 0.45rem; color: var(--ink-soft); }
+  .swatch { width: 0.7rem; height: 0.7rem; border-radius: 3px; flex: none; }
+  .swatch.build { background: var(--build); }
+  .swatch.deploy { background: var(--deploy); }
+
+  .diagram-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.25rem 0.75rem;
+    overflow-x: auto;
+  }
+
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+  }
+  .card.build { border-left-color: var(--build); }
+  .card.deploy { border-left-color: var(--deploy); }
+  .card-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+  .card-head .file { font-family: var(--font-mono); font-weight: 600; font-size: 0.95rem; }
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+  .tag.build { color: var(--build); background: var(--build-bg); border: 1px solid var(--build-border); }
+  .tag.deploy { color: var(--deploy); background: var(--deploy-bg); border: 1px solid var(--deploy-border); }
+  .card p { color: var(--ink-soft); font-size: 0.94rem; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); }
+  th, td {
+    text-align: left;
+    padding: 0.65rem 0.9rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  thead th {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    background: var(--surface-2);
+  }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:nth-child(odd) { background: var(--surface); }
+  tbody tr:nth-child(even) { background: var(--surface-2); }
+
+  .verdict {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.1rem 1.25rem;
+    margin-top: 1rem;
+  }
+  .verdict .mark { font-family: var(--font-display); font-weight: 700; color: var(--ok); font-size: 1.1rem; }
+
+  .issues { display: flex; flex-direction: column; gap: 0.9rem; }
+  .issue {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+  }
+  .issue-head { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap; }
+  .sev {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    color: var(--bad);
+    background: var(--bad-bg);
+    border: 1px solid var(--bad-border);
+  }
+  .sev.low { color: var(--ink-soft); background: var(--surface-2); border-color: var(--border); }
+  .issue-title { font-weight: 600; font-size: 0.95rem; }
+  .issue p { font-size: 0.9rem; color: var(--ink-soft); margin-bottom: 0.5rem; }
+  .fix {
+    font-size: 0.85rem;
+    background: var(--surface-2);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    color: var(--ink);
+  }
+  .fix b { color: var(--ok); font-family: var(--font-mono); font-size: 0.72rem; letter-spacing: 0.04em; text-transform: uppercase; }
+
+  pre.code-block {
+    font-family: var(--font-mono);
+    font-size: 0.83rem;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+    overflow-x: auto;
+    margin: 0 0 1rem;
+    line-height: 1.6;
+  }
+  pre.code-block .c { color: var(--code-accent); }
+  pre.code-block:last-child { margin-bottom: 0; }
+
+  .cmd-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .cmd-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.1rem;
+  }
+
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--ink-faint);
+    font-size: 0.82rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .card, .issue { transition: border-color 0.15s ease; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">next-boilerplate · VPS-2-FE</span>
+    <h1>Jak działa Twój pipeline CI/CD</h1>
+    <p class="sub">Rozbiór na czynniki pierwsze trzech plików, które razem budują i wystawiają frontend: <code>main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code> — plus ocena podejścia i ściągawka na później.</p>
+  </header>
+
+  <section>
+    <h2>Cały przepływ w jednym obrazku</h2>
+    <div class="diagram-card">
+```mermaid
+flowchart LR
+    A["git push\nna gałąź trigger"] --> B["GitHub Actions\njob: build"]
+    B -->|"docker build\n(Dockerfile)"| C["obraz\nnode-frontend"]
+    C -->|"docker push"| D[("Docker Hub\nrejestr obrazów")]
+    B --> E["GitHub Actions\njob: deploy"]
+    E -->|"SCP"| F["docker-compose.yml\nna serwerze"]
+    E -->|"SSH"| G["VPS\ndocker-compose pull + up -d"]
+    D -.->|"pull"| G
+    G --> H["kontener VPS-2-FE\nport 3002 → 3000"]
+
+    style A fill:#eef1f5,stroke:#7c8797,color:#19212c
+    style B fill:#fdf3e6,stroke:#b45309,color:#19212c
+    style C fill:#fdf3e6,stroke:#b45309,color:#19212c
+    style D fill:#fdf3e6,stroke:#b45309,color:#19212c
+    style E fill:#e8f5f3,stroke:#0f6e66,color:#19212c
+    style F fill:#e8f5f3,stroke:#0f6e66,color:#19212c
+    style G fill:#e8f5f3,stroke:#0f6e66,color:#19212c
+    style H fill:#e8f5f3,stroke:#0f6e66,color:#19212c
+```
+    </div>
+    <div class="legend">
+      <span class="legend-item"><span class="swatch build"></span> dzieje się na GitHub (build)</span>
+      <span class="legend-item"><span class="swatch deploy"></span> dzieje się na serwerze (deploy / runtime)</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>Kto za co odpowiada</h2>
+    <div class="cards">
+
+      <div class="card build">
+        <div class="card-head">
+          <span class="file">Dockerfile</span>
+          <span class="tag build">build · GitHub</span>
+        </div>
+        <p><b>Przepis na obraz.</b> Trzy etapy: <code>deps</code> instaluje zależności, <code>builder</code> odpala <code>npm run build</code> (z Next.js <code>output: 'standalone'</code>), <code>runner</code> kopiuje tylko gotowy build do czystego, małego obrazu <code>node:22-alpine</code> i uruchamia go jako user bez uprawnień roota. Nie zna serwera, nie zna Docker Hub — jego jedyne zadanie to zamienić kod źródłowy w gotowy, uruchamialny obraz.</p>
+      </div>
+
+      <div class="card build">
+        <div class="card-head">
+          <span class="file">main.yml → job build</span>
+          <span class="tag build">build · GitHub</span>
+        </div>
+        <p>Loguje się do Docker Hub sekretami z repo, każe Dockerowi zbudować obraz wg <code>Dockerfile</code> i wypycha go pod dwoma tagami: <code>:latest</code> oraz <code>:&lt;sha commita&gt;</code>. To jedyne miejsce, gdzie obraz faktycznie powstaje.</p>
+      </div>
+
+      <div class="card deploy">
+        <div class="card-head">
+          <span class="file">main.yml → job deploy</span>
+          <span class="tag deploy">most GitHub → serwer</span>
+        </div>
+        <p>Nie buduje niczego. Kopiuje aktualny <code>docker-compose.yml</code> na VPS przez SCP, potem łączy się po SSH i każe serwerowi: zabij stare kontenery, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code>, posprzątaj. To jedyny fragment, który dotyka Twojego serwera.</p>
+      </div>
+
+      <div class="card deploy">
+        <div class="card-head">
+          <span class="file">docker-compose.yml</span>
+          <span class="tag deploy">runtime · serwer (i lokalnie)</span>
+        </div>
+        <p><b>Instrukcja uruchomienia kontenera</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Na serwerze wskazuje <code>image:</code>, więc <code>docker-compose pull</code> ściąga gotowca z Docker Hub. Ten sam plik ma też sekcję <code>build:</code>, więc lokalnie możesz nim zbudować obraz od zera zamiast go ściągać.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Co jest potrzebne gdzie</h2>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>Element</th><th>Lokalnie (dev)</th><th>GitHub Actions (CI)</th><th>Serwer (produkcja)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">Dockerfile</td>
+            <td>opcjonalnie — zwykle używasz <code>npm run dev</code> bez Dockera</td>
+            <td>używany do zbudowania obrazu</td>
+            <td>nieużywany bezpośrednio — obraz przychodzi już gotowy</td>
+          </tr>
+          <tr>
+            <td class="mono">docker-compose.yml</td>
+            <td>sekcja <code>build:</code> pozwala zbudować i odpalić lokalnie (<code>docker-compose up --build</code>)</td>
+            <td>nie jest używany do budowania, tylko kopiowany na serwer</td>
+            <td>sekcja <code>image:</code> mówi, co ściągnąć i uruchomić</td>
+          </tr>
+          <tr>
+            <td class="mono">Docker Hub</td>
+            <td>—</td>
+            <td>cel <code>push</code></td>
+            <td>źródło <code>pull</code></td>
+          </tr>
+          <tr>
+            <td>Sekrety</td>
+            <td><code>.env.local</code> ewentualnie</td>
+            <td><code>DOCKER_USER</code>, <code>DOCKER_PASSWORD</code>, <code>SSH_HOST</code>, <code>SSH_USER</code>, <code>SSH_KEY</code> w GitHub → Settings → Secrets</td>
+            <td>brak — serwer tylko wykonuje polecenia przysłane po SSH</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Ocena podejścia</h2>
+    <div class="verdict">
+      <span class="mark">✓ Solidny fundament</span>
+      <p>Wzorzec „zbuduj na CI → wypchnij do rejestru → serwer tylko pulluje i odpala” to standard branżowy nawet w dużych firmach — dobrze, że serwer nigdy nie widzi kodu źródłowego ani nie buduje niczego lokalnie. Multi-stage <code>Dockerfile</code> z <code>standalone</code> Next.js i użytkownikiem bez roota to solidna, świadoma robota, nie przypadek. Do jednego VPS z jednym kontenerem — dokładnie tyle infrastruktury, ile potrzeba, bez nadmiarowego Kubernetesa czy własnego rejestru.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Co warto poprawić</h2>
+    <div class="issues">
+
+      <div class="issue">
+        <div class="issue-head"><span class="sev">realny bug</span><span class="issue-title">Trigger na gałąź „add,edit-delete” prawdopodobnie nie działa jak myślisz</span></div>
+        <p><code>branches: [add,edit-delete]</code> w YAML to jeden string „add,edit-delete” z przecinkiem w nazwie, a nie dwie gałęzie. Deploy odpali się tylko wtedy, gdy naprawdę istnieje gałąź o tej dosłownej nazwie.</p>
+        <div class="fix"><b>fix</b> — jeśli chodziło o dwie gałęzie, zapisz je jako osobne pozycje listy: <code>branches: [main]</code> (albo <code>[add, edit-delete]</code> ze spacją, co YAML czyta jako dwa elementy).</div>
+      </div>
+
+      <div class="issue">
+        <div class="issue-head"><span class="sev">realny bug</span><span class="issue-title">NEXT_PUBLIC_BASE_URL nie dociera do obrazu budowanego na CI</span></div>
+        <p>Next.js wypieka zmienne <code>NEXT_PUBLIC_*</code> do kodu JS <b>w momencie builda</b>, nie przy starcie kontenera. Lokalnie <code>docker-compose.yml</code> przekazuje ją przez <code>args:</code>, ale job <code>build</code> w <code>main.yml</code> woła <code>build-push-action</code> bez żadnego <code>build-args</code> — więc obraz wypychany na Docker Hub ma tę zmienną pustą, niezależnie od tego, co ustawisz w <code>environment:</code> w compose. Ustawienie <code>environment: BASE_URL=...</code> w compose nie naprawia tego — to zmienna runtime, a front potrzebuje jej w buildzie.</p>
+        <div class="fix"><b>fix</b> — dodaj do kroku <code>build-push-action</code> w <code>main.yml</code>: <code>build-args: NEXT_PUBLIC_BASE_URL=https://twojadomena.pl</code>.</div>
+      </div>
+
+      <div class="issue">
+        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title">Zabijanie kontenerów po porcie 3002 przed <code>docker-compose down</code> jest zbędne</span></div>
+        <p>Linijka <code>docker rm -f $(docker ps -aq --filter publish=3002)</code> robi ręcznie to, co i tak zrobi <code>docker-compose down</code> zaraz potem — to podwójne zabezpieczenie, które ma sens tylko jeśli poza compose kiedyś ktoś odpalił kontener ręcznie na tym porcie.</p>
+        <div class="fix"><b>fix</b> — zostaw jako świadomy „bezpiecznik” albo usuń, jeśli masz pewność, że port 3002 zawsze należy do tego compose.</div>
+      </div>
+
+      <div class="issue">
+        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title"><code>docker-compose</code> (v1) zamiast <code>docker compose</code> (v2)</span></div>
+        <p>Binarka <code>docker-compose</code> z myślnikiem to stary, wycofywany plugin Pythona. Jeśli serwer ma nowszego Dockera, komenda <code>docker compose</code> (bez myślnika, jako subcommand) jest szybsza i aktywnie wspierana.</p>
+        <div class="fix"><b>fix</b> — sprawdź na serwerze <code>docker compose version</code>; jeśli działa, podmień komendy w skrypcie SSH.</div>
+      </div>
+
+      <div class="issue">
+        <div class="issue-head"><span class="sev low">porządek</span><span class="issue-title">Jeden plik compose do dev i do prod</span></div>
+        <p>Nie jest to błąd — <code>docker-compose pull</code> ignoruje sekcję <code>build:</code>, więc na serwerze i tak leci gotowy obraz. Ale trzymanie <code>build:</code> i <code>image:</code> w jednym pliku, który wysyłasz na produkcję, bywa mylące przy czytaniu za pół roku.</p>
+        <div class="fix"><b>fix</b> — opcjonalnie rozdziel na <code>docker-compose.yml</code> (dev, z <code>build:</code>) i <code>docker-compose.prod.yml</code> (tylko <code>image:</code>), i SCP-uj na serwer tylko ten drugi.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <h2>Ściągawka na później</h2>
+
+    <h3>Lokalnie — chcę zobaczyć produkcyjny obraz na własnym laptopie</h3>
+    <pre class="code-block"><span class="c"># zbuduj lokalnie z Dockerfile i odpal wg docker-compose.yml</span>
+docker-compose up --build
+
+<span class="c"># tylko zbuduj, bez odpalania</span>
+docker-compose build
+
+<span class="c"># podejrzyj, czy zmienna build-time faktycznie wjechała do buildu</span>
+docker-compose build --build-arg NEXT_PUBLIC_BASE_URL=http://localhost:8080</pre>
+
+    <h3>GitHub Actions — co się dzieje po <code>git push</code></h3>
+    <pre class="code-block"><span class="c"># 1. job "build" na GitHubie</span>
+docker login ...
+docker build -f Dockerfile -t sebastiankociuba/node-frontend:latest .
+docker push sebastiankociuba/node-frontend:latest
+
+<span class="c"># 2. job "deploy" — kopiuje plik, potem po SSH:</span>
+docker rm -f $(docker ps -aq --filter publish=3002) || true
+docker-compose down || true
+docker-compose pull
+docker-compose up -d
+docker image prune -f</pre>
+
+    <h3>Ręcznie na serwerze — debugowanie</h3>
+    <pre class="code-block"><span class="c"># wejdź na VPS i sprawdź co żyje</span>
+ssh user@serwer
+cd /var/www/frontend-node
+
+docker ps                        <span class="c"># czy kontener VPS-2-FE działa</span>
+docker logs -f VPS-2-FE          <span class="c"># logi na żywo</span>
+docker-compose config            <span class="c"># jaki obraz/porty faktycznie zostaną użyte</span>
+docker-compose pull && docker-compose up -d   <span class="c"># ręczny redeploy bez CI</span></pre>
+
+    <div class="cmd-grid">
+      <div class="cmd-card">
+        <h3>Kto tworzy obraz?</h3>
+        <p style="color:var(--ink-soft); font-size:0.9rem; margin:0;">Wyłącznie <b>GitHub Actions</b>, wg przepisu z <code>Dockerfile</code>. Serwer nigdy nie buduje.</p>
+      </div>
+      <div class="cmd-card">
+        <h3>Kto uruchamia kontener?</h3>
+        <p style="color:var(--ink-soft); font-size:0.9rem; margin:0;">Wyłącznie <b>serwer</b>, wg instrukcji z <code>docker-compose.yml</code>. GitHub nigdy nie odpala kontenera produkcyjnego.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    next-boilerplate · VPS-2-FE — analiza <code>.github/workflows/main.yml</code>, <code>Dockerfile</code>, <code>docker-compose.yml</code>
+  </footer>
+
+</div>
