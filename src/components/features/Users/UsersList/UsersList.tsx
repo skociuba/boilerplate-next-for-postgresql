@@ -11,7 +11,7 @@ export const UsersList = ({ data, refetch }: { data: Users; refetch: () => void 
   return (
     <div className="ml-8 mt-12 min-h-screen">
       <Button className="mb-12" variant="tertiary" type="link" href={`/users/add`}>
-        dodaj
+        dodaj użytkownika
       </Button>
       {data?.map((item: User) => (
         <div key={item.id} className="flex items-center mb-4 border-b pb-2">

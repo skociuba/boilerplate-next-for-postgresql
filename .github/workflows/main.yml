@@ -31,6 +31,8 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          build-args: |
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
           tags: |
             sebastiankociuba/node-frontend:latest
             sebastiankociuba/node-frontend:${{ github.sha }}
@@ -49,7 +51,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.prod.yml"
           target: "/var/www/frontend-node"
 
       - name: Deploy via SSH
@@ -63,17 +65,22 @@ jobs:
 
             cd /var/www/frontend-node
 
-            # Zatrzymanie i usunięcie wszystkich kontenerów używających port 3002
-            sudo docker rm -f $(sudo docker ps -aq --filter publish=3002) || true
+            # Wykryj dostępną wersję Compose: wtyczkę v2 (docker compose)
+            # jeśli jest, w przeciwnym razie stary standalone docker-compose (v1)
+            if sudo docker compose version >/dev/null 2>&1; then
+              DC="docker compose"
+            else
+              DC="docker-compose"
+            fi
 
-            # Zatrzymanie i usunięcie starego kontenera (na wszelki wypadek)
-            sudo docker-compose down || true
+            # Zatrzymanie i usunięcie starego kontenera
+            sudo $DC -f docker-compose.prod.yml down || true
 
-            # Pobranie najnowszego obrazu (docker-compose używa tagu zdefiniowanego w image: w docker-compose.yml)
-            sudo docker-compose pull
+            # Pobranie najnowszego obrazu (Compose używa tagu zdefiniowanego w image: w docker-compose.prod.yml)
+            sudo $DC -f docker-compose.prod.yml pull
 
             # Restart usług
-            sudo docker-compose up -d
+            sudo $DC -f docker-compose.prod.yml up -d
 
             # Sprzątanie nieużywanych obrazów
             sudo docker image prune -f
