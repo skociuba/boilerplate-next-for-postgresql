@@ -305,27 +305,30 @@
     <h2>Cały przepływ w jednym obrazku</h2>
     <div class="diagram-card">
       <pre class="mermaid">
-flowchart LR
+flowchart TD
     push(["1 · git push na master"]) --> build
 
-    subgraph gh["GitHub Actions — runner GitHuba"]
+    subgraph gh["GitHub Actions — steruje całym procesem"]
+        direction TB
         build["job build\n2 · docker build"] -->|"3 · docker push"| hub[("Docker Hub")]
         build --> deploy["job deploy\nrusza dopiero po build"]
-        deploy -->|"4 · SCP\nkopiuje sam plik"| compose
-        deploy -->|"5 · SSH\nloguje się i odpala\nkomendy NA serwerze"| run
     end
 
-    subgraph vps["Twój VPS — nic tu się nie dzieje\nz inicjatywy serwera"]
+    subgraph vps["Twój VPS — serwer"]
+        direction TB
         compose["docker-compose.prod.yml\n(świeża kopia)"]
-        run["6 · lokalnie na VPS:\npull + up -d"]
+        run["6 · pull + up -d"]
         container(["kontener VPS-2-FE\nport 3002 → 3000"])
+        compose --> run
+        run --> container
     end
 
+    deploy -->|"4 · SCP — kopiuje plik"| compose
+    deploy -->|"5 · SSH — loguje się\ni odpala komendy"| run
     hub -.->|"obraz płynie\nbezpośrednio z Huba"| run
-    run --> container
       </pre>
     </div>
-    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Kluczowe: kroki 1–5 wykonuje wyłącznie GitHub. Serwer nie odpytuje niczego sam z siebie — dopiero w kroku 5 GitHub loguje się do niego po SSH i <b>każe mu</b> odpalić <code>pull</code> i <code>up -d</code> (krok 6). Obraz leci wtedy bezpośrednio z Docker Huba na VPS (przerywana strzałka) — ale wyłącznie dlatego, że SSH dał na to polecenie, a nie dlatego, że serwer sam to zauważył.</p>
+    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Górny prostokąt to GitHub — to on steruje całym procesem, kroki 1–5. Dolny prostokąt to fizycznie Twój VPS: obie strzałki wchodzące do niego (SCP i SSH) przychodzą z zewnątrz, z GitHuba. Serwer sam z siebie niczego nie sprawdza ani nie inicjuje — dopiero gdy GitHub zaloguje się po SSH i każe mu odpalić <code>pull</code> i <code>up -d</code> (krok 6), obraz faktycznie leci z Docker Huba prosto na VPS (przerywana strzałka).</p>
   </section>
 
   <section>
