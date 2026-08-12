@@ -5,6 +5,7 @@ node_modules
 .dockerignore
 Dockerfile
 docker-compose.yml
+docker-compose.prod.yml
 README.md
 npm-debug.log
 .eslintrc.js

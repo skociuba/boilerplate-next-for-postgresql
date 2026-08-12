@@ -51,7 +51,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: "docker-compose.yml"
+          source: "docker-compose.prod.yml"
           target: "/var/www/frontend-node"
 
       - name: Deploy via SSH
@@ -74,13 +74,13 @@ jobs:
             fi
 
             # Zatrzymanie i usunięcie starego kontenera
-            sudo $DC down || true
+            sudo $DC -f docker-compose.prod.yml down || true
 
-            # Pobranie najnowszego obrazu (Compose używa tagu zdefiniowanego w image: w docker-compose.yml)
-            sudo $DC pull
+            # Pobranie najnowszego obrazu (Compose używa tagu zdefiniowanego w image: w docker-compose.prod.yml)
+            sudo $DC -f docker-compose.prod.yml pull
 
             # Restart usług
-            sudo $DC up -d
+            sudo $DC -f docker-compose.prod.yml up -d
 
             # Sprzątanie nieużywanych obrazów
             sudo docker image prune -f
