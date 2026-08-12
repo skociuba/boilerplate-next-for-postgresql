@@ -3,13 +3,15 @@
     "incremental": true, // https://nextjs.org/docs/basic-features/typescript#incremental-type-checking
     "baseUrl": ".",
     "paths": {
-      "@/components/*": ["./src/components/*"],
-      "@/pages/*": ["./src/pages/*"],
-      "@/lib/*": ["./src/lib/*"],
-      "@/hooks/*": ["./src/hooks/*"],
-      "@/styles/*": ["./src/styles/*"],
-      "@/mocks/*": ["./__mocks__/*"],
-      "@/tests/*": ["./.jest/*"]
+      "@/components/*": ["src/components/*"],
+      "@/ui/*": ["src/components/ui/*"],
+      "@/layout/*": ["src/components/layout/*"],
+      "@/features/*": ["src/components/features/*"],
+      "@/lib/*": ["src/lib/*"],
+      "@/hooks/*": ["src/hooks/*"],
+      "@/*": ["src/app/[locale]/*"],
+      "#/*": ["src/*"],
+      "#/tests/*": ["src/tests/*"]
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

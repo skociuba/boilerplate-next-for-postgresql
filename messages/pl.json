@@ -13,13 +13,14 @@
     "panel": {
       "links": {
         "main": "Strona główna",
-        "example": "Przykładowa strona"
+        "users": "Użytkownicy",
+        "edit": "Edycja"
       }
     }
   },
   "layout": {
-    "examplePage": {
-      "title": "Przykładowa strona"
+    "users": {
+      "title": "Użytkownicy"
     },
     "homePage": {
       "title": "Strona główna"
@@ -33,5 +34,12 @@
     "title": "Nie znaleziono",
     "content": "Strona nie istnieje",
     "button": "Wróć do strony głównej"
+  },
+  "form": {
+    "label": {
+      "name": "Imię",
+      "email": "Email",
+      "password": "Hasło"
+    }
   }
 }

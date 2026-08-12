@@ -4,8 +4,6 @@ import dynamic from 'next/dynamic';
 
 import { Layout } from '@/components/layout/Layout/Layout';
 
-import { useApiQuery } from '@/hooks/api/useApiQuery';
-
 const UserForm = dynamic(
   () => import('@/components/features/Users/UserForm/UserForm').then((m) => m.UserForm),
   {
@@ -13,11 +11,7 @@ const UserForm = dynamic(
   }
 );
 
-const Page = ({ params }: { params: { id: string } }) => {
-  const { data, isLoading, error } = useApiQuery({
-    route: 'USER',
-    id: params.id
-  });
+const Page = () => {
   const router = useRouter();
 
   return (
@@ -29,15 +23,12 @@ const Page = ({ params }: { params: { id: string } }) => {
           { children: 'users', href: '/users' },
           { children: 'edit' }
         ],
-        hideOnMobile: { title: true, subTitle: true },
-        loading: isLoading,
-        error: error?.message
+        hideOnMobile: { title: true, subTitle: true }
       }}
     >
       <UserForm
-        oldValues={data?.[0]}
-        route="USER_EDIT"
-        method="PUT"
+        route="USER_ADD"
+        method="POST"
         handleSubmit={() => {
           router.push('/users');
         }}

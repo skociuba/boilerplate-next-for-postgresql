@@ -53,10 +53,15 @@ module.exports = {
       {
         newlinesBetween: 'always',
         groups: [
+          '/^@/providers/',
           ['/^next/', 'module'],
           '/^@/styles/',
           '/^@/components/',
+          '/^@/layout/',
+          '/^@/ui/',
+          '/^@/features/',
           '/^@/lib/',
+          '/^@/hooks/',
           ['parent', 'sibling', 'index']
         ],
         alphabetize: {

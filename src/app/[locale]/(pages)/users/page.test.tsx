@@ -1,11 +1,20 @@
-import { render, screen } from '@/tests/test-utils';
-//import userEvent from '@testing-library/user-event';
 import { waitFor } from '@testing-library/react';
+import { render, screen } from '#/tests/test-utils';
+//import userEvent from '@testing-library/user-event';
 
-import { useApiQuery } from '../../hooks/api/useApiQuery';
+import { useApiQuery } from '@/hooks/api/useApiQuery';
+
 import Example from './page';
 
-jest.mock('./../../hooks/api/useApiQuery');
+jest.mock('@/hooks/api/useApiQuery');
+
+jest.mock('#/navigation', () => ({
+  Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+  useRouter: jest.fn(),
+  usePathname: jest.fn()
+}));
 
 describe('Example component', () => {
   beforeEach(() => {
@@ -43,10 +52,9 @@ describe('Example component', () => {
     (useApiQuery as jest.Mock).mockReturnValue({
       data: [
         {
-          userId: 1,
           id: 1,
-          title: 'delectus aut autem',
-          completed: false
+          name: 'Jan Kowalski',
+          email: 'jan@example.com'
         }
       ],
       isLoading: false,
@@ -56,7 +64,7 @@ describe('Example component', () => {
     render(<Example />);
 
     await waitFor(() => {
-      expect(screen.getByText('delectus aut autem')).toBeInTheDocument();
+      expect(screen.getByText('Jan Kowalski')).toBeInTheDocument();
     });
   });
 });

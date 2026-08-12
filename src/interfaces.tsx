@@ -1,5 +1,17 @@
-export interface User {
-  id: string;
-  name: string;
-  email: string;
-}
+import { FormikValues } from 'formik';
+
+import { UseApiMutationProps } from '@/hooks/api/useApiMutation';
+
+export type User = {
+  id?: string;
+  name?: string;
+  email?: string;
+};
+
+export type Users = User[];
+
+export type FormProps = {
+  oldValues?: FormikValues;
+  handleSubmit: () => void;
+  handleClose?: () => void;
+} & UseApiMutationProps;

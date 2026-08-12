@@ -1,11 +1,15 @@
-version: '3.8'
 services:
-  nextjs-app:
+  next-app:
     build:
       context: .
-      dockerfile: Dockerfile.prod
-    working_dir: /app
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_BASE_URL=${BASE_URL:-http://localhost:8080}
+    container_name: VPS-2-FE
+    image: sebastiankociuba/node-frontend:latest
     ports:
-      - "3000:3000"
+      - "3002:3000"
     environment:
       - NODE_ENV=production
+      - BASE_URL=${BASE_URL:-http://localhost:8080}
+    restart: always

@@ -1,9 +1,9 @@
 import dynamic from 'next/dynamic';
 
-import { Layout } from './../[locale]/components/Example/Layout';
+import { Layout } from '@/components/layout/Layout/Layout';
+
 const HomeComponent = dynamic(
-  () =>
-    import('./../[locale]/components/PageComponents/MainComponent').then((m) => m.HomeComponent),
+  () => import('@/components/features/MainComponent').then((m) => m.HomeComponent),
   {
     ssr: true
   }
