@@ -65,10 +65,7 @@ jobs:
 
             cd /var/www/frontend-node
 
-            # Zatrzymanie i usunięcie wszystkich kontenerów używających port 3002
-            sudo docker rm -f $(sudo docker ps -aq --filter publish=3002) || true
-
-            # Zatrzymanie i usunięcie starego kontenera (na wszelki wypadek)
+            # Zatrzymanie i usunięcie starego kontenera
             sudo docker-compose down || true
 
             # Pobranie najnowszego obrazu (docker-compose używa tagu zdefiniowanego w image: w docker-compose.yml)
