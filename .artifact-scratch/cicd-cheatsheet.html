@@ -77,9 +77,10 @@
     -webkit-font-smoothing: antialiased;
   }
   .wrap {
-    max-width: 860px;
+    width: 100%;
+    max-width: 1680px;
     margin: 0 auto;
-    padding: 3rem 1.5rem 5rem;
+    padding: 3rem clamp(1.5rem, 4vw, 4rem) 5rem;
   }
 
   header.hero {
@@ -144,8 +145,9 @@
 
   .cards {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
     gap: 1rem;
+    align-items: start;
   }
   .card {
     background: var(--surface);
@@ -304,27 +306,26 @@
     <div class="diagram-card">
       <pre class="mermaid">
 flowchart LR
-    push(["git push na master"]) --> build
+    push(["1 · git push na master"]) --> build
 
-    subgraph gh["GitHub Actions"]
-        build["job: build"] -->|"docker build\n(Dockerfile)"| image["obraz\nnode-frontend"]
-        image -->|"docker push"| hub[("Docker Hub")]
-        build --> deploy["job: deploy"]
+    subgraph gh["GitHub Actions — runner GitHuba"]
+        build["job build\n2 · docker build"] -->|"3 · docker push"| hub[("Docker Hub")]
+        build --> deploy["job deploy\nrusza dopiero po build"]
+        deploy -->|"4 · SCP\nkopiuje sam plik"| compose
+        deploy -->|"5 · SSH\nloguje się i odpala\nkomendy NA serwerze"| run
     end
 
-    subgraph vps["Serwer (VPS)"]
-        compose["docker-compose.prod.yml"]
-        run["compose pull + up -d"]
+    subgraph vps["Twój VPS — nic tu się nie dzieje\nz inicjatywy serwera"]
+        compose["docker-compose.prod.yml\n(świeża kopia)"]
+        run["6 · lokalnie na VPS:\npull + up -d"]
         container(["kontener VPS-2-FE\nport 3002 → 3000"])
     end
 
-    deploy -->|"SCP"| compose
-    deploy -->|"SSH"| run
-    hub -.->|"pull"| run
+    hub -.->|"obraz płynie\nbezpośrednio z Huba"| run
     run --> container
       </pre>
     </div>
-    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem;">Lewy podgraf dzieje się na GitHubie (build), prawy — dopiero na Twoim serwerze (deploy i uruchomienie).</p>
+    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Kluczowe: kroki 1–5 wykonuje wyłącznie GitHub. Serwer nie odpytuje niczego sam z siebie — dopiero w kroku 5 GitHub loguje się do niego po SSH i <b>każe mu</b> odpalić <code>pull</code> i <code>up -d</code> (krok 6). Obraz leci wtedy bezpośrednio z Docker Huba na VPS (przerywana strzałka) — ale wyłącznie dlatego, że SSH dał na to polecenie, a nie dlatego, że serwer sam to zauważył.</p>
   </section>
 
   <section>
