@@ -65,14 +65,22 @@ jobs:
 
             cd /var/www/frontend-node
 
-            # Zatrzymanie i usunięcie starego kontenera
-            sudo docker-compose down || true
+            # Wykryj dostępną wersję Compose: wtyczkę v2 (docker compose)
+            # jeśli jest, w przeciwnym razie stary standalone docker-compose (v1)
+            if sudo docker compose version >/dev/null 2>&1; then
+              DC="docker compose"
+            else
+              DC="docker-compose"
+            fi
 
-            # Pobranie najnowszego obrazu (docker-compose używa tagu zdefiniowanego w image: w docker-compose.yml)
-            sudo docker-compose pull
+            # Zatrzymanie i usunięcie starego kontenera
+            sudo $DC down || true
+
+            # Pobranie najnowszego obrazu (Compose używa tagu zdefiniowanego w image: w docker-compose.yml)
+            sudo $DC pull
 
             # Restart usług
-            sudo docker-compose up -d
+            sudo $DC up -d
 
             # Sprzątanie nieużywanych obrazów
             sudo docker image prune -f
