@@ -306,31 +306,36 @@
     <div class="diagram-card">
       <pre class="mermaid">
 flowchart TD
-    push(["1 · git push na master"]) --> build
+    push(["1 · git push na master"]) --> test
 
     subgraph gh["GitHub Actions — steruje całym procesem"]
         direction TB
-        build["job build\n2 · docker build"] -->|"3 · docker push"| hub[("Docker Hub")]
-        build --> deploy["job deploy\nrusza dopiero po build"]
+        test["2 · job test\nlint + jest --ci"] --> build["job build\n3 · docker build"]
+        build -->|"4 · docker push"| hub[("Docker Hub")]
+        build --> deploy["job deploy\nrusza po build"]
     end
 
     subgraph vps["Twój VPS — serwer"]
         direction TB
         compose["docker-compose.prod.yml\n(świeża kopia)"]
-        run["6 · pull + up -d"]
+        run["7 · pull + up -d\n+ czeka na healthcheck"]
         container(["kontener VPS-2-FE\nport 3002 → 3000"])
         compose --> run
         run --> container
     end
 
-    deploy -->|"4 · SCP — kopiuje plik"| compose
-    deploy -->|"5 · SSH — loguje się\ni odpala komendy"| run
+    deploy -->|"5 · SCP — kopiuje plik"| compose
+    deploy -->|"6 · SSH — loguje się\ni odpala komendy"| run
     hub -.->|"obraz płynie\nbezpośrednio z Huba"| run
       </pre>
     </div>
-    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Wszystkim steruje <b>runner</b> — maszyna GitHuba wykonująca <code>main.yml</code>. Serwer sam z siebie niczego nie sprawdza ani nie inicjuje; wykonuje tylko to, co runner mu każe przez SSH.</p>
+    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Wszystkim steruje <b>runner</b> — maszyna GitHuba wykonująca <code>main.yml</code>. Serwer sam z siebie niczego nie sprawdza ani nie inicjuje; wykonuje tylko to, co runner mu każe przez SSH. Krok 2 to teraz bramka: jeśli lint albo testy nie przejdą, <code>build</code> i <code>deploy</code> w ogóle się nie odpalają.</p>
 
     <div class="cmd-grid" style="margin-top:0.9rem;">
+      <div class="cmd-card">
+        <h3>Test</h3>
+        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;">Runner instaluje zależności i odpala <code>lint</code> + <code>jest --ci</code>. Zepsuty commit kończy się tutaj — nic dalej się nie buduje ani nie deployuje.</p>
+      </div>
       <div class="cmd-card">
         <h3>Build</h3>
         <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;">Runner bierze <code>Dockerfile</code>, buduje z niego obraz i wysyła go na Docker Hub.</p>
@@ -338,7 +343,7 @@ flowchart TD
       <div class="cmd-card">
         <h3>Deploy</h3>
         <p style="color:var(--ink-soft); font-size:0.88rem; margin:0 0 0.5rem;"><b>SCP</b> — runner łączy się z serwerem i kopiuje na niego <code>docker-compose.prod.yml</code>.</p>
-        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;"><b>SSH</b> — runner wbija się na serwer i każe mu: ściągnąć obraz z Docker Hub, zatrzymać stary kontener i na podstawie <code>docker-compose.prod.yml</code> odpalić na jego miejsce nowy.</p>
+        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;"><b>SSH</b> — runner wbija się na serwer i każe mu: ściągnąć obraz z Docker Hub, zatrzymać stary kontener, odpalić na jego miejsce nowy i poczekać, aż zgłosi się jako zdrowy (<code>HEALTHCHECK</code>). Jeśli nie zdąży — deploy kończy się błędem, z logami kontenera w konsoli GitHuba.</p>
       </div>
     </div>
   </section>
@@ -349,34 +354,42 @@ flowchart TD
 
       <div class="card build">
         <div class="card-head">
-          <span class="file">Dockerfile</span>
+          <span class="file">main.yml → job test</span>
           <span class="tag build">krok 2 na grafie</span>
         </div>
-        <p><b>Przepis na obraz</b>, użyty w kroku 2 (<code>docker build</code>). Trzy etapy: <code>deps</code> instaluje zależności, <code>builder</code> odpala <code>npm run build</code> (z Next.js <code>output: 'standalone'</code>), <code>runner</code> kopiuje tylko gotowy build do czystego, małego obrazu <code>node:22-alpine</code> i uruchamia go jako user bez uprawnień roota. Nie zna serwera, nie zna Docker Hub — jego jedyne zadanie to zamienić kod źródłowy w gotowy, uruchamialny obraz.</p>
+        <p><b>Bramka przed czymkolwiek innym.</b> Instaluje zależności (<code>npm ci</code>), odpala <code>next lint</code> i <code>jest --ci</code>. Joby <code>build</code> i <code>deploy</code> mają <code>needs: [test]</code> — bez zielonego testu nie ma szans na build, a co dopiero na deploy.</p>
+      </div>
+
+      <div class="card build">
+        <div class="card-head">
+          <span class="file">Dockerfile</span>
+          <span class="tag build">krok 3 na grafie</span>
+        </div>
+        <p><b>Przepis na obraz</b>, użyty w kroku 3 (<code>docker build</code>). Trzy etapy: <code>deps</code> instaluje zależności, <code>builder</code> odpala <code>npm run build</code> (z Next.js <code>output: 'standalone'</code>), <code>runner</code> kopiuje tylko gotowy build do czystego, małego obrazu <code>node:22-alpine</code> i uruchamia go jako user bez uprawnień roota. Ma też <code>HEALTHCHECK</code> — to on odpowiada za krok 7 na serwerze.</p>
       </div>
 
       <div class="card build">
         <div class="card-head">
           <span class="file">main.yml → job build</span>
-          <span class="tag build">kroki 2–3 na grafie</span>
+          <span class="tag build">kroki 3–4 na grafie</span>
         </div>
-        <p>To cały górny prostokąt na grafie. Loguje się do Docker Hub sekretami z repo, każe Dockerowi zbudować obraz wg <code>Dockerfile</code> (krok 2) i wypycha go pod dwoma tagami: <code>:latest</code> oraz <code>:&lt;sha commita&gt;</code> (krok 3). To jedyne miejsce, gdzie obraz faktycznie powstaje.</p>
+        <p>Rusza dopiero po zielonym <code>test</code>. Loguje się do Docker Hub sekretami z repo, każe Dockerowi zbudować obraz wg <code>Dockerfile</code> (krok 3) i wypycha go pod dwoma tagami: <code>:latest</code> oraz <code>:&lt;sha commita&gt;</code> (krok 4). To jedyne miejsce, gdzie obraz faktycznie powstaje.</p>
       </div>
 
       <div class="card deploy">
         <div class="card-head">
           <span class="file">main.yml → job deploy</span>
-          <span class="tag deploy">kroki 4–5 na grafie</span>
+          <span class="tag deploy">kroki 5–6 na grafie</span>
         </div>
-        <p>Nie buduje niczego — to on rysuje most między prostokątami na grafie. Kopiuje <code>docker-compose.prod.yml</code> na VPS przez SCP (krok 4), potem łączy się po SSH (krok 5) i dopiero stamtąd każe serwerowi: zatrzymaj stary kontener, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code> (krok 6, już wewnątrz dolnego prostokąta), posprzątaj.</p>
+        <p>Nie buduje niczego — to on rysuje most między prostokątami na grafie. Kopiuje <code>docker-compose.prod.yml</code> na VPS przez SCP (krok 5), potem łączy się po SSH (krok 6) i dopiero stamtąd każe serwerowi: zatrzymaj stary kontener, <code>pull</code> nowego obrazu, <code>up -d</code>, poczekaj na healthcheck (krok 7, już wewnątrz dolnego prostokąta), posprzątaj.</p>
       </div>
 
       <div class="card deploy">
         <div class="card-head">
           <span class="file">docker-compose.prod.yml</span>
-          <span class="tag deploy">kopiowany w kroku 4</span>
+          <span class="tag deploy">kopiowany w kroku 5</span>
         </div>
-        <p><b>Instrukcja uruchomienia kontenera na produkcji</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Tylko sekcja <code>image:</code>, bez <code>build:</code> — serwer nie ma nawet możliwości zbudowania czegokolwiek, tylko <code>pull</code> gotowca z Docker Hub. To plik, który SCP kładzie w dolnym prostokącie (krok 4) i który krok 6 faktycznie wykonuje.</p>
+        <p><b>Instrukcja uruchomienia kontenera na produkcji</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Tylko sekcja <code>image:</code>, bez <code>build:</code> — serwer nie ma nawet możliwości zbudowania czegokolwiek, tylko <code>pull</code> gotowca z Docker Hub. To plik, który SCP kładzie w dolnym prostokącie (krok 5) i który krok 7 faktycznie wykonuje.</p>
       </div>
 
     </div>
@@ -422,7 +435,9 @@ flowchart TD
             <tr><td class="ln">31</td><td class="code">EXPOSE 3000</td><td class="why">Dokumentacyjna deklaracja portu — sama go nie otwiera, to robi <code>ports:</code> w compose.</td></tr>
             <tr><td class="ln">32</td><td class="code">ENV PORT 3000</td><td class="why">Standalone server Next.js czyta tę zmienną, żeby wiedzieć, na jakim porcie nasłuchiwać.</td></tr>
             <tr><td class="ln">33</td><td class="code">ENV HOSTNAME "0.0.0.0"</td><td class="why">Każe serwerowi nasłuchiwać na wszystkich interfejsach kontenera, nie tylko <code>localhost</code> — inaczej nie byłby osiągalny z zewnątrz.</td></tr>
-            <tr><td class="ln">35</td><td class="code">CMD ["node", "server.js"]</td><td class="why">Komenda uruchamiana przy starcie kontenera: odpala serwer wygenerowany przez standalone build.</td></tr>
+            <tr><td class="ln">35–36</td><td class="code">HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:3000/ || exit 1</td><td class="why">Docker sam, co 30s, odpytuje aplikację wewnątrz kontenera. Trzy nieudane próby z rzędu → kontener oznaczony jako <code>unhealthy</code>. To ten status sprawdza krok 7 w <code>main.yml</code> po deployu.</td></tr>
+            <tr><td class="ln">38</td><td class="code">CMD ["node", "server.js"]</td><td class="why">Komenda uruchamiana przy starcie kontenera: odpala serwer wygenerowany przez standalone build.</td></tr>
           </tbody>
         </table>
       </div>
@@ -485,59 +500,91 @@ flowchart TD
             <tr><td class="ln">5</td><td class="code">    branches:</td><td class="why">Lista gałęzi, dla których push faktycznie odpala workflow.</td></tr>
             <tr><td class="ln">6</td><td class="code">      - master</td><td class="why">Jedyna gałąź-trigger — tylko push na <code>master</code> uruchamia cały pipeline.</td></tr>
             <tr><td class="ln">8</td><td class="code">jobs:</td><td class="why">Lista jobów — każdy job to osobna maszyna wirtualna GitHuba.</td></tr>
-            <tr><td class="ln">9</td><td class="code">  build:</td><td class="why">Nazwa (klucz) pierwszego joba: buduje i wypycha obraz.</td></tr>
-            <tr><td class="ln">10</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Job odpala się na świeżym runnerze Ubuntu dostarczonym przez GitHuba.</td></tr>
+            <tr><td class="ln">9</td><td class="code">  test:</td><td class="why">Nazwa (klucz) pierwszego joba — bramka lint + testy, krok 2 na grafie.</td></tr>
+            <tr><td class="ln">10</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Świeży runner Ubuntu od GitHuba.</td></tr>
             <tr><td class="ln">12</td><td class="code">    steps:</td><td class="why">Lista kroków wykonywanych po kolei w tym jobie.</td></tr>
-            <tr><td class="ln">13</td><td class="code">      - name: Checkout repository</td><td class="why">Nazwa kroku widoczna w logach.</td></tr>
-            <tr><td class="ln">14</td><td class="code">        uses: actions/checkout@v3</td><td class="why">Klonuje repozytorium na tego commita na runnera — bez tego runner nie ma dostępu do Dockerfile.</td></tr>
-            <tr><td class="ln">16–17</td><td class="code">      - name: Set up QEMU
+            <tr><td class="ln">13–14</td><td class="code">      - name: Checkout repository
+        uses: actions/checkout@v3</td><td class="why">Klonuje repo na runnera — bez kodu nie ma czego testować.</td></tr>
+            <tr><td class="ln">16–19</td><td class="code">      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22</td><td class="why">Instaluje na runnerze Node.js w tej samej wersji, co obraz produkcyjny (<code>node:22</code>) — testy mają biec w zbliżonym środowisku.</td></tr>
+            <tr><td class="ln">21–22</td><td class="code">      - name: Install dependencies
+        run: npm ci</td><td class="why">Instalacja zależności dokładnie wg lockfile — ten sam mechanizm co w Dockerfile.</td></tr>
+            <tr><td class="ln">24–25</td><td class="code">      - name: Lint
+        run: npm run lint</td><td class="why">Statyczna analiza kodu (ESLint). Błąd tutaj przerywa cały workflow.</td></tr>
+            <tr><td class="ln">27–28</td><td class="code">      - name: Run tests
+        run: npm run test:ci</td><td class="why">Odpala <code>jest --ci</code>. To ostatni krok joba <code>test</code> — jeśli przejdzie, dopiero wtedy odblokowuje się <code>build</code>.</td></tr>
+            <tr><td class="ln">30</td><td class="code">  build:</td><td class="why">Nazwa (klucz) drugiego joba: buduje i wypycha obraz.</td></tr>
+            <tr><td class="ln">31</td><td class="code">    needs: [test]</td><td class="why">Ten job czeka, aż <code>test</code> zakończy się sukcesem — to jest właśnie bramka: zepsuty lint/test i <code>build</code> w ogóle nie rusza.</td></tr>
+            <tr><td class="ln">32</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Osobna, świeża maszyna — bez node_modules z joba <code>test</code>, dlatego repo trzeba sklonować i zbudować od nowa.</td></tr>
+            <tr><td class="ln">34</td><td class="code">    steps:</td><td class="why">Kroki tego joba.</td></tr>
+            <tr><td class="ln">35–36</td><td class="code">      - name: Checkout repository
+        uses: actions/checkout@v3</td><td class="why">Klonuje repozytorium na tego commita na runnera — bez tego runner nie ma dostępu do Dockerfile.</td></tr>
+            <tr><td class="ln">38–39</td><td class="code">      - name: Set up QEMU
         uses: docker/setup-qemu-action@v2</td><td class="why">Instaluje emulator QEMU — pozwala budować obrazy pod inne architektury CPU niż runnera.</td></tr>
-            <tr><td class="ln">19–20</td><td class="code">      - name: Set up Docker Buildx
+            <tr><td class="ln">41–42</td><td class="code">      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2</td><td class="why">Włącza rozszerzony builder Dockera (Buildx), wymagany też przez krok build-push niżej.</td></tr>
-            <tr><td class="ln">22–23</td><td class="code">      - name: Log in to Docker Hub
+            <tr><td class="ln">44–45</td><td class="code">      - name: Log in to Docker Hub
         uses: docker/login-action@v2</td><td class="why">Loguje runnera do Docker Hub, żeby mógł wypchnąć obraz.</td></tr>
-            <tr><td class="ln">25</td><td class="code">          username: ${{ secrets.DOCKER_USER }}</td><td class="why">Login do Docker Hub z sekretu repo — nigdy nie jest widoczny w logach.</td></tr>
-            <tr><td class="ln">26</td><td class="code">          password: ${{ secrets.DOCKER_PASSWORD }}</td><td class="why">Hasło/token do Docker Hub, też z sekretu.</td></tr>
-            <tr><td class="ln">28–29</td><td class="code">      - name: Build and push frontend image
-        uses: docker/build-push-action@v4</td><td class="why">Oficjalna akcja GitHuba do budowania i wypychania obrazów w jednym kroku.</td></tr>
-            <tr><td class="ln">31</td><td class="code">          context: .</td><td class="why">Kontekst budowania — katalog, z którego Docker widzi pliki do <code>COPY</code> (tu: cały root repo).</td></tr>
-            <tr><td class="ln">32</td><td class="code">          file: ./Dockerfile</td><td class="why">Który plik użyć jako przepis na obraz.</td></tr>
-            <tr><td class="ln">33</td><td class="code">          push: true</td><td class="why">Po zbudowaniu obraz od razu jedzie na registry, nie zostaje tylko lokalnie na runnerze.</td></tr>
-            <tr><td class="ln">34</td><td class="code">          build-args: |</td><td class="why">Lista argumentów przekazywanych do <code>ARG</code> w Dockerfile.</td></tr>
-            <tr><td class="ln">35</td><td class="code">            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}</td><td class="why">Wartość dla <code>ARG NEXT_PUBLIC_BASE_URL</code> — z repo variable, jeśli ustawiona, inaczej fallback na produkcyjny adres API.</td></tr>
-            <tr><td class="ln">36</td><td class="code">          tags: |</td><td class="why">Lista tagów, pod jakimi obraz trafi do registry.</td></tr>
-            <tr><td class="ln">37</td><td class="code">            sebastiankociuba/node-frontend:latest</td><td class="why">Tag <code>latest</code> — zawsze wskazuje na najnowszy zbudowany obraz.</td></tr>
-            <tr><td class="ln">38</td><td class="code">            sebastiankociuba/node-frontend:${{ github.sha }}</td><td class="why">Dodatkowy tag z pełnym SHA commita — pozwala precyzyjnie wrócić do konkretnej wersji obrazu.</td></tr>
-            <tr><td class="ln">39</td><td class="code">  deploy:</td><td class="why">Nazwa (klucz) drugiego joba — odpowiada za wystawienie kontenera na serwerze.</td></tr>
-            <tr><td class="ln">40</td><td class="code">    name: Deploy Frontend Container</td><td class="why">Czytelna nazwa joba w interfejsie GitHub Actions.</td></tr>
-            <tr><td class="ln">41</td><td class="code">    needs: [build]</td><td class="why">Ten job czeka, aż <code>build</code> zakończy się sukcesem — bez świeżego obrazu nie ma czego deployować.</td></tr>
-            <tr><td class="ln">42</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Też świeży runner Ubuntu — deploy nie dzieje się „na” tym runnerze, on tylko łączy się po SSH/SCP do prawdziwego serwera.</td></tr>
-            <tr><td class="ln">45–46</td><td class="code">      - name: Checkout repository
+            <tr><td class="ln">47</td><td class="code">          username: ${{ secrets.DOCKER_USER }}</td><td class="why">Login do Docker Hub z sekretu repo — nigdy nie jest widoczny w logach.</td></tr>
+            <tr><td class="ln">48</td><td class="code">          password: ${{ secrets.DOCKER_PASSWORD }}</td><td class="why">Hasło/token do Docker Hub, też z sekretu.</td></tr>
+            <tr><td class="ln">50–51</td><td class="code">      - name: Build and push frontend image
+        uses: docker/build-push-action@v4</td><td class="why">Oficjalna akcja GitHuba do budowania i wypychania obrazów w jednym kroku — to jest krok 3 na grafie.</td></tr>
+            <tr><td class="ln">53</td><td class="code">          context: .</td><td class="why">Kontekst budowania — katalog, z którego Docker widzi pliki do <code>COPY</code> (tu: cały root repo).</td></tr>
+            <tr><td class="ln">54</td><td class="code">          file: ./Dockerfile</td><td class="why">Który plik użyć jako przepis na obraz.</td></tr>
+            <tr><td class="ln">55</td><td class="code">          push: true</td><td class="why">Po zbudowaniu obraz od razu jedzie na registry (krok 4), nie zostaje tylko lokalnie na runnerze.</td></tr>
+            <tr><td class="ln">56</td><td class="code">          build-args: |</td><td class="why">Lista argumentów przekazywanych do <code>ARG</code> w Dockerfile.</td></tr>
+            <tr><td class="ln">57</td><td class="code">            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}</td><td class="why">Wartość dla <code>ARG NEXT_PUBLIC_BASE_URL</code> — z repo variable, jeśli ustawiona, inaczej fallback na produkcyjny adres API.</td></tr>
+            <tr><td class="ln">58</td><td class="code">          tags: |</td><td class="why">Lista tagów, pod jakimi obraz trafi do registry.</td></tr>
+            <tr><td class="ln">59</td><td class="code">            sebastiankociuba/node-frontend:latest</td><td class="why">Tag <code>latest</code> — zawsze wskazuje na najnowszy zbudowany obraz.</td></tr>
+            <tr><td class="ln">60</td><td class="code">            sebastiankociuba/node-frontend:${{ github.sha }}</td><td class="why">Dodatkowy tag z pełnym SHA commita — pozwala precyzyjnie wrócić do konkretnej wersji obrazu.</td></tr>
+            <tr><td class="ln">61</td><td class="code">  deploy:</td><td class="why">Nazwa (klucz) trzeciego joba — odpowiada za wystawienie kontenera na serwerze.</td></tr>
+            <tr><td class="ln">62</td><td class="code">    name: Deploy Frontend Container</td><td class="why">Czytelna nazwa joba w interfejsie GitHub Actions.</td></tr>
+            <tr><td class="ln">63</td><td class="code">    needs: [build]</td><td class="why">Ten job czeka, aż <code>build</code> zakończy się sukcesem — bez świeżego obrazu nie ma czego deployować.</td></tr>
+            <tr><td class="ln">64</td><td class="code">    runs-on: ubuntu-latest</td><td class="why">Też świeży runner Ubuntu — deploy nie dzieje się „na” tym runnerze, on tylko łączy się po SSH/SCP do prawdziwego serwera.</td></tr>
+            <tr><td class="ln">67–68</td><td class="code">      - name: Checkout repository
         uses: actions/checkout@v3</td><td class="why">Znowu klonuje repo — potrzebny tu tylko po to, by mieć pod ręką <code>docker-compose.prod.yml</code> do wysłania.</td></tr>
-            <tr><td class="ln">48–49</td><td class="code">      - name: Copy docker-compose to server via SCP
-        uses: appleboy/scp-action@master</td><td class="why">Zewnętrzna akcja kopiująca pliki na zdalny serwer przez SCP (po SSH).</td></tr>
-            <tr><td class="ln">51</td><td class="code">          host: ${{ secrets.SSH_HOST }}</td><td class="why">Adres Twojego VPS-a, z sekretu.</td></tr>
-            <tr><td class="ln">52</td><td class="code">          username: ${{ secrets.SSH_USER }}</td><td class="why">Login SSH na serwerze, z sekretu.</td></tr>
-            <tr><td class="ln">53</td><td class="code">          key: ${{ secrets.SSH_KEY }}</td><td class="why">Prywatny klucz SSH używany do zalogowania — bez hasła, bez interakcji.</td></tr>
-            <tr><td class="ln">54</td><td class="code">          source: "docker-compose.prod.yml"</td><td class="why">Plik wysyłany z runnera na serwer.</td></tr>
-            <tr><td class="ln">55</td><td class="code">          target: "/var/www/frontend-node"</td><td class="why">Katalog docelowy na serwerze.</td></tr>
-            <tr><td class="ln">57–58</td><td class="code">      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10</td><td class="why">Akcja łącząca się po SSH i wykonująca zdalny skrypt na serwerze.</td></tr>
-            <tr><td class="ln">60–62</td><td class="code">          host: ${{ secrets.SSH_HOST }}
+            <tr><td class="ln">70–71</td><td class="code">      - name: Copy docker-compose to server via SCP
+        uses: appleboy/scp-action@v1.0.0</td><td class="why">Zewnętrzna akcja kopiująca pliki na zdalny serwer przez SCP (po SSH) — krok 5 na grafie. Przypięta do konkretnego tagu, nie do ruchomej gałęzi <code>@master</code>: ten krok robi <code>sudo</code> na Twoim serwerze, więc pinowanie wersji to nie formalność, tylko ochrona przed podmianą kodu cudzej akcji.</td></tr>
+            <tr><td class="ln">73</td><td class="code">          host: ${{ secrets.SSH_HOST }}</td><td class="why">Adres Twojego VPS-a, z sekretu.</td></tr>
+            <tr><td class="ln">74</td><td class="code">          username: ${{ secrets.SSH_USER }}</td><td class="why">Login SSH na serwerze, z sekretu.</td></tr>
+            <tr><td class="ln">75</td><td class="code">          key: ${{ secrets.SSH_KEY }}</td><td class="why">Prywatny klucz SSH używany do zalogowania — bez hasła, bez interakcji.</td></tr>
+            <tr><td class="ln">76</td><td class="code">          source: "docker-compose.prod.yml"</td><td class="why">Plik wysyłany z runnera na serwer.</td></tr>
+            <tr><td class="ln">77</td><td class="code">          target: "/var/www/frontend-node"</td><td class="why">Katalog docelowy na serwerze.</td></tr>
+            <tr><td class="ln">79–80</td><td class="code">      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10</td><td class="why">Akcja łącząca się po SSH i wykonująca zdalny skrypt na serwerze — krok 6 na grafie.</td></tr>
+            <tr><td class="ln">82–84</td><td class="code">          host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}</td><td class="why">Te same dane logowania co przy SCP wyżej — inny krok, więc trzeba je podać ponownie.</td></tr>
-            <tr><td class="ln">63</td><td class="code">          script: |</td><td class="why">Wieloliniowy skrypt bash, wykonywany bezpośrednio na serwerze.</td></tr>
-            <tr><td class="ln">64</td><td class="code">            set -e</td><td class="why">Przerywa cały skrypt, jeśli którakolwiek komenda zwróci błąd — zapobiega „cichemu”, niedokończonemu deployowi.</td></tr>
-            <tr><td class="ln">66</td><td class="code">            cd /var/www/frontend-node</td><td class="why">Wchodzi do katalogu, gdzie SCP wcześniej podłożył <code>docker-compose.prod.yml</code>.</td></tr>
-            <tr><td class="ln">68</td><td class="code">            if sudo docker compose version >/dev/null 2>&amp;1; then</td><td class="why">Sprawdza po cichu (bez wypisywania wyniku), czy na serwerze działa wtyczka <code>docker compose</code> v2.</td></tr>
-            <tr><td class="ln">69</td><td class="code">              DC="docker compose"</td><td class="why">Jeśli tak — dalsze komendy użyją nowej składni.</td></tr>
-            <tr><td class="ln">70–71</td><td class="code">            else
+            <tr><td class="ln">85</td><td class="code">          script: |</td><td class="why">Wieloliniowy skrypt bash, wykonywany bezpośrednio na serwerze — wszystko poniżej to już krok 7 na grafie.</td></tr>
+            <tr><td class="ln">86</td><td class="code">            set -e</td><td class="why">Przerywa cały skrypt, jeśli którakolwiek komenda zwróci błąd — zapobiega „cichemu”, niedokończonemu deployowi.</td></tr>
+            <tr><td class="ln">88</td><td class="code">            cd /var/www/frontend-node</td><td class="why">Wchodzi do katalogu, gdzie SCP wcześniej podłożył <code>docker-compose.prod.yml</code>.</td></tr>
+            <tr><td class="ln">90</td><td class="code">            if sudo docker compose version >/dev/null 2>&amp;1; then</td><td class="why">Sprawdza po cichu (bez wypisywania wyniku), czy na serwerze działa wtyczka <code>docker compose</code> v2.</td></tr>
+            <tr><td class="ln">91</td><td class="code">              DC="docker compose"</td><td class="why">Jeśli tak — dalsze komendy użyją nowej składni.</td></tr>
+            <tr><td class="ln">92–93</td><td class="code">            else
               DC="docker-compose"</td><td class="why">W przeciwnym razie — starej, standalone binarki v1.</td></tr>
-            <tr><td class="ln">72</td><td class="code">            fi</td><td class="why">Koniec warunku.</td></tr>
-            <tr><td class="ln">74</td><td class="code">            sudo $DC -f docker-compose.prod.yml down || true</td><td class="why">Zatrzymuje i usuwa poprzedni kontener z tego pliku; <code>|| true</code> nie wywala skryptu, jeśli kontenera jeszcze nie było (pierwszy deploy).</td></tr>
-            <tr><td class="ln">75</td><td class="code">            sudo $DC -f docker-compose.prod.yml pull</td><td class="why">Ściąga obraz z tagiem podanym w <code>image:</code> (<code>:latest</code>) z Docker Hub.</td></tr>
-            <tr><td class="ln">76</td><td class="code">            sudo $DC -f docker-compose.prod.yml up -d</td><td class="why">Odpala nowy kontener w tle (<code>-d</code>), z ustawieniami z tego pliku — porty, restart policy, env.</td></tr>
-            <tr><td class="ln">77</td><td class="code">            sudo docker image prune -f</td><td class="why">Sprząta nieużywane (nietagowane) obrazy Dockera, żeby dysk serwera się nie zapychał po kolejnych deployach.</td></tr>
+            <tr><td class="ln">94</td><td class="code">            fi</td><td class="why">Koniec warunku.</td></tr>
+            <tr><td class="ln">96</td><td class="code">            sudo $DC -f docker-compose.prod.yml down || true</td><td class="why">Zatrzymuje i usuwa poprzedni kontener z tego pliku; <code>|| true</code> nie wywala skryptu, jeśli kontenera jeszcze nie było (pierwszy deploy).</td></tr>
+            <tr><td class="ln">97</td><td class="code">            sudo $DC -f docker-compose.prod.yml pull</td><td class="why">Ściąga obraz z tagiem podanym w <code>image:</code> (<code>:latest</code>) z Docker Hub.</td></tr>
+            <tr><td class="ln">98</td><td class="code">            sudo $DC -f docker-compose.prod.yml up -d</td><td class="why">Odpala nowy kontener w tle (<code>-d</code>), z ustawieniami z tego pliku — porty, restart policy, env.</td></tr>
+            <tr><td class="ln">100</td><td class="code">            status="starting"</td><td class="why">Wartość początkowa — na wypadek gdyby pętla niżej nigdy nie ustawiła nic innego (np. <code>docker inspect</code> zawiódł od razu).</td></tr>
+            <tr><td class="ln">101</td><td class="code">            for i in $(seq 1 12); do</td><td class="why">Do 12 prób sprawdzenia statusu, po 5s odstępu — czyli maksymalnie minuta na to, aż kontener zgłosi się jako zdrowy.</td></tr>
+            <tr><td class="ln">102</td><td class="code">              status=$(sudo docker inspect --format='{{.State.Health.Status}}' VPS-2-FE 2>/dev/null || echo "unknown")</td><td class="why">Pyta silnik Dockera o status zdrowia kontenera — ten sam, który wylicza <code>HEALTHCHECK</code> z Dockerfile.</td></tr>
+            <tr><td class="ln">103–105</td><td class="code">              if [ "$status" = "healthy" ]; then
+                break
+              fi</td><td class="why">Kontener odpowiada poprawnie — kończy pętlę wcześniej, nie trzeba czekać do końca minuty.</td></tr>
+            <tr><td class="ln">106–108</td><td class="code">              if [ "$status" = "unhealthy" ]; then
+                break
+              fi</td><td class="why">Trzy nieudane próby <code>HEALTHCHECK</code> z rzędu — nie ma sensu czekać dłużej, przerywa pętlę od razu.</td></tr>
+            <tr><td class="ln">109</td><td class="code">              sleep 5</td><td class="why">Odstęp między kolejnymi sprawdzeniami statusu.</td></tr>
+            <tr><td class="ln">110</td><td class="code">            done</td><td class="why">Koniec pętli.</td></tr>
+            <tr><td class="ln">112–113</td><td class="code">            if [ "$status" != "healthy" ]; then
+              echo "Kontener nie osiągnął stanu healthy (status: $status)"</td><td class="why">Jeśli po całej pętli nadal nie jest <code>healthy</code> (padł albo się nie wyrobił w minutę) — pipeline zaczyna kończyć się błędem, zamiast udawać sukces.</td></tr>
+            <tr><td class="ln">114</td><td class="code">              sudo docker logs --tail=50 VPS-2-FE</td><td class="why">Dorzuca ostatnie 50 linii logów kontenera wprost do konsoli GitHub Actions — nie trzeba się logować na VPS, żeby zobaczyć, co się wysypało.</td></tr>
+            <tr><td class="ln">115–116</td><td class="code">              exit 1
+            fi</td><td class="why"><code>exit 1</code> kończy skrypt (i cały job <code>deploy</code>) jako failed. To jest ta „głośna" siatka bezpieczeństwa: zepsuty deploy widać na czerwono w GitHubie, zamiast cichej, martwej strony.</td></tr>
+            <tr><td class="ln">118</td><td class="code">            sudo docker image prune -f</td><td class="why">Sprząta nieużywane (nietagowane) obrazy Dockera, żeby dysk serwera się nie zapychał po kolejnych deployach. Wykonuje się tylko wtedy, gdy healthcheck wyżej przeszedł.</td></tr>
           </tbody>
         </table>
       </div>
@@ -609,17 +656,23 @@ docker-compose build
 docker-compose build --build-arg NEXT_PUBLIC_BASE_URL=http://localhost:8080</pre>
 
     <h3>GitHub Actions — co się dzieje po <code>git push</code> na <code>master</code></h3>
-    <pre class="code-block"><span class="c"># 1. job "build" na GitHubie</span>
+    <pre class="code-block"><span class="c"># 1. job "test" — bramka, musi przejść na zielono</span>
+npm ci && npm run lint && npm run test:ci
+
+<span class="c"># 2. job "build" — rusza tylko jeśli "test" przeszedł</span>
 docker login ...
 docker build -f Dockerfile --build-arg NEXT_PUBLIC_BASE_URL=... \
   -t sebastiankociuba/node-frontend:latest .
 docker push sebastiankociuba/node-frontend:latest
 
-<span class="c"># 2. job "deploy" — SCP-uje docker-compose.prod.yml, potem po SSH:</span>
+<span class="c"># 3. job "deploy" — SCP-uje docker-compose.prod.yml, potem po SSH:</span>
 DC="docker compose"; sudo $DC version || DC="docker-compose"
 sudo $DC -f docker-compose.prod.yml down || true
 sudo $DC -f docker-compose.prod.yml pull
 sudo $DC -f docker-compose.prod.yml up -d
+
+<span class="c"># czeka do 60s na docker inspect ...Health.Status == healthy</span>
+<span class="c"># jeśli nie doczeka się — exit 1 + logi kontenera, bez prune</span>
 docker image prune -f</pre>
 
     <h3>Ręcznie na serwerze — debugowanie</h3>
