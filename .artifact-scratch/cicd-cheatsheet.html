@@ -328,7 +328,19 @@ flowchart TD
     hub -.->|"obraz płynie\nbezpośrednio z Huba"| run
       </pre>
     </div>
-    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Górny prostokąt to GitHub — to on steruje całym procesem, kroki 1–5. Dolny prostokąt to fizycznie Twój VPS: obie strzałki wchodzące do niego (SCP i SSH) przychodzą z zewnątrz, z GitHuba. Serwer sam z siebie niczego nie sprawdza ani nie inicjuje — dopiero gdy GitHub zaloguje się po SSH i każe mu odpalić <code>pull</code> i <code>up -d</code> (krok 6), obraz faktycznie leci z Docker Huba prosto na VPS (przerywana strzałka).</p>
+    <p class="sub" style="margin-top:0.9rem; font-size:0.88rem; max-width: 74ch;">Wszystkim steruje <b>runner</b> — maszyna GitHuba wykonująca <code>main.yml</code>. Serwer sam z siebie niczego nie sprawdza ani nie inicjuje; wykonuje tylko to, co runner mu każe przez SSH.</p>
+
+    <div class="cmd-grid" style="margin-top:0.9rem;">
+      <div class="cmd-card">
+        <h3>Build</h3>
+        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;">Runner bierze <code>Dockerfile</code>, buduje z niego obraz i wysyła go na Docker Hub.</p>
+      </div>
+      <div class="cmd-card">
+        <h3>Deploy</h3>
+        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0 0 0.5rem;"><b>SCP</b> — runner łączy się z serwerem i kopiuje na niego <code>docker-compose.prod.yml</code>.</p>
+        <p style="color:var(--ink-soft); font-size:0.88rem; margin:0;"><b>SSH</b> — runner wbija się na serwer i każe mu: ściągnąć obraz z Docker Hub, zatrzymać stary kontener i na podstawie <code>docker-compose.prod.yml</code> odpalić na jego miejsce nowy.</p>
+      </div>
+    </div>
   </section>
 
   <section>
