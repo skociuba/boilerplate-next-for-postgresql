@@ -338,41 +338,33 @@ flowchart TD
       <div class="card build">
         <div class="card-head">
           <span class="file">Dockerfile</span>
-          <span class="tag build">build · GitHub</span>
+          <span class="tag build">krok 2 na grafie</span>
         </div>
-        <p><b>Przepis na obraz.</b> Trzy etapy: <code>deps</code> instaluje zależności, <code>builder</code> odpala <code>npm run build</code> (z Next.js <code>output: 'standalone'</code>), <code>runner</code> kopiuje tylko gotowy build do czystego, małego obrazu <code>node:22-alpine</code> i uruchamia go jako user bez uprawnień roota. Nie zna serwera, nie zna Docker Hub — jego jedyne zadanie to zamienić kod źródłowy w gotowy, uruchamialny obraz.</p>
+        <p><b>Przepis na obraz</b>, użyty w kroku 2 (<code>docker build</code>). Trzy etapy: <code>deps</code> instaluje zależności, <code>builder</code> odpala <code>npm run build</code> (z Next.js <code>output: 'standalone'</code>), <code>runner</code> kopiuje tylko gotowy build do czystego, małego obrazu <code>node:22-alpine</code> i uruchamia go jako user bez uprawnień roota. Nie zna serwera, nie zna Docker Hub — jego jedyne zadanie to zamienić kod źródłowy w gotowy, uruchamialny obraz.</p>
       </div>
 
       <div class="card build">
         <div class="card-head">
           <span class="file">main.yml → job build</span>
-          <span class="tag build">build · GitHub</span>
+          <span class="tag build">kroki 2–3 na grafie</span>
         </div>
-        <p>Loguje się do Docker Hub sekretami z repo, każe Dockerowi zbudować obraz wg <code>Dockerfile</code> i wypycha go pod dwoma tagami: <code>:latest</code> oraz <code>:&lt;sha commita&gt;</code>. To jedyne miejsce, gdzie obraz faktycznie powstaje.</p>
+        <p>To cały górny prostokąt na grafie. Loguje się do Docker Hub sekretami z repo, każe Dockerowi zbudować obraz wg <code>Dockerfile</code> (krok 2) i wypycha go pod dwoma tagami: <code>:latest</code> oraz <code>:&lt;sha commita&gt;</code> (krok 3). To jedyne miejsce, gdzie obraz faktycznie powstaje.</p>
       </div>
 
       <div class="card deploy">
         <div class="card-head">
           <span class="file">main.yml → job deploy</span>
-          <span class="tag deploy">most GitHub → serwer</span>
+          <span class="tag deploy">kroki 4–5 na grafie</span>
         </div>
-        <p>Nie buduje niczego. Kopiuje aktualny <code>docker-compose.prod.yml</code> na VPS przez SCP, potem łączy się po SSH i każe serwerowi: zatrzymaj stary kontener, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code>, posprzątaj. To jedyny fragment, który dotyka Twojego serwera.</p>
-      </div>
-
-      <div class="card deploy">
-        <div class="card-head">
-          <span class="file">docker-compose.yml</span>
-          <span class="tag deploy">runtime · tylko lokalnie</span>
-        </div>
-        <p><b>Wersja do dewelopmentu.</b> Ma sekcję <code>build:</code>, więc <code>docker-compose up --build</code> zbuduje obraz z Twojego <code>Dockerfile</code> od zera i odpali go lokalnie — do sprawdzenia, czy produkcyjny obraz w ogóle wstaje, zanim cokolwiek trafi na serwer. Ten plik nigdy nie jedzie na VPS.</p>
+        <p>Nie buduje niczego — to on rysuje most między prostokątami na grafie. Kopiuje <code>docker-compose.prod.yml</code> na VPS przez SCP (krok 4), potem łączy się po SSH (krok 5) i dopiero stamtąd każe serwerowi: zatrzymaj stary kontener, <code>pull</code> nowego obrazu z Docker Hub, <code>up -d</code> (krok 6, już wewnątrz dolnego prostokąta), posprzątaj.</p>
       </div>
 
       <div class="card deploy">
         <div class="card-head">
           <span class="file">docker-compose.prod.yml</span>
-          <span class="tag deploy">runtime · serwer</span>
+          <span class="tag deploy">kopiowany w kroku 4</span>
         </div>
-        <p><b>Instrukcja uruchomienia kontenera na produkcji</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Tylko sekcja <code>image:</code>, bez <code>build:</code> — serwer nie ma nawet możliwości zbudowania czegokolwiek, tylko <code>pull</code> gotowca z Docker Hub. Ten plik SCP kopiuje na VPS i on tam realnie żyje.</p>
+        <p><b>Instrukcja uruchomienia kontenera na produkcji</b> — porty (<code>3002:3000</code>), nazwa, zmienne środowiskowe, restart policy. Tylko sekcja <code>image:</code>, bez <code>build:</code> — serwer nie ma nawet możliwości zbudowania czegokolwiek, tylko <code>pull</code> gotowca z Docker Hub. To plik, który SCP kładzie w dolnym prostokącie (krok 4) i który krok 6 faktycznie wykonuje.</p>
       </div>
 
     </div>
