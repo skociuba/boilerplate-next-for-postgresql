@@ -5,7 +5,7 @@ const withNextIntl = createNextIntlPlugin();
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  basePath: '/vps2',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   async rewrites() {
     return [
       {

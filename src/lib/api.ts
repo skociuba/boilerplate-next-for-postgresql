@@ -39,7 +39,7 @@ export interface PaginatedResponse<T> {
 
 export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 
-const API_BASE = '/api-proxy';
+const API_BASE = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api-proxy`;
 
 const generateRequestUrl = ({
   route,

@@ -12,12 +12,18 @@ COPY . .
 ARG NEXT_PUBLIC_BASE_URL
 ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 
+ARG NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
+
 RUN npm run build
 
 FROM node:22.1.0-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
+
+ARG NEXT_PUBLIC_BASE_PATH
+ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -32,9 +38,9 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Uwaga: /vps2 musi się zgadzać z basePath w next.config.mjs — to jest
-# ścieżka pod jaką appka jest wdrożona za nginksem na gołym IP (bez domeny).
+# NEXT_PUBLIC_BASE_PATH (np. /vps2) jest ustawiane tym samym build-argiem
+# co basePath w next.config.mjs — jedno źródło prawdy, nie duplikujemy ścieżki.
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:3000/vps2/ || exit 1
+  CMD wget -qO- "http://127.0.0.1:3000${NEXT_PUBLIC_BASE_PATH}/" || exit 1
 
 CMD ["node", "server.js"]
