@@ -3,9 +3,14 @@ import { usePathname, Link } from '#/navigation';
 import { useTranslations } from 'next-intl';
 
 import { ThemeSwitcher } from '@/ui/ThemeSwitcher';
+
+import { CurrentUserSwitcher } from './CurrentUserSwitcher';
+
 const NavLinks = [
   { id: 1, name: 'home', path: '/' },
-  { id: 2, name: 'customers', path: '/users' }
+  { id: 2, name: 'customers', path: '/users' },
+  { id: 3, name: 'posts', path: '/posts' },
+  { id: 4, name: 'tags', path: '/tags' }
 ];
 
 const Navbar = () => {
@@ -38,7 +43,8 @@ const Navbar = () => {
           </li>
         ))}
       </ul>
-      <div className="flex space-x-10">
+      <div className="flex items-center space-x-6">
+        <CurrentUserSwitcher />
         <Link href={pathname} locale="pl">
           {t(`language.pl`)}
         </Link>

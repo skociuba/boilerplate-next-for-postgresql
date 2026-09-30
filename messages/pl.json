@@ -2,7 +2,9 @@
   "Navbar": {
     "links": {
       "home": "Strona główna",
-      "customers": "Użytkownicy"
+      "customers": "Użytkownicy",
+      "posts": "Posty",
+      "tags": "Tagi"
     },
     "language": {
       "pl": "Polski",
@@ -14,6 +16,9 @@
       "links": {
         "main": "Strona główna",
         "users": "Użytkownicy",
+        "posts": "Posty",
+        "tags": "Tagi",
+        "profile": "Profil",
         "edit": "Edycja"
       }
     }
@@ -21,6 +26,15 @@
   "layout": {
     "users": {
       "title": "Użytkownicy"
+    },
+    "posts": {
+      "title": "Posty"
+    },
+    "tags": {
+      "title": "Tagi"
+    },
+    "profile": {
+      "title": "Profil"
     },
     "homePage": {
       "title": "Strona główna"
@@ -39,7 +53,13 @@
     "label": {
       "name": "Imię",
       "email": "Email",
-      "password": "Hasło"
+      "password": "Hasło",
+      "title": "Tytuł",
+      "content": "Treść",
+      "user_id": "Autor (id usera)",
+      "pesel": "PESEL",
+      "date_of_birth": "Data urodzenia",
+      "phone": "Telefon"
     }
   }
 }

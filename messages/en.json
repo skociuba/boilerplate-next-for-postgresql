@@ -2,7 +2,9 @@
   "Navbar": {
     "links": {
       "home": "Home",
-      "customers": "Customers"
+      "customers": "Customers",
+      "posts": "Posts",
+      "tags": "Tags"
     },
     "language": {
       "pl": "Polish",
@@ -14,6 +16,9 @@
       "links": {
         "main": "Main Page",
         "users": "Users",
+        "posts": "Posts",
+        "tags": "Tags",
+        "profile": "Profile",
         "edit": "Edit",
         "example": "Example Page"
       }
@@ -22,6 +27,15 @@
   "layout": {
     "users": {
       "title": "Users"
+    },
+    "posts": {
+      "title": "Posts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "profile": {
+      "title": "Profile"
     },
     "homePage": {
       "title": "Main Page"
@@ -40,7 +54,13 @@
     "label": {
       "name": "Name",
       "email": "Email",
-      "password": "Password"
+      "password": "Password",
+      "title": "Title",
+      "content": "Content",
+      "user_id": "Author (user id)",
+      "pesel": "PESEL",
+      "date_of_birth": "Date of birth",
+      "phone": "Phone"
     }
   }
 }

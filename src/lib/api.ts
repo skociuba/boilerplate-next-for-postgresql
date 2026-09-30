@@ -4,6 +4,8 @@ import qs from 'qs';
 
 import { API_ENDPOINTS, ApiKeysType } from '@/hooks/api/apiEndpoints';
 
+import { getCurrentUserId } from '@/lib/currentUser';
+
 type fetchRequestProps = {
   route: ApiKeysType;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
@@ -170,11 +172,16 @@ export const fetchRequest = async ({
   multipart = false
 }: fetchRequestProps) => {
   try {
+    const currentUserId = getCurrentUserId();
+
     const requestOptions = {
       method: method,
       headers: {
         Accept: 'application/json',
-        ...(multipart ? {} : { 'Content-Type': 'application/json' })
+        ...(multipart ? {} : { 'Content-Type': 'application/json' }),
+        // TYMCZASOWE: zamiennik nagłówka Authorization do czasu prawdziwego
+        // logowania — patrz src/lib/currentUser.ts
+        ...(currentUserId ? { 'x-user-id': currentUserId } : {})
       },
       body:
         method === 'GET'
@@ -190,11 +197,16 @@ export const fetchRequest = async ({
 
     const { status } = await res;
 
-    if (status !== 200) {
-      const { message, data, errors } = await res.json();
+    // res.ok == status w 200-299 — NIE tylko dokładnie 200. Endpointy
+    // tworzące zasób (POST /posts, POST /tags) poprawnie zwracają 201,
+    // a to wcześniej traktowało 201 jak błąd (i próbowało odczytać
+    // nieistniejące data.message, co samo w sobie rzucało wyjątkiem).
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      const { message, data, errors } = body;
 
       return {
-        error: message || data.message || 'Something went wrong during fetching!',
+        error: message || data?.message || 'Something went wrong during fetching!',
         errors: errors || [],
         status
       };
