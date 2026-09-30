@@ -21,7 +21,9 @@ export type ApiKeysType =
   | 'TAG_DELETE'
   | 'USER_PROFILE'
   | 'USER_PROFILE_SAVE'
-  | 'USER_PROFILE_DELETE';
+  | 'USER_PROFILE_DELETE'
+  | 'CHILDREN'
+  | 'CHILD_ADD';
 
 export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USERS: {
@@ -99,5 +101,15 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USER_PROFILE_DELETE: {
     endpoint: `/users/{userId}/profile`,
     method: ['DELETE']
+  },
+  // GET wspiera page/limit/sortBy/order/name/user_id/minAge/maxAge jako
+  // query stringi (przez `values` w useApiQuery) — patrz childController.ts
+  CHILDREN: {
+    endpoint: `/children`,
+    method: ['GET']
+  },
+  CHILD_ADD: {
+    endpoint: `/children`,
+    method: ['POST']
   }
 };

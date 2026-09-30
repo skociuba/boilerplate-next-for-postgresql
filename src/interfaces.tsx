@@ -31,6 +31,28 @@ export type Post = {
 
 export type Posts = Post[];
 
+export type Child = {
+  id?: number;
+  user_id?: number;
+  name?: string;
+  age?: number;
+  date_of_birth?: string;
+  notes?: string;
+};
+
+export type Children = Child[];
+
+// Kształt dokładnie taki jak GET /children w backendzie —
+// zobacz Ściągawkę Query (childController.ts)
+export type PaginatedChildren = {
+  items: Children;
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+};
+
 export type UserProfile = {
   user_id?: string;
   pesel?: string;

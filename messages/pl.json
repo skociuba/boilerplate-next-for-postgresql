@@ -4,7 +4,8 @@
       "home": "Strona główna",
       "customers": "Użytkownicy",
       "posts": "Posty",
-      "tags": "Tagi"
+      "tags": "Tagi",
+      "children": "Dzieci"
     },
     "language": {
       "pl": "Polski",
@@ -19,7 +20,8 @@
         "posts": "Posty",
         "tags": "Tagi",
         "profile": "Profil",
-        "edit": "Edycja"
+        "edit": "Edycja",
+        "children": "Dzieci"
       }
     }
   },
@@ -32,6 +34,9 @@
     },
     "tags": {
       "title": "Tagi"
+    },
+    "children": {
+      "title": "Dzieci"
     },
     "profile": {
       "title": "Profil"

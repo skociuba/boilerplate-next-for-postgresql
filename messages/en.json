@@ -4,7 +4,8 @@
       "home": "Home",
       "customers": "Customers",
       "posts": "Posts",
-      "tags": "Tags"
+      "tags": "Tags",
+      "children": "Children"
     },
     "language": {
       "pl": "Polish",
@@ -20,7 +21,8 @@
         "tags": "Tags",
         "profile": "Profile",
         "edit": "Edit",
-        "example": "Example Page"
+        "example": "Example Page",
+        "children": "Children"
       }
     }
   },
@@ -33,6 +35,9 @@
     },
     "tags": {
       "title": "Tags"
+    },
+    "children": {
+      "title": "Children"
     },
     "profile": {
       "title": "Profile"

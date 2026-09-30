@@ -22,7 +22,10 @@ export const useApiQuery = ({ refresh, ...props }: UseApiQueryProps) => {
   const paramsArr = params ? [...Object.values(params)] : [];
 
   const { data, ...query } = useQuery({
-    queryKey: [route, id, ...paramsArr],
+    // props.values dorzucony do klucza — bez tego zmiana page/limit/sortBy
+    // (przekazywanych przez values, nie params) nie zmieniała queryKey, więc
+    // react-query nigdy sam nie odpytywał API ponownie przy zmianie strony.
+    queryKey: [route, id, ...paramsArr, props.values],
     enabled: typeof props.enabled === 'boolean' ? props.enabled : true,
     queryFn: () =>
       fetchRequest({
