@@ -23,6 +23,9 @@ export type ApiKeysType =
   | 'USER_PROFILE'
   | 'USER_PROFILE_SAVE'
   | 'USER_PROFILE_DELETE'
+  | 'USER_PROFILE_AVATAR_UPLOAD'
+  | 'USER_PROFILE_DOCUMENT_UPLOAD'
+  | 'USER_PROFILE_DOCUMENT_DOWNLOAD'
   | 'CHILDREN'
   | 'CHILD_ADD'
   | 'AUTH_REGISTER'
@@ -115,6 +118,21 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USER_PROFILE_DELETE: {
     endpoint: `/users/{userId}/profile`,
     method: ['DELETE']
+  },
+  // multipart/form-data (patrz lib/api.ts: multipart: true) — plik leci jako
+  // File w `values`, nie jako JSON. Avatar jest publiczny (statyczny URL
+  // w avatar_path), dokument prywatny (tylko przez USER_PROFILE_DOCUMENT_DOWNLOAD).
+  USER_PROFILE_AVATAR_UPLOAD: {
+    endpoint: `/users/{userId}/profile/avatar`,
+    method: ['PUT']
+  },
+  USER_PROFILE_DOCUMENT_UPLOAD: {
+    endpoint: `/users/{userId}/profile/document`,
+    method: ['PUT']
+  },
+  USER_PROFILE_DOCUMENT_DOWNLOAD: {
+    endpoint: `/users/{userId}/profile/document`,
+    method: ['GET']
   },
   // GET wspiera page/limit/sortBy/order/name/user_id/minAge/maxAge jako
   // query stringi (przez `values` w useApiQuery) — patrz childController.ts

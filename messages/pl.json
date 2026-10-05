@@ -71,7 +71,9 @@
       "phone": "Telefon",
       "minAge": "Wiek od",
       "maxAge": "Wiek do",
-      "newTagName": "nazwa nowego tagu"
+      "newTagName": "nazwa nowego tagu",
+      "avatar": "Wybierz zdjęcie",
+      "document": "Wybierz dokument"
     }
   }
 }

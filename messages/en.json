@@ -72,7 +72,9 @@
       "phone": "Phone",
       "minAge": "Age from",
       "maxAge": "Age to",
-      "newTagName": "new tag name"
+      "newTagName": "new tag name",
+      "avatar": "Choose photo",
+      "document": "Choose document"
     }
   }
 }

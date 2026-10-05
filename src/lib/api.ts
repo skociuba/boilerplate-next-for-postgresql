@@ -43,6 +43,12 @@ export type Without<T, K> = Pick<T, Exclude<keyof T, K>>;
 
 const API_BASE = `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/api-proxy`;
 
+// avatar_path z profilu to ścieżka NA BACKENDZIE (np. "/uploads/avatars/xxx.png"),
+// serwowana tam statycznie, bez autoryzacji (patrz index.ts backendu). Przez
+// /api-proxy leci przez ten sam rewrite co reszta API, więc nie trzeba
+// osobnego CORS-a — przeglądarka widzi to jako jeden origin.
+export const getUploadUrl = (uploadPath: string): string => `${API_BASE}${uploadPath}`;
+
 const generateRequestUrl = ({
   route,
   method,
@@ -107,10 +113,8 @@ const generateRequestUrl = ({
   }
 };
 
-const generateFormData = ({ values, method }: Pick<fetchRequestProps, 'values' | 'method'>) => {
+const generateFormData = ({ values }: Pick<fetchRequestProps, 'values'>) => {
   const form = new FormData();
-
-  form.append('_method', method);
 
   if (!values) {
     return form;
@@ -240,11 +244,7 @@ export const fetchRequest = async ({
         ...(!isAuthRoute && getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {})
       },
       body:
-        method === 'GET'
-          ? null
-          : multipart
-            ? generateFormData({ values, method })
-            : JSON.stringify(values)
+        method === 'GET' ? null : multipart ? generateFormData({ values }) : JSON.stringify(values)
     });
 
     let res = await fetch(url, buildOptions());
