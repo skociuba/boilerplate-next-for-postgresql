@@ -22,13 +22,17 @@
         "profile": "Profile",
         "edit": "Edit",
         "example": "Example Page",
-        "children": "Children"
+        "children": "Children",
+        "login": "Login"
       }
     }
   },
   "layout": {
     "users": {
       "title": "Users"
+    },
+    "login": {
+      "title": "Login"
     },
     "posts": {
       "title": "Posts"
@@ -65,7 +69,10 @@
       "user_id": "Author (user id)",
       "pesel": "PESEL",
       "date_of_birth": "Date of birth",
-      "phone": "Phone"
+      "phone": "Phone",
+      "minAge": "Age from",
+      "maxAge": "Age to",
+      "newTagName": "new tag name"
     }
   }
 }

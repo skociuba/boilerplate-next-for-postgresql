@@ -1,9 +1,8 @@
 'use client';
 
+import { Tag } from '#/interfaces';
 import { useField } from 'formik';
 import { useEffect, useRef, useState } from 'react';
-
-import { Tag } from '#/interfaces';
 
 import { cn } from '@/lib/utils/cn';
 
@@ -28,6 +27,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
+
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
@@ -35,9 +35,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
 
   const toggle = (tagName: string) => {
     helpers.setValue(
-      selected.includes(tagName)
-        ? selected.filter((v) => v !== tagName)
-        : [...selected, tagName]
+      selected.includes(tagName) ? selected.filter((v) => v !== tagName) : [...selected, tagName]
     );
   };
 
@@ -62,6 +60,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
           {tags?.length ? (
             tags.map((tag: Tag) => {
               const isSelected = selected.includes(tag.name as string);
+
               return (
                 <div
                   key={tag.id}
@@ -71,7 +70,12 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
                     isSelected && 'bg-blue-50 font-bold'
                   )}
                 >
-                  <input type="checkbox" readOnly checked={isSelected} className="pointer-events-none" />
+                  <input
+                    type="checkbox"
+                    readOnly
+                    checked={isSelected}
+                    className="pointer-events-none"
+                  />
                   {tag.name}
                 </div>
               );

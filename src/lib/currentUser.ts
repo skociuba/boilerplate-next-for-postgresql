@@ -1,31 +1,38 @@
-// TYMCZASOWY zamiennik prawdziwego logowania (patrz backend:
-// src/middleware/currentUser.ts). "Sesja" to po prostu id usera zapisane w
-// localStorage przeglądarki — fetchRequest (src/lib/api.ts) dokleja je jako
-// nagłówek x-user-id do każdego zapytania. Gdy pojawi się prawdziwe
-// logowanie (JWT/sesja), ten plik znika, a jego miejsce zajmie coś, co
-// czyta prawdziwy token — reszta kodu (komponenty, kontrolery) zostaje.
+import { CurrentUser, useAuthStore } from './authStore';
 
-const STORAGE_KEY = 'x-user-id';
+// Access token: trzymany W PAMIĘCI (zwykła zmienna modułowa), NIE
+// w localStorage ani w Zustand store'ie. Zero trwałej persystencji = zero
+// XSS-persystencji. Znika przy przeładowaniu strony — RequireAuth i cichy
+// refresh (lib/api.ts) zawsze potrafią go odzyskać na nowo z automatu.
+//
+// Refresh token NIE jest tu w ogóle trzymany — leci jako httpOnly cookie
+// (patrz backend), JS fizycznie nie ma do niego dostępu.
+//
+// Dane usera (kto jest zalogowany) żyją w lib/authStore.ts (Zustand +
+// persist do localStorage) — reaktywny stan dla komponentów. Ten plik
+// zajmuje się WYŁĄCZNIE akcjami: co się dzieje przy logowaniu/wylogowaniu.
+let accessToken: string | null = null;
 
-export const getCurrentUserId = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  try {
-    return window.localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
+export const getAccessToken = (): string | null => accessToken;
+export const setAccessToken = (token: string | null): void => {
+  accessToken = token;
 };
 
-export const setCurrentUserId = (id: string | null) => {
-  if (typeof window === 'undefined') return;
-  try {
-    if (id) {
-      window.localStorage.setItem(STORAGE_KEY, id);
-    } else {
-      window.localStorage.removeItem(STORAGE_KEY);
-    }
-    window.dispatchEvent(new Event('currentUserChange'));
-  } catch {
-    // localStorage niedostępny (np. tryb prywatny) — po prostu nie "logujemy"
-  }
+// Wywoływane po /auth/login i /auth/register.
+export const setSession = ({
+  accessToken: token,
+  user
+}: {
+  accessToken: string;
+  user: CurrentUser;
+}) => {
+  setAccessToken(token);
+  useAuthStore.getState().setUser(user);
+};
+
+// Wywoływane przy wylogowaniu i gdy cichy refresh ostatecznie zawiedzie
+// (refresh token też martwy — patrz lib/api.ts).
+export const clearSession = () => {
+  setAccessToken(null);
+  useAuthStore.getState().setUser(null);
 };

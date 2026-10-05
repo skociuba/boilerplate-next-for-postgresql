@@ -1,15 +1,18 @@
 'use client';
 
+import { PaginatedChildren } from '#/interfaces';
 import { useState } from 'react';
 
-import { PaginatedChildren } from '#/interfaces';
+import { useForm } from '@/ui/useForm';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
+
+import { filterInitialValues } from './pageModel';
 
 export type SortField = 'id' | 'name' | 'age' | 'date_of_birth';
 export type SortOrder = 'asc' | 'desc';
 
-// Ta sama whitelist co SORTABLE_FIELDS w childController.ts — sortByna
+// Ta sama whitelist co SORTABLE_FIELDS w childController.ts — sortBy na
 // froncie nigdy nie wysyła nic spoza tej listy, mimo że i tak backend
 // sprawdza to jeszcze raz (frontend nie jest granicą bezpieczeństwa)
 const SORTABLE_FIELDS: SortField[] = ['id', 'name', 'age', 'date_of_birth'];
@@ -21,13 +24,31 @@ export const usePage = () => {
   const [sortBy, setSortBy] = useState<SortField>('id');
   const [order, setOrder] = useState<SortOrder>('asc');
 
-  // draft = to, co user wpisuje w polach filtra; applied = to, co faktycznie
-  // leci do API. Rozdzielone, żeby zapytanie nie leciało przy każdym
-  // naciśnięciu klawisza — dopiero po kliknięciu "Filtruj".
-  const [nameDraft, setNameDraft] = useState('');
-  const [minAgeDraft, setMinAgeDraft] = useState('');
-  const [maxAgeDraft, setMaxAgeDraft] = useState('');
+  // appliedFilters = to, co faktycznie leci do API. Formik (filterForm)
+  // trzyma tylko DRAFT — zapytanie nie leci przy każdym naciśnięciu
+  // klawisza, dopiero po submit (onSubmit niżej).
   const [appliedFilters, setAppliedFilters] = useState({ name: '', minAge: '', maxAge: '' });
+
+  const filterForm = useForm({
+    initialValues: filterInitialValues,
+    onSubmit: (values) => {
+      setAppliedFilters({
+        name: (values.name as string).trim(),
+        minAge: values.minAge as string,
+        maxAge: values.maxAge as string
+      });
+      setPage(1);
+    }
+  });
+
+  // Select (jak Input) wymaga kontekstu Formika — ale limit NIE jest
+  // częścią filtrów (reaguje natychmiast na onChange, nie czeka na submit,
+  // i "Wyczyść" filtrów celowo go nie rusza), więc dostaje WŁASNY, osobny
+  // mini-formularz zamiast dokładania się do filterForm.
+  const limitForm = useForm({
+    initialValues: { limit: String(limit) },
+    onSubmit: () => {}
+  });
 
   const { data, isLoading, error } = useApiQuery({
     route: 'CHILDREN',
@@ -62,15 +83,8 @@ export const usePage = () => {
     setPage(1);
   };
 
-  const handleApplyFilters = () => {
-    setAppliedFilters({ name: nameDraft.trim(), minAge: minAgeDraft, maxAge: maxAgeDraft });
-    setPage(1);
-  };
-
   const handleResetFilters = () => {
-    setNameDraft('');
-    setMinAgeDraft('');
-    setMaxAgeDraft('');
+    filterForm.resetForm();
     setAppliedFilters({ name: '', minAge: '', maxAge: '' });
     setPage(1);
   };
@@ -98,13 +112,8 @@ export const usePage = () => {
     sortBy,
     order,
     handleSort,
-    nameDraft,
-    setNameDraft,
-    minAgeDraft,
-    setMinAgeDraft,
-    maxAgeDraft,
-    setMaxAgeDraft,
-    handleApplyFilters,
+    filterForm,
+    limitForm,
     handleResetFilters
   };
 };

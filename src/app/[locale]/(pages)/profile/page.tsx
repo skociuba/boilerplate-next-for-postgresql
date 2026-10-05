@@ -1,10 +1,10 @@
 'use client';
-import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
 
 import { Layout } from '@/components/layout/Layout/Layout';
+import { RequireAuth } from '@/components/layout/RequireAuth';
 
-import { getCurrentUserId } from '@/lib/currentUser';
+import { useAuthStore } from '@/lib/authStore';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
 
@@ -16,50 +16,34 @@ const ProfileForm = dynamic(
 );
 
 const Page = () => {
-  // '' = jeszcze nie sprawdzone (SSR/pierwszy render), null = gość
-  const [userId, setUserId] = useState<string | null>('');
-
-  useEffect(() => {
-    setUserId(getCurrentUserId());
-  }, []);
+  // RequireAuth (niżej) gwarantuje, że to, co poniżej, renderuje się
+  // WYŁĄCZNIE gdy user jest zalogowany — nie trzeba już osobno obsługiwać
+  // tu stanu "gość" ani "jeszcze nie sprawdzone".
+  const user = useAuthStore((state) => state.user);
+  const userId = user ? String(user.id) : '';
 
   const { data, refetch, isLoading } = useApiQuery({
     route: 'USER_PROFILE',
-    params: { userId: userId ?? '' },
+    params: { userId },
     enabled: Boolean(userId)
   });
-
-  if (userId === '') return null;
-
-  if (!userId) {
-    return (
-      <Layout
-        {...{
-          title: 'profile.title',
-          breakpoints: [{ children: 'main', href: '/' }, { children: 'profile' }]
-        }}
-      >
-        <div className="ml-8 mt-12 text-gray-500">
-          Zaloguj się (prawy górny róg), żeby zobaczyć swój profil.
-        </div>
-      </Layout>
-    );
-  }
 
   // 404 (jeszcze nie ma profilu) i realny błąd wyglądają tu tak samo —
   // w obu przypadkach najprościej pokazać pusty formularz "stwórz profil"
   const oldValues = data?.error ? undefined : data;
 
   return (
-    <Layout
-      {...{
-        title: 'profile.title',
-        breakpoints: [{ children: 'main', href: '/' }, { children: 'profile' }],
-        loading: isLoading
-      }}
-    >
-      <ProfileForm oldValues={oldValues} userId={userId} onSaved={refetch} />
-    </Layout>
+    <RequireAuth>
+      <Layout
+        {...{
+          title: 'profile.title',
+          breakpoints: [{ children: 'main', href: '/' }, { children: 'profile' }],
+          loading: isLoading
+        }}
+      >
+        <ProfileForm oldValues={oldValues} userId={userId} onSaved={refetch} />
+      </Layout>
+    </RequireAuth>
   );
 };
 

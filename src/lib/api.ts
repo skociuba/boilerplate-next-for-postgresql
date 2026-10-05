@@ -2,9 +2,9 @@
 // @ts-nocheck
 import qs from 'qs';
 
-import { API_ENDPOINTS, ApiKeysType } from '@/hooks/api/apiEndpoints';
+import { clearSession, getAccessToken, setAccessToken } from '@/lib/currentUser';
 
-import { getCurrentUserId } from '@/lib/currentUser';
+import { API_ENDPOINTS, ApiKeysType } from '@/hooks/api/apiEndpoints';
 
 type fetchRequestProps = {
   route: ApiKeysType;
@@ -162,6 +162,54 @@ const generateFormData = ({ values, method }: Pick<fetchRequestProps, 'values' |
   return form;
 };
 
+// Endpointy logowania NIE dostają Authorization (na /auth/login jeszcze go
+// nie masz) i NIE wywołują cichego refreshu na 401 — 401 z /auth/login
+// znaczy "złe hasło", nie "token wygasł".
+const AUTH_ROUTES: ApiKeysType[] = ['AUTH_LOGIN', 'AUTH_REGISTER', 'AUTH_REFRESH'];
+
+// Kilka równoległych zapytań może dostać 401 w tym samym momencie (np.
+// strona odpala naraz 3 fetch-e tuż po wygaśnięciu/braku access tokenu —
+// w pamięci, więc też zaraz po przeładowaniu strony). Bez tej zmiennej
+// każde z nich odpaliłoby OSOBNE /auth/refresh — a backend ROTUJE refresh
+// token przy każdym wywołaniu, więc druga i trzecia próba dostałaby już
+// zużyty (odrzucony) token. Trzymając jeden wspólny Promise, wszystkie
+// równoległe 401-ki czekają na TEN SAM wynik odnowienia.
+let refreshPromise: Promise<string | null> | null = null;
+
+const refreshAccessToken = (): Promise<string | null> => {
+  // BEZ body — refresh token leci sam, jako httpOnly cookie (credentials:
+  // 'include' niżej). JS po stronie klienta nie ma go i nie musi mieć.
+  if (!refreshPromise) {
+    refreshPromise = fetch(`${API_BASE}${API_ENDPOINTS.AUTH_REFRESH.endpoint}`, {
+      method: 'POST',
+      credentials: 'include'
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!data) {
+          // refresh token martwy (wygasł/wylogowano gdzie indziej/już
+          // zrotowany) — nie ma jak dalej trzymać "sesji", czyścimy ją
+          clearSession();
+
+          return null;
+        }
+        setAccessToken(data.accessToken);
+
+        return data.accessToken as string;
+      })
+      .catch(() => {
+        clearSession();
+
+        return null;
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+};
+
 export const fetchRequest = async ({
   route,
   method,
@@ -172,16 +220,24 @@ export const fetchRequest = async ({
   multipart = false
 }: fetchRequestProps) => {
   try {
-    const currentUserId = getCurrentUserId();
+    const isAuthRoute = AUTH_ROUTES.includes(route);
+    const url = generateRequestUrl({ route, id, method, values, params, multipart });
 
-    const requestOptions = {
-      method: method,
+    // Funkcja, nie stała — wywoływana DWA razy przy retry po cichym
+    // refreshu, za każdym razem czyta accessToken na nowo (za pierwszym
+    // razem stary/wygasły/brak, za drugim — świeżo odnowiony).
+    const buildOptions = () => ({
+      method,
+      // 'include' — żeby refresh token (httpOnly cookie) w ogóle dojechał
+      // do /auth/refresh i /auth/logout. Na resztę endpointów przeglądarka
+      // i tak by go dorzuciła (ten sam origin przez /api-proxy), ale jawne
+      // 'include' nie zależy od tego, czy ktoś kiedyś zmieni architekturę
+      // na prawdziwie cross-origin.
+      credentials: 'include' as const,
       headers: {
         Accept: 'application/json',
         ...(multipart ? {} : { 'Content-Type': 'application/json' }),
-        // TYMCZASOWE: zamiennik nagłówka Authorization do czasu prawdziwego
-        // logowania — patrz src/lib/currentUser.ts
-        ...(currentUserId ? { 'x-user-id': currentUserId } : {})
+        ...(!isAuthRoute && getAccessToken() ? { Authorization: `Bearer ${getAccessToken()}` } : {})
       },
       body:
         method === 'GET'
@@ -189,13 +245,18 @@ export const fetchRequest = async ({
           : multipart
             ? generateFormData({ values, method })
             : JSON.stringify(values)
-    };
+    });
 
-    const url = generateRequestUrl({ route, id, method, values, params, multipart });
+    let res = await fetch(url, buildOptions());
 
-    const res = await fetch(url, requestOptions);
+    if (res.status === 401 && !isAuthRoute) {
+      const newAccessToken = await refreshAccessToken();
+      if (newAccessToken) {
+        res = await fetch(url, buildOptions());
+      }
+    }
 
-    const { status } = await res;
+    const { status } = res;
 
     // res.ok == status w 200-299 — NIE tylko dokładnie 200. Endpointy
     // tworzące zasób (POST /posts, POST /tags) poprawnie zwracają 201,

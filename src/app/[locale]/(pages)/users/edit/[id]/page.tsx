@@ -3,6 +3,7 @@ import { useRouter } from '#/navigation';
 import dynamic from 'next/dynamic';
 
 import { Layout } from '@/components/layout/Layout/Layout';
+import { RequireAuth } from '@/components/layout/RequireAuth';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
 
@@ -21,28 +22,30 @@ const Page = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
 
   return (
-    <Layout
-      {...{
-        title: 'users.title',
-        breakpoints: [
-          { children: 'main', href: '/' },
-          { children: 'users', href: '/users' },
-          { children: 'edit' }
-        ],
-        hideOnMobile: { title: true, subTitle: true },
-        loading: isLoading,
-        error: error?.message
-      }}
-    >
-      <UserForm
-        oldValues={data?.[0]}
-        route="USER_EDIT"
-        method="PUT"
-        handleSubmit={() => {
-          router.push('/users');
+    <RequireAuth adminOnly>
+      <Layout
+        {...{
+          title: 'users.title',
+          breakpoints: [
+            { children: 'main', href: '/' },
+            { children: 'users', href: '/users' },
+            { children: 'edit' }
+          ],
+          hideOnMobile: { title: true, subTitle: true },
+          loading: isLoading,
+          error: error?.message
         }}
-      />
-    </Layout>
+      >
+        <UserForm
+          oldValues={data?.[0]}
+          route="USER_EDIT"
+          method="PUT"
+          handleSubmit={() => {
+            router.push('/users');
+          }}
+        />
+      </Layout>
+    </RequireAuth>
   );
 };
 

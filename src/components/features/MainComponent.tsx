@@ -1,8 +1,7 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
-
 import { Post } from '#/interfaces';
+import { useTranslations } from 'next-intl';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
 

@@ -1,5 +1,9 @@
 'use client';
 
+import { Button } from '@/ui/Button';
+import { Form } from '@/ui/Form';
+import Input from '@/ui/Input';
+import Select from '@/ui/Select';
 import { Skeleton } from '@/ui/Skeleton/Skeleton';
 
 import { Pagination } from './Pagination';
@@ -21,13 +25,8 @@ export const ChildrenList = () => {
     sortBy,
     order,
     handleSort,
-    nameDraft,
-    setNameDraft,
-    minAgeDraft,
-    setMinAgeDraft,
-    maxAgeDraft,
-    setMaxAgeDraft,
-    handleApplyFilters,
+    filterForm,
+    limitForm,
     handleResetFilters
   } = usePage();
 
@@ -39,64 +38,51 @@ export const ChildrenList = () => {
         <code>minAge/maxAge</code> (zakres).
       </p>
 
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          handleApplyFilters();
-        }}
-        className="mb-6 flex flex-wrap items-end gap-3"
-      >
-        <label className="flex flex-col gap-1 text-sm">
-          imię zawiera
-          <input
-            value={nameDraft}
-            onChange={(event) => setNameDraft(event.target.value)}
-            placeholder="np. ala"
-            className="h-10 w-40 rounded-xs border border-cloud px-3 outline-0 focus:border-navy"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          wiek od
-          <input
-            type="number"
-            min={0}
-            value={minAgeDraft}
-            onChange={(event) => setMinAgeDraft(event.target.value)}
-            className="h-10 w-24 rounded-xs border border-cloud px-3 outline-0 focus:border-navy"
-          />
-        </label>
-        <label className="flex flex-col gap-1 text-sm">
-          wiek do
-          <input
-            type="number"
-            min={0}
-            value={maxAgeDraft}
-            onChange={(event) => setMaxAgeDraft(event.target.value)}
-            className="h-10 w-24 rounded-xs border border-cloud px-3 outline-0 focus:border-navy"
-          />
-        </label>
-        <button type="submit" className="h-10 rounded-xs border border-black px-4 text-sm">
-          Filtruj
-        </button>
-        <button type="button" onClick={handleResetFilters} className="h-10 px-4 text-sm text-gray-500">
-          Wyczyść
-        </button>
-
-        <label className="ml-auto flex items-center gap-2 text-sm">
-          na stronę
-          <select
-            value={limit}
-            onChange={(event) => handleLimitChange(Number(event.target.value))}
-            className="h-10 rounded-xs border border-cloud px-2"
+      <div className="mb-6 flex flex-wrap items-end gap-3">
+        <Form form={filterForm} className="flex flex-wrap items-end gap-3">
+          <div className="w-40">
+            <Input name="name" placeholder="name" />
+          </div>
+          <div className="w-24">
+            <Input name="minAge" type="number" placeholder="minAge" />
+          </div>
+          <div className="w-24">
+            <Input name="maxAge" type="number" placeholder="maxAge" />
+          </div>
+          <Button type="submit" variant="primary" className="h-11">
+            Filtruj
+          </Button>
+          <Button
+            type="button"
+            variant="noStyling"
+            rounded={false}
+            handleClick={handleResetFilters}
+            className="h-11 px-4 text-sm text-gray-500"
           >
-            {limitOptions.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </label>
-      </form>
+            Wyczyść
+          </Button>
+        </Form>
+
+        {/* Osobny <Form> — limit NIE jest częścią filtrów (reaguje od razu,
+            "Wyczyść" go nie dotyka), więc dostaje własny mini-formularz
+            Formika zamiast dokładania się do filterForm (patrz usePage.tsx) */}
+        <Form form={limitForm} className="ml-auto flex items-center gap-2 text-sm">
+          na stronę
+          <div className="w-20">
+            <Select
+              name="limit"
+              options={limitOptions.map((option) => ({
+                value: String(option),
+                label: String(option)
+              }))}
+              onChange={(event) => {
+                limitForm.handleChange(event);
+                handleLimitChange(Number(event.target.value));
+              }}
+            />
+          </div>
+        </Form>
+      </div>
 
       {error ? <p className="mb-4 text-red-700">{error}</p> : null}
 
@@ -108,7 +94,13 @@ export const ChildrenList = () => {
             <table className="w-full border-collapse text-sm">
               <thead className="border-b border-black">
                 <tr>
-                  <SortableHeader label="ID" field="id" sortBy={sortBy} order={order} onSort={handleSort} />
+                  <SortableHeader
+                    label="ID"
+                    field="id"
+                    sortBy={sortBy}
+                    order={order}
+                    onSort={handleSort}
+                  />
                   <SortableHeader
                     label="Imię"
                     field="name"
@@ -140,7 +132,9 @@ export const ChildrenList = () => {
                     <td className="px-3 py-2">{child.name}</td>
                     <td className="px-3 py-2">{child.age}</td>
                     <td className="px-3 py-2">
-                      {child.date_of_birth ? new Date(child.date_of_birth).toLocaleDateString('pl-PL') : ''}
+                      {child.date_of_birth
+                        ? new Date(child.date_of_birth).toLocaleDateString('pl-PL')
+                        : ''}
                     </td>
                     <td className="px-3 py-2 text-gray-500">{child.notes}</td>
                   </tr>

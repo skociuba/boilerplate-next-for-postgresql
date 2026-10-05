@@ -1,43 +1,25 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import { FormProps } from '#/interfaces';
-
-import { getCurrentUserId } from '@/lib/currentUser';
 
 import { Button } from '@/ui/Button';
 import { Form } from '@/ui/Form';
 import Input from '@/ui/Input';
+
+import { useAuthStore } from '@/lib/authStore';
 
 import { TagsMultiSelect } from './TagsMultiSelect';
 import { usePage } from './usePage';
 
 export const PostForm = (props: FormProps) => {
   const { form } = usePage(props);
-  const [currentUserId, setCurrentUserId] = useState<string | null>('');
-
-  // sprawdzane po mount, bo localStorage nie istnieje przy SSR;
-  // '' jako stan startowy odróżnia "jeszcze nie sprawdziłem" od "gość"
-  useEffect(() => {
-    setCurrentUserId(getCurrentUserId());
-  }, []);
+  const user = useAuthStore((state) => state.user);
 
   const isEdit = Boolean(props.oldValues?.id);
-  // author_id z API przychodzi jako number, currentUserId z localStorage
-  // jako string — porównanie musi ujednolicić typy, inaczej zawsze false
-  const isOwnPost = !isEdit || currentUserId === String(props.oldValues?.author_id);
-
-  if (currentUserId === '') return null; // pierwszy render po SSR — bez migotania
-
-  if (!currentUserId) {
-    return (
-      <div className="ml-8 mt-24 min-h-screen text-gray-500">
-        Musisz być &quot;zalogowany&quot; (wybierz kogoś w prawym górnym rogu), żeby pisać albo
-        edytować posty.
-      </div>
-    );
-  }
+  // author_id z API przychodzi jako number, id z sesji jako number — mimo
+  // to porównanie przez String(), żeby nie zależeć od tego, czy to dokładnie
+  // ten sam typ po obu stronach (np. gdyby author_id kiedyś przyszło jako string)
+  const isOwnPost = !isEdit || String(user?.id) === String(props.oldValues?.author_id);
 
   if (!isOwnPost) {
     return (

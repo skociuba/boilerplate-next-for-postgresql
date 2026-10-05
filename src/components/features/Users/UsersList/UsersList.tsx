@@ -18,6 +18,11 @@ export const UsersList = ({ data, refetch }: { data: Users; refetch: () => void 
           <div className="flex-1">
             <span className="font-bold">{item.name}</span>
             <span className="text-gray-500 ml-2">({item.email})</span>
+            {item.role === 'admin' ? (
+              <span className="ml-2 rounded-xs bg-black px-1.5 py-0.5 text-[10px] uppercase text-white">
+                admin
+              </span>
+            ) : null}
           </div>
           <div className="flex gap-2">
             <Button type="link" href={`/users/edit/${item.id}`}>

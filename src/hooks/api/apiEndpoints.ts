@@ -15,6 +15,7 @@ export type ApiKeysType =
   | 'POST_EDIT'
   | 'POST_DELETE'
   | 'POST_TAGS_SET'
+  | 'USER_POSTS'
   | 'TAGS'
   | 'TAG_ADD'
   | 'TAG_EDIT'
@@ -23,7 +24,12 @@ export type ApiKeysType =
   | 'USER_PROFILE_SAVE'
   | 'USER_PROFILE_DELETE'
   | 'CHILDREN'
-  | 'CHILD_ADD';
+  | 'CHILD_ADD'
+  | 'AUTH_REGISTER'
+  | 'AUTH_LOGIN'
+  | 'AUTH_REFRESH'
+  | 'AUTH_LOGOUT'
+  | 'AUTH_ME';
 
 export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USERS: {
@@ -73,6 +79,14 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
     endpoint: `/posts/{postId}/tags`,
     method: ['PUT']
   },
+  // "moje posty" — {userId} zawsze podmieniane na ID ZALOGOWANEGO usera
+  // (patrz posts/page.tsx), nigdy na cudze. Backend by nie zabronił
+  // podejrzenia cudzych (lista postów jest publiczna) — to front decyduje,
+  // czyje ID tu wstawić.
+  USER_POSTS: {
+    endpoint: `/users/{userId}/posts`,
+    method: ['GET']
+  },
   TAGS: {
     endpoint: `/tags`,
     method: ['GET']
@@ -111,5 +125,29 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   CHILD_ADD: {
     endpoint: `/children`,
     method: ['POST']
+  },
+  // Bez {userId}/{postId} w ścieżce — auth nie operuje na konkretnym
+  // zasobie, tylko na "tym kim właśnie jesteś" (albo chcesz się stać)
+  AUTH_REGISTER: {
+    endpoint: `/auth/register`,
+    method: ['POST']
+  },
+  AUTH_LOGIN: {
+    endpoint: `/auth/login`,
+    method: ['POST']
+  },
+  AUTH_REFRESH: {
+    endpoint: `/auth/refresh`,
+    method: ['POST']
+  },
+  AUTH_LOGOUT: {
+    endpoint: `/auth/logout`,
+    method: ['POST']
+  },
+  // "kim jestem" — prawdziwa weryfikacja sesji (patrz RequireAuth), nie
+  // tylko odczyt z localStorage
+  AUTH_ME: {
+    endpoint: `/auth/me`,
+    method: ['GET']
   }
 };

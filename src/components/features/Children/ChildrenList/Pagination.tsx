@@ -1,3 +1,5 @@
+import { Button } from '@/ui/Button';
+
 import { cn } from '@/lib/utils/cn';
 
 import { DOTS, getPaginationRange } from './usePagination';
@@ -15,15 +17,17 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
 
   return (
     <div className="flex items-center justify-center gap-1.5 py-6">
-      <button
+      <Button
         type="button"
-        aria-label="poprzednia strona"
-        onClick={() => onPageChange(page - 1)}
+        variant="noStyling"
+        rounded={false}
+        label="poprzednia strona"
+        handleClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="h-9 w-9 rounded-xs border border-cloud text-sm disabled:opacity-30"
+        className="h-9 w-9 rounded-xs border border-cloud text-sm"
       >
         ‹
-      </button>
+      </Button>
 
       {paginationRange.map((item, index) =>
         item === DOTS ? (
@@ -31,30 +35,33 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
             …
           </span>
         ) : (
-          <button
+          <Button
             key={item}
             type="button"
-            onClick={() => onPageChange(item)}
-            aria-current={item === page ? 'page' : undefined}
+            variant="noStyling"
+            rounded={false}
+            handleClick={() => onPageChange(item)}
             className={cn(
               'h-9 w-9 rounded-xs border text-sm',
               item === page ? 'border-navy bg-navy text-white' : 'border-cloud'
             )}
           >
             {item}
-          </button>
+          </Button>
         )
       )}
 
-      <button
+      <Button
         type="button"
-        aria-label="następna strona"
-        onClick={() => onPageChange(page + 1)}
+        variant="noStyling"
+        rounded={false}
+        label="następna strona"
+        handleClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="h-9 w-9 rounded-xs border border-cloud text-sm disabled:opacity-30"
+        className="h-9 w-9 rounded-xs border border-cloud text-sm"
       >
         ›
-      </button>
+      </Button>
     </div>
   );
 };

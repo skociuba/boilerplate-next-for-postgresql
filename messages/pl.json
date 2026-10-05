@@ -21,13 +21,17 @@
         "tags": "Tagi",
         "profile": "Profil",
         "edit": "Edycja",
-        "children": "Dzieci"
+        "children": "Dzieci",
+        "login": "Logowanie"
       }
     }
   },
   "layout": {
     "users": {
       "title": "Użytkownicy"
+    },
+    "login": {
+      "title": "Logowanie"
     },
     "posts": {
       "title": "Posty"
@@ -64,7 +68,10 @@
       "user_id": "Autor (id usera)",
       "pesel": "PESEL",
       "date_of_birth": "Data urodzenia",
-      "phone": "Telefon"
+      "phone": "Telefon",
+      "minAge": "Wiek od",
+      "maxAge": "Wiek do",
+      "newTagName": "nazwa nowego tagu"
     }
   }
 }

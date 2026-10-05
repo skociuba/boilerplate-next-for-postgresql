@@ -1,3 +1,4 @@
+import { AuthHydration } from '@/providers/AuthHydration';
 import ReactQueryProvider from '@/providers/ReactQueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children, params: { locale } }: RootLayoutP
           <ThemeProvider attribute="class">
             <div className="mx-auto max-w-6xl">
               <ReactQueryProvider>
+                <AuthHydration />
                 <Navbar />
                 {children}
                 {/* było już wołane przez toast() w useApiQuery/useApiMutation,

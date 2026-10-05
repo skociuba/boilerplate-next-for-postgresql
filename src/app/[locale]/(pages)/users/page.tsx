@@ -2,6 +2,7 @@
 import dynamic from 'next/dynamic';
 
 import { Layout } from '@/components/layout/Layout/Layout';
+import { RequireAuth } from '@/components/layout/RequireAuth';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
 
@@ -18,17 +19,19 @@ const Page = () => {
   });
 
   return (
-    <Layout
-      {...{
-        title: 'users.title',
-        breakpoints: [{ children: 'main', href: '/' }, { children: 'users' }],
-        hideOnMobile: { title: true, subTitle: true },
-        loading: isLoading,
-        error: error?.message
-      }}
-    >
-      <UsersList data={data} refetch={refetch} />
-    </Layout>
+    <RequireAuth adminOnly>
+      <Layout
+        {...{
+          title: 'users.title',
+          breakpoints: [{ children: 'main', href: '/' }, { children: 'users' }],
+          hideOnMobile: { title: true, subTitle: true },
+          loading: isLoading,
+          error: error?.message
+        }}
+      >
+        <UsersList data={data} refetch={refetch} />
+      </Layout>
+    </RequireAuth>
   );
 };
 
