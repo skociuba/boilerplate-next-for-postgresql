@@ -1,5 +1,7 @@
 'use client';
 
+import { Link } from '#/navigation';
+
 import { Button } from '@/ui/Button';
 import { Form } from '@/ui/Form';
 import Input from '@/ui/Input';
@@ -53,9 +55,16 @@ export const LoginForm = () => {
       </Form>
 
       {mode === 'login' ? (
-        <p className="mt-4 text-xs text-gray-400">
-          testowo: alice@example.com / alice123 (albo bob@example.com / bob123)
-        </p>
+        <>
+          <p className="mt-3 text-right text-xs">
+            <Link href="/forgot-password" className="text-gray-400 underline">
+              Zapomniałeś/aś hasła?
+            </Link>
+          </p>
+          <p className="mt-4 text-xs text-gray-400">
+            testowo: alice@example.com / alice123 (albo bob@example.com / bob123)
+          </p>
+        </>
       ) : null}
     </div>
   );

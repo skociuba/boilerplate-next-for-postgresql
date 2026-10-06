@@ -22,7 +22,10 @@
         "profile": "Profil",
         "edit": "Edycja",
         "children": "Dzieci",
-        "login": "Logowanie"
+        "login": "Logowanie",
+        "forgotPassword": "Reset hasła",
+        "resetPassword": "Nowe hasło",
+        "activate": "Aktywacja konta"
       }
     }
   },
@@ -32,6 +35,15 @@
     },
     "login": {
       "title": "Logowanie"
+    },
+    "forgotPassword": {
+      "title": "Reset hasła"
+    },
+    "resetPassword": {
+      "title": "Nowe hasło"
+    },
+    "activate": {
+      "title": "Aktywacja konta"
     },
     "posts": {
       "title": "Posty"

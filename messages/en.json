@@ -23,7 +23,10 @@
         "edit": "Edit",
         "example": "Example Page",
         "children": "Children",
-        "login": "Login"
+        "login": "Login",
+        "forgotPassword": "Password reset",
+        "resetPassword": "New password",
+        "activate": "Account activation"
       }
     }
   },
@@ -33,6 +36,15 @@
     },
     "login": {
       "title": "Login"
+    },
+    "forgotPassword": {
+      "title": "Password reset"
+    },
+    "resetPassword": {
+      "title": "New password"
+    },
+    "activate": {
+      "title": "Account activation"
     },
     "posts": {
       "title": "Posts"

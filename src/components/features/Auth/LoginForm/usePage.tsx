@@ -2,6 +2,7 @@
 
 import { useRouter } from '#/navigation';
 import { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 
 import { useForm } from '@/ui/useForm';
 
@@ -33,8 +34,10 @@ export const usePage = () => {
     onSubmit: async (values) => {
       setError('');
 
-      // AUTH_LOGIN i AUTH_REGISTER zwracają dokładnie ten sam kształt:
-      // { user, accessToken } — jeden handler wystarcza na oba tryby
+      // AUTH_LOGIN i AUTH_REGISTER NIE zwracają już tego samego kształtu —
+      // rejestracja nie loguje od razu (patrz authController.register na
+      // backendzie: konto czeka na potwierdzenie maila, login() dopiero
+      // potem wpuszcza). AUTH_REGISTER wraca z { user, message }, bez tokenów.
       const result = await fetchRequest({
         route: mode === 'login' ? 'AUTH_LOGIN' : 'AUTH_REGISTER',
         method: 'POST',
@@ -43,6 +46,18 @@ export const usePage = () => {
 
       if (result?.error) {
         setError(result.error);
+
+        return;
+      }
+
+      if (mode === 'register') {
+        toast(result.message || 'Konto utworzone — sprawdź maila, aby je aktywować.', {
+          position: 'bottom-left',
+          autoClose: 6000,
+          type: 'success',
+          theme: 'colored'
+        });
+        setMode('login');
 
         return;
       }

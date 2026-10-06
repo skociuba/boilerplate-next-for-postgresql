@@ -32,7 +32,10 @@ export type ApiKeysType =
   | 'AUTH_LOGIN'
   | 'AUTH_REFRESH'
   | 'AUTH_LOGOUT'
-  | 'AUTH_ME';
+  | 'AUTH_ME'
+  | 'AUTH_FORGOT_PASSWORD'
+  | 'AUTH_RESET_PASSWORD'
+  | 'AUTH_VERIFY_EMAIL';
 
 export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   USERS: {
@@ -167,5 +170,21 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   AUTH_ME: {
     endpoint: `/auth/me`,
     method: ['GET']
+  },
+  // Jeden mechanizm (token w linku z maila), dwa cele — patrz backend
+  // lib/verificationTokens.ts. forgot-password ZAWSZE odpowiada tak samo
+  // (sukces), niezależnie czy email istnieje — front nie ma tu żadnej
+  // logiki do dodania, tylko wyświetla to, co wróciło.
+  AUTH_FORGOT_PASSWORD: {
+    endpoint: `/auth/forgot-password`,
+    method: ['POST']
+  },
+  AUTH_RESET_PASSWORD: {
+    endpoint: `/auth/reset-password`,
+    method: ['POST']
+  },
+  AUTH_VERIFY_EMAIL: {
+    endpoint: `/auth/verify-email`,
+    method: ['POST']
   }
 };
