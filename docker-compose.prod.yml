@@ -1,7 +1,13 @@
 services:
   next-app:
     container_name: VPS-2-FE
-    image: sebastiankociuba/node-frontend:latest
+    # ${IMAGE_TAG:-latest} — normalny deploy nic nie ustawia (leci :latest
+    # jak zawsze). Rollback (scripts/rollback.sh) nadpisuje IMAGE_TAG na
+    # konkretny sha TYLKO na czas jednego polecenia, nic tu się nie zapisuje
+    # trwale — CI wypycha DWA tagi na każdy build (:latest i :<sha>, patrz
+    # .github/workflows/main.yml), więc starsze wersje już czekają na
+    # Docker Hub, nie trzeba nic przebudowywać.
+    image: sebastiankociuba/node-frontend:${IMAGE_TAG:-latest}
     ports:
       - '3002:3000'
     environment:

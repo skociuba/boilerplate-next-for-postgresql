@@ -74,7 +74,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          source: 'docker-compose.prod.yml'
+          source: 'docker-compose.prod.yml,scripts/'
           target: '/var/www/frontend-node'
 
       - name: Deploy via SSH
@@ -87,6 +87,7 @@ jobs:
             set -e
 
             cd /var/www/frontend-node
+            chmod +x scripts/rollback.sh
 
             if sudo docker compose version >/dev/null 2>&1; then
               DC="docker compose"
