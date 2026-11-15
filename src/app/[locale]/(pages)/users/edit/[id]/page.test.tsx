@@ -1,37 +1,36 @@
-import { render, screen, waitFor } from '#/tests/test-utils';
-import { useRouter } from 'next/navigation';
+import { render, screen } from '#/tests/test-utils';
 
 import { useApiQuery } from '@/hooks/api/useApiQuery';
 
 import Page from './page';
 
-// Mock the dependencies
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn()
-}));
-
-jest.mock('#/navigation', () => ({
-  Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
-  useRouter: jest.fn(),
-  usePathname: jest.fn()
-}));
-
 jest.mock('@/hooks/api/useApiQuery', () => ({
   useApiQuery: jest.fn()
 }));
 
-describe('User Edit Page', () => {
-  const mockPush = jest.fn();
+// Jak w users/page.test.tsx: strażnika (RequireAuth) testujemy osobno,
+// tutaj tylko to, co widzi admin po przejściu przez niego.
+jest.mock('@/components/layout/RequireAuth', () => ({
+  RequireAuth: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
 
+// Strona bierze useRouter z #/navigation (next-intl, routing z locale),
+// nie z next/navigation.
+const mockPush = jest.fn();
+jest.mock('#/navigation', () => ({
+  Link: ({ children, href }: { children: React.ReactNode; href: string }) => (
+    <a href={href}>{children}</a>
+  ),
+  useRouter: () => ({ push: mockPush }),
+  usePathname: jest.fn()
+}));
+
+describe('User Edit Page', () => {
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue({
-      push: mockPush
-    });
+    jest.clearAllMocks();
   });
 
-  it('should render the edit page with user data', async () => {
+  it('asks the API for the user from the URL and renders the page', async () => {
     (useApiQuery as jest.Mock).mockReturnValue({
       data: [{ id: '1', name: 'John Doe', email: 'john@example.com' }],
       isLoading: false,
@@ -40,24 +39,17 @@ describe('User Edit Page', () => {
 
     render(<Page params={{ id: '1' }} />);
 
-    await waitFor(() => {
-      expect(screen.getAllByText(/Users/i)[0]).toBeInTheDocument();
-      // Since UserForm is dynamically imported with ssr: false, we might need to handle that in tests
-      // However, usually in Jest/RTL with our test-utils it might work if we mock it or use a proper setup
-    });
+    expect(useApiQuery).toHaveBeenCalledWith({ route: 'USER', id: '1' });
+    // Tytuł (layout.users.title) i okruszek "Users"
+    expect((await screen.findAllByText('Users')).length).toBeGreaterThan(0);
+    expect(await screen.findByText('Edit')).toBeInTheDocument();
   });
 
-  it('should show loading state', () => {
-    (useApiQuery as jest.Mock).mockReturnValue({
-      data: null,
-      isLoading: true,
-      error: null
-    });
+  it('does not render the form while loading', () => {
+    (useApiQuery as jest.Mock).mockReturnValue({ data: null, isLoading: true, error: null });
 
     render(<Page params={{ id: '1' }} />);
-    // Loading is passed to Layout which shows Skeleton
-    // We can't easily check for Skeleton here without more specific props,
-    // but we can check if the form is NOT there
+
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 });
