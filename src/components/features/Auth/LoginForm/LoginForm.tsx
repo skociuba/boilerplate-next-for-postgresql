@@ -61,9 +61,16 @@ export const LoginForm = () => {
               Zapomniałeś/aś hasła?
             </Link>
           </p>
-          <p className="mt-4 text-xs text-gray-400">
-            testowo: alice@example.com / alice123 (albo bob@example.com / bob123)
-          </p>
+          {/* Konta z prisma/seed.ts istnieją tylko w lokalnej bazie — na
+              produkcji ich nie ma, a bob jest w seedzie adminem, więc jego
+              hasło na publicznej stronie byłoby zaproszeniem dla każdego.
+              next build podstawia NODE_ENV na sztywno, więc w produkcyjnym
+              bundlu tego tekstu w ogóle nie ma (nie jest tylko ukryty). */}
+          {process.env.NODE_ENV !== 'production' ? (
+            <p className="mt-4 text-xs text-gray-400">
+              lokalnie (seed): alice@example.com / alice123, admin: bob@example.com / bob123
+            </p>
+          ) : null}
         </>
       ) : null}
     </div>
