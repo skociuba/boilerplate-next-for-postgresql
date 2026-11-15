@@ -16,8 +16,7 @@ const Page = () => {
     <Layout
       {...{
         title: 'homePage.title',
-        breakpoints: [{ children: 'main' }],
-        hideOnMobile: { title: true, subTitle: true }
+        hideIntro: true
       }}
     >
       <HomeComponent />
