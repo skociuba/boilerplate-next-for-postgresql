@@ -17,11 +17,16 @@ export const BreakpointsList = ({ breakpoints, hideOnMobile }: BreakpointsListPr
   }
 
   return (
-    <p className={cn('text-primary flex gap-1 pb-[14px] text-base', hideOnMobile && 'hidden')}>
+    <p
+      className={cn(
+        'flex flex-wrap gap-1 pb-2 text-sm text-slate-500',
+        hideOnMobile && 'hidden md:flex'
+      )}
+    >
       {breakpoints.map(({ href, children, dynamic }, index) => (
-        <span key={`${href}-${index}`} className={cn('flex gap-1', !href && 'text-gray')}>
+        <span key={`${href}-${index}`} className={cn('flex gap-1', !href && 'text-slate-700')}>
           {href ? (
-            <Link {...{ href, className: 'text-black' }}>
+            <Link {...{ href, className: 'hover:text-navy hover:underline' }}>
               {dynamic ? children : t(`panel.links.${children}`)}
             </Link>
           ) : dynamic ? (
@@ -29,7 +34,11 @@ export const BreakpointsList = ({ breakpoints, hideOnMobile }: BreakpointsListPr
           ) : (
             t(`panel.links.${children}`)
           )}
-          {index + 1 < breakpoints.length ? <span className="text-gray">&gt;</span> : null}
+          {index + 1 < breakpoints.length ? (
+            <span aria-hidden="true" className="text-slate-400">
+              /
+            </span>
+          ) : null}
         </span>
       ))}
     </p>

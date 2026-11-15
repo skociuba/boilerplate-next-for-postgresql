@@ -22,13 +22,17 @@ export type ButtonProps = {
   handleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
 
+// Każdy wariant ma stan hover — wcześniej przyciski nie reagowały na
+// najechanie, przez co nie wyglądały na klikalne.
 const ButtonVariants: Record<string, string> = {
-  primary: 'text-black border border-black',
-  secondary: 'bg-white text-navy border border-navy',
-  tertiary: 'bg-black text-white border border-black',
-  quaternary: 'text-navy font-bold',
-  disabled: 'bg-cloud text-gray border border-cloud',
-  download: 'bg-[#212852] text-white',
+  primary:
+    'bg-white text-slate-800 border border-slate-300 hover:border-slate-400 hover:bg-slate-50',
+  secondary: 'bg-white text-navy border border-slate-300 hover:border-navy hover:bg-navy/[0.04]',
+  tertiary: 'bg-navy text-white border border-navy hover:bg-[#13203b]',
+  quaternary: 'text-navy font-bold hover:underline',
+  disabled:
+    'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed hover:bg-slate-100',
+  download: 'bg-[#212852] text-white hover:bg-[#161c3d]',
   noStyling: 'px-0'
 };
 
@@ -46,7 +50,7 @@ export const Button = ({
   className
 }: ButtonProps) => {
   const commonStyles = cn(
-    'box-border h-14 cursor-pointer px-6 leading-base md:text-base inline-flex items-center justify-center text-center transition-colors',
+    'box-border h-12 cursor-pointer px-6 font-medium inline-flex items-center justify-center text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy',
     rounded && 'rounded-xs',
     fullWidth && 'w-full',
     ButtonVariants[variant],

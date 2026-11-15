@@ -56,16 +56,19 @@ export const Intro = ({
     <div className="flex flex-col justify-between gap-6 md:flex-row">
       <div>
         <BreakpointsList {...{ breakpoints, hideOnMobile: hideOnMobile?.breakpoints }} />
-        <p
+        {/* h1, nie p: tytuł strony był tej samej wielkości co okruszek nad
+            nim (oba "Strona główna"), więc wyglądał jak powtórzony tekst,
+            a czytniki ekranu nie widziały na stronie żadnego nagłówka. */}
+        <h1
           className={cn(
-            'text-primary text-2xl md:text-lg md:leading-lg',
+            'text-2xl font-bold tracking-tight text-slate-900 md:text-3xl',
             hideOnMobile?.title && 'hidden md:block'
           )}
         >
           {t(title)}
-        </p>
+        </h1>
         {subTitle ? (
-          <p className={cn('mt-2 text-gray md:mt-4', hideOnMobile?.subTitle && 'hidden md:block')}>
+          <p className={cn('mt-2 text-gray md:mt-3', hideOnMobile?.subTitle && 'hidden md:block')}>
             {t(subTitle)}
           </p>
         ) : null}
