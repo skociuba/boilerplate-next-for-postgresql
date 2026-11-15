@@ -26,7 +26,8 @@
         "login": "Login",
         "forgotPassword": "Password reset",
         "resetPassword": "New password",
-        "activate": "Account activation"
+        "activate": "Account activation",
+        "privacy": "Privacy policy"
       }
     }
   },
@@ -60,6 +61,9 @@
     },
     "homePage": {
       "title": "Main Page"
+    },
+    "privacy": {
+      "title": "Privacy and cookies policy"
     }
   },
   "Home": {
