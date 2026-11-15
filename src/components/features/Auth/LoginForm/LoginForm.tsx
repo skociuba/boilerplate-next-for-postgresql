@@ -14,8 +14,8 @@ export const LoginForm = () => {
   const { mode, setMode, form, error } = usePage();
 
   return (
-    <div className="mx-auto mt-8 max-w-sm">
-      <div className="mb-6 flex gap-3 text-sm">
+    <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+      <div className="mb-6 flex gap-5 text-sm">
         <Button
           type="button"
           variant="noStyling"
@@ -47,12 +47,26 @@ export const LoginForm = () => {
         <Input name="email" type="email" placeholder="email" />
         <Input name="password" type="password" placeholder="password" />
 
-        {error ? <p className="text-sm text-red-700">{error}</p> : null}
+        {error ? <p className="text-sm text-error">{error}</p> : null}
 
         <Button type="submit" variant="tertiary" fullWidth>
           {mode === 'login' ? 'Zaloguj się' : 'Załóż konto'}
         </Button>
       </Form>
+
+      {/* Informacja w chwili zbierania danych (RODO art. 13), nie checkbox
+          ze zgodą: podstawą jest umowa (prowadzenie konta), więc zgoda nie
+          jest potrzebna — wystarczy jasno powiedzieć, gdzie są szczegóły. */}
+      {mode === 'register' ? (
+        <p className="mt-4 text-xs leading-relaxed text-slate-500">
+          Zakładając konto, potwierdzasz, że znasz{' '}
+          <Link href="/privacy" className="text-navy underline">
+            politykę prywatności
+          </Link>
+          . To aplikacja demonstracyjna — nie wpisuj prawdziwych danych wrażliwych (PESEL,
+          dokumenty).
+        </p>
+      ) : null}
 
       {mode === 'login' ? (
         <>
