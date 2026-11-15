@@ -2,7 +2,10 @@
   "Navbar": {
     "links": {
       "home": "Strona główna",
-      "customers": "Użytkownicy"
+      "customers": "Użytkownicy",
+      "posts": "Posty",
+      "tags": "Tagi",
+      "children": "Dzieci"
     },
     "language": {
       "pl": "Polski",
@@ -14,13 +17,45 @@
       "links": {
         "main": "Strona główna",
         "users": "Użytkownicy",
-        "edit": "Edycja"
+        "posts": "Posty",
+        "tags": "Tagi",
+        "profile": "Profil",
+        "edit": "Edycja",
+        "children": "Dzieci",
+        "login": "Logowanie",
+        "forgotPassword": "Reset hasła",
+        "resetPassword": "Nowe hasło",
+        "activate": "Aktywacja konta"
       }
     }
   },
   "layout": {
     "users": {
       "title": "Użytkownicy"
+    },
+    "login": {
+      "title": "Logowanie"
+    },
+    "forgotPassword": {
+      "title": "Reset hasła"
+    },
+    "resetPassword": {
+      "title": "Nowe hasło"
+    },
+    "activate": {
+      "title": "Aktywacja konta"
+    },
+    "posts": {
+      "title": "Posty"
+    },
+    "tags": {
+      "title": "Tagi"
+    },
+    "children": {
+      "title": "Dzieci"
+    },
+    "profile": {
+      "title": "Profil"
     },
     "homePage": {
       "title": "Strona główna"
@@ -39,7 +74,18 @@
     "label": {
       "name": "Imię",
       "email": "Email",
-      "password": "Hasło"
+      "password": "Hasło",
+      "title": "Tytuł",
+      "content": "Treść",
+      "user_id": "Autor (id usera)",
+      "pesel": "PESEL",
+      "date_of_birth": "Data urodzenia",
+      "phone": "Telefon",
+      "minAge": "Wiek od",
+      "maxAge": "Wiek do",
+      "newTagName": "nazwa nowego tagu",
+      "avatar": "Wybierz zdjęcie",
+      "document": "Wybierz dokument"
     }
   }
 }

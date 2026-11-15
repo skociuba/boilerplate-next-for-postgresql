@@ -2,7 +2,10 @@
   "Navbar": {
     "links": {
       "home": "Home",
-      "customers": "Customers"
+      "customers": "Customers",
+      "posts": "Posts",
+      "tags": "Tags",
+      "children": "Children"
     },
     "language": {
       "pl": "Polish",
@@ -14,14 +17,46 @@
       "links": {
         "main": "Main Page",
         "users": "Users",
+        "posts": "Posts",
+        "tags": "Tags",
+        "profile": "Profile",
         "edit": "Edit",
-        "example": "Example Page"
+        "example": "Example Page",
+        "children": "Children",
+        "login": "Login",
+        "forgotPassword": "Password reset",
+        "resetPassword": "New password",
+        "activate": "Account activation"
       }
     }
   },
   "layout": {
     "users": {
       "title": "Users"
+    },
+    "login": {
+      "title": "Login"
+    },
+    "forgotPassword": {
+      "title": "Password reset"
+    },
+    "resetPassword": {
+      "title": "New password"
+    },
+    "activate": {
+      "title": "Account activation"
+    },
+    "posts": {
+      "title": "Posts"
+    },
+    "tags": {
+      "title": "Tags"
+    },
+    "children": {
+      "title": "Children"
+    },
+    "profile": {
+      "title": "Profile"
     },
     "homePage": {
       "title": "Main Page"
@@ -40,7 +75,18 @@
     "label": {
       "name": "Name",
       "email": "Email",
-      "password": "Password"
+      "password": "Password",
+      "title": "Title",
+      "content": "Content",
+      "user_id": "Author (user id)",
+      "pesel": "PESEL",
+      "date_of_birth": "Date of birth",
+      "phone": "Phone",
+      "minAge": "Age from",
+      "maxAge": "Age to",
+      "newTagName": "new tag name",
+      "avatar": "Choose photo",
+      "document": "Choose document"
     }
   }
 }

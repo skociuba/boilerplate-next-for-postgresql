@@ -24,7 +24,11 @@ const Input = ({ className, error, type, placeholder, name, ...props }: InputPro
           {...field}
           {...props}
           placeholder={placeholder ? t(`label.${placeholder}`) : ''}
-          type={isPasswordType ? 'password' : 'text'}
+          // dla password: przełącznik pokaż/ukryj. Dla wszystkiego innego
+          // (date, email, number...) faktycznie respektujemy przekazany
+          // "type" — wcześniej każdy typ poza "password" i tak lądował
+          // jako zwykły "text", co ciche psuło np. natywny date-picker
+          type={type === 'password' ? (isPasswordType ? 'password' : 'text') : (type ?? 'text')}
           className={cn(
             'focus:border-1 rounded-xs focus:border-navy h-12 w-full border px-6 outline-0',
             displayError ? 'border-error focus:border-error' : 'border-cloud focus:border-cloud',

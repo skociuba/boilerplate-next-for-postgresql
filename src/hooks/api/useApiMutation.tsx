@@ -9,6 +9,7 @@ import { ApiKeysType } from './apiEndpoints';
 export type UseApiMutationProps = {
   route: ApiKeysType;
   getFile?: boolean;
+  multipart?: boolean;
   id?: string;
   values?: { [key: string]: string };
   params?: { [key: string]: string };
