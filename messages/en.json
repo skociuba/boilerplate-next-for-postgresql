@@ -91,7 +91,9 @@
       "maxAge": "Age to",
       "newTagName": "new tag name",
       "avatar": "Choose photo",
-      "document": "Choose document"
+      "document": "Choose document",
+      "postImage": "Add photo",
+      "postImageChange": "Change photo"
     }
   }
 }

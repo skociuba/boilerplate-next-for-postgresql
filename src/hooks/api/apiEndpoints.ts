@@ -15,6 +15,8 @@ export type ApiKeysType =
   | 'POST_EDIT'
   | 'POST_DELETE'
   | 'POST_TAGS_SET'
+  | 'POST_IMAGE_UPLOAD'
+  | 'POST_IMAGE_DELETE'
   | 'USER_POSTS'
   | 'TAGS'
   | 'TAG_ADD'
@@ -84,6 +86,15 @@ export const API_ENDPOINTS: { [key in ApiKeysType]: ApiEndpointsType } = {
   POST_TAGS_SET: {
     endpoint: `/posts/{postId}/tags`,
     method: ['PUT']
+  },
+  // multipart (pole "image") — zdjęcie posta, publiczne jak sam post
+  POST_IMAGE_UPLOAD: {
+    endpoint: `/posts/{postId}/image`,
+    method: ['PUT']
+  },
+  POST_IMAGE_DELETE: {
+    endpoint: `/posts/{postId}/image`,
+    method: ['DELETE']
   },
   // "moje posty" — {userId} zawsze podmieniane na ID ZALOGOWANEGO usera
   // (patrz posts/page.tsx), nigdy na cudze. Backend by nie zabronił

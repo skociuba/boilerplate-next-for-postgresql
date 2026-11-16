@@ -9,6 +9,7 @@ import Textarea from '@/ui/Textarea';
 
 import { useAuthStore } from '@/lib/authStore';
 
+import { PostImageField } from './PostImageField';
 import { TagsMultiSelect } from './TagsMultiSelect';
 import { usePage } from './usePage';
 
@@ -38,6 +39,8 @@ export const PostForm = (props: FormProps) => {
     <div className="w-full max-w-2xl">
       <Form {...{ form, className: 'flex flex-col gap-4' }}>
         <Input name="title" placeholder="title" />
+        {/* Ta sama kolejność co w wyświetlanym poście: tytuł, zdjęcie, treść */}
+        <PostImageField />
         {/* textarea, nie input — treść posta to zwykle kilka zdań/akapitów */}
         <Textarea name="content" placeholder="content" rows={8} />
         {/* wielokrotny wybór — cały zestaw tagów posta w jednym miejscu,
@@ -45,12 +48,12 @@ export const PostForm = (props: FormProps) => {
             zawsze wysyła PEŁNĄ, aktualną listę do PUT /posts/:id/tags) */}
         <TagsMultiSelect />
 
-        <div className="flex flex-wrap gap-4">
-          <Button variant="tertiary" type="link" href={`/posts`}>
-            Cancel
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Button variant="tertiary" type="submit" className="px-6">
+            Zapisz
           </Button>
-          <Button variant="primary" type="submit">
-            Submit
+          <Button variant="primary" type="link" href={`/posts`} className="px-6">
+            Anuluj
           </Button>
         </div>
       </Form>

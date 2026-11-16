@@ -90,7 +90,9 @@
       "maxAge": "Wiek do",
       "newTagName": "nazwa nowego tagu",
       "avatar": "Wybierz zdjęcie",
-      "document": "Wybierz dokument"
+      "document": "Wybierz dokument",
+      "postImage": "Dodaj zdjęcie",
+      "postImageChange": "Zmień zdjęcie"
     }
   }
 }
