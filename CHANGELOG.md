@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.0...v1.1.1) (2026-11-16)
+
+
+### CI/CD
+
+* deploy to production only from releases ([16486e7](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/16486e7bee17cdebd8d3fef77aab664a12cbf000))
+* deploy to production only from releases ([864171c](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/864171c3918a624d2f1ba678de47d6326d13c2b1))
+
 ## [1.1.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.0.0...v1.1.0) (2026-11-16)
 
 
