@@ -1,12 +1,11 @@
 services:
   next-app:
     container_name: VPS-2-FE
-    # ${IMAGE_TAG:-latest} — normalny deploy nic nie ustawia (leci :latest
-    # jak zawsze). Rollback (scripts/rollback.sh) nadpisuje IMAGE_TAG na
-    # konkretny sha TYLKO na czas jednego polecenia, nic tu się nie zapisuje
-    # trwale — CI wypycha DWA tagi na każdy build (:latest i :<sha>, patrz
-    # .github/workflows/main.yml), więc starsze wersje już czekają na
-    # Docker Hub, nie trzeba nic przebudowywać.
+    # ${IMAGE_TAG:-latest} — deploy (.github/workflows/deploy.yml) i
+    # rollback (scripts/rollback.sh) podają IMAGE_TAG=X.Y.Z na czas
+    # polecenia, nic się tu nie zapisuje trwale. :latest przesuwa tylko
+    # release.yml przy wydaniu, więc ręczne `up` bez IMAGE_TAG też trafi
+    # w ostatnie wydanie, a nie w ostatni merge.
     image: sebastiankociuba/node-frontend:${IMAGE_TAG:-latest}
     # 127.0.0.1: port tylko dla nginxa na tym samym serwerze. Docker sam
     # dopisuje reguły iptables i omija ufw, więc samo "3002:3000" wystawiało
