@@ -1,5 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
+import { notFound } from 'next/navigation';
 
 import { Layout } from '@/components/layout/Layout/Layout';
 import { RequireAuth } from '@/components/layout/RequireAuth';
@@ -14,7 +15,19 @@ const ChildrenList = dynamic(
   { ssr: false }
 );
 
-const Page = () => (
+// Moduł wyłączony na publicznym demo (dane dzieci to dane szczególnie
+// chronione — nie zbieramy ich bez realnej potrzeby). Strona zwraca 404
+// zamiast znikać z repo: ChildrenList pokazuje paginację, sortowanie i
+// filtrowanie po stronie API i może wrócić jedną zmianą tej stałej.
+const CHILDREN_MODULE_ENABLED = false;
+
+const Page = () => {
+  if (!CHILDREN_MODULE_ENABLED) notFound();
+
+  return <ChildrenPage />;
+};
+
+const ChildrenPage = () => (
   <RequireAuth>
     <Layout
       {...{
