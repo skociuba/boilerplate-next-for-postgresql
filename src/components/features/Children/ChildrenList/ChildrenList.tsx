@@ -68,9 +68,11 @@ export const ChildrenList = () => {
             Formika zamiast dokładania się do filterForm (patrz usePage.tsx) */}
         <Form form={limitForm} className="flex items-center gap-2 text-sm sm:ml-auto">
           na stronę
-          <div className="w-20">
+          <div className="w-24">
             <Select
               name="limit"
+              size="md"
+              aria-label="Liczba wyników na stronę"
               options={limitOptions.map((option) => ({
                 value: String(option),
                 label: String(option)
