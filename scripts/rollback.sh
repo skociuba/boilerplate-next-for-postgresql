@@ -16,7 +16,11 @@ set -euo pipefail
 # FE nie ma własnej bazy danych, więc (w odróżnieniu od backendu) tu nie
 # ma czego cofać poza samym obrazem — żadnego backupu przed tym krokiem.
 #
-# Użycie: ./scripts/rollback.sh <sha> [katalog-z-docker-compose.prod.yml]
+# Albo po numerze wersji: release.yml dokleja do obrazu z wydania tag :X.Y.Z
+# (lista wersji: zakładka Releases na GitHubie albo CHANGELOG.md), np.
+# ./scripts/rollback.sh 1.1.0
+#
+# Użycie: ./scripts/rollback.sh <sha-albo-wersja> [katalog-z-docker-compose.prod.yml]
 
 if [ -z "${1:-}" ]; then
   echo "Użycie: $0 <sha-obrazu-do-przywrócenia> [katalog]" >&2
