@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "d23cda3e043c83b25bf0aed0c6f1ae05b75f322f",
+  "packages": {
+    ".": {
+      "release-type": "node",
+      "package-name": "boilerplate-next-for-postgresql",
+      "include-component-in-tag": false,
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "revert", "section": "Reverts" },
+        { "type": "ci", "section": "CI/CD" },
+        { "type": "test", "section": "Tests" },
+        { "type": "docs", "section": "Documentation", "hidden": true },
+        { "type": "chore", "section": "Chores", "hidden": true },
+        { "type": "refactor", "section": "Refactoring", "hidden": true },
+        { "type": "style", "section": "Style", "hidden": true },
+        { "type": "build", "section": "Build", "hidden": true }
+      ]
+    }
+  }
+}
