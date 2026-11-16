@@ -8,9 +8,14 @@ services:
     # .github/workflows/main.yml), więc starsze wersje już czekają na
     # Docker Hub, nie trzeba nic przebudowywać.
     image: sebastiankociuba/node-frontend:${IMAGE_TAG:-latest}
+    # 127.0.0.1: port tylko dla nginxa na tym samym serwerze. Docker sam
+    # dopisuje reguły iptables i omija ufw, więc samo "3002:3000" wystawiało
+    # aplikację na świat pod http://IP:3002 z pominięciem nginxa.
     ports:
-      - '3002:3000'
+      - '127.0.0.1:3002:3000'
+    # Bez BASE_URL: adres API dla /api-proxy jest wpisany w obraz przy
+    # buildzie (build-arg w CI, patrz Dockerfile). Zmienna tutaj niczego nie
+    # zmieniała, a sugerowała, że zmienia.
     environment:
       - NODE_ENV=production
-      - BASE_URL=${BASE_URL:-http://localhost:8080}
     restart: always
