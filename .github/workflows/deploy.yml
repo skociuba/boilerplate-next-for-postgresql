@@ -1,0 +1,117 @@
+name: Deploy Frontend
+
+# Wdraża KONKRETNĄ wersję z wydania (obraz :X.Y.Z), nigdy "to, co akurat
+# jest na master". Dwa wejścia, ten sam kod:
+# - workflow_call: release.yml odpala to samo po utworzeniu wydania,
+# - workflow_dispatch: ręcznie z zakładki Actions → "Run workflow" →
+#   numer wersji. Ponowny deploy albo rollback do starszego wydania bez
+#   logowania się na serwer (scripts/rollback.sh zostaje na awarie, gdy
+#   GitHub Actions nie działa).
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: Wersja do wdrożenia, np. 1.2.0
+        required: true
+        type: string
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Wersja do wdrożenia, np. 1.2.0 (lista w zakładce Releases)
+        required: true
+        type: string
+
+jobs:
+  deploy:
+    name: Deploy Frontend Container
+    runs-on: ubuntu-latest
+    # Jeden deploy naraz, bez anulowania — przerwany w połowie (po down,
+    # przed up) zostawiłby stronę wyłączoną. Grupa na poziomie joba, bo
+    # przy workflow_call ${{ github.workflow }} to nazwa wywołującego.
+    concurrency:
+      group: deploy-frontend-production
+      cancel-in-progress: false
+    env:
+      IMAGE: sebastiankociuba/node-frontend
+      VERSION: ${{ inputs.version }}
+    steps:
+      # Wersja z ręcznego formularza trafia do skryptu na serwerze — tylko
+      # X.Y.Z, żeby literówka albo coś gorszego nie poszło do powłoki
+      - name: Validate version
+        run: |
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Niepoprawna wersja: '$VERSION' (oczekiwane X.Y.Z, np. 1.2.0)" >&2
+            exit 1
+          fi
+
+      # Sprawdzenie PRZED dotknięciem serwera — brak obrazu wyszedłby
+      # dopiero na pull, już po down, czyli przy wyłączonej stronie
+      - name: Check that the release image exists
+        run: |
+          if ! docker buildx imagetools inspect "$IMAGE:$VERSION" >/dev/null 2>&1; then
+            echo "Brak obrazu $IMAGE:$VERSION w rejestrze — czy to wydanie istnieje?" >&2
+            exit 1
+          fi
+
+      # docker-compose.prod.yml i skrypty z TAGA wydania, nie z master —
+      # wdrażana wersja dostaje dokładnie tę konfigurację, z którą została
+      # wydana
+      - name: Checkout the release tag
+        uses: actions/checkout@v4
+        with:
+          ref: v${{ inputs.version }}
+
+      - name: Copy docker-compose to server via SCP
+        uses: appleboy/scp-action@v1.0.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: 'docker-compose.prod.yml,scripts/'
+          target: '/var/www/frontend-node'
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          # envs zamiast wklejania ${{ }} w skrypt: wersja dociera jako
+          # zmienna środowiskowa, a nie jako fragment kodu powłoki.
+          # sudo IMAGE_TAG=...: sudo czyści środowisko, więc zmienną trzeba
+          # podać mu wprost; docker-compose.prod.yml czyta ${IMAGE_TAG:-latest}.
+          envs: VERSION
+          script: |
+            set -e
+
+            cd /var/www/frontend-node
+            chmod +x scripts/rollback.sh
+            echo "=== Deploy wersji $VERSION ==="
+
+            if sudo docker compose version >/dev/null 2>&1; then
+              DC="docker compose"
+            else
+              DC="docker-compose"
+            fi
+
+            # pull PRZED down: strona działa, dopóki nowy obraz się ściąga
+            sudo IMAGE_TAG="$VERSION" $DC -f docker-compose.prod.yml pull
+            sudo IMAGE_TAG="$VERSION" $DC -f docker-compose.prod.yml down || true
+            sudo IMAGE_TAG="$VERSION" $DC -f docker-compose.prod.yml up -d
+
+            status="starting"
+            for _ in $(seq 1 12); do
+              status=$(sudo docker inspect --format='{{.State.Health.Status}}' VPS-2-FE 2>/dev/null || echo "unknown")
+              if [ "$status" = "healthy" ] || [ "$status" = "unhealthy" ]; then
+                break
+              fi
+              sleep 5
+            done
+
+            if [ "$status" != "healthy" ]; then
+              echo "Kontener nie osiągnął stanu healthy (status: $status)"
+              sudo docker logs --tail=50 VPS-2-FE
+              exit 1
+            fi
+
+            sudo docker image prune -f

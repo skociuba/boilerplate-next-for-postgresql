@@ -5,9 +5,11 @@ name: Release
 #   z podbitą wersją w package.json i nowymi wpisami w CHANGELOG.md
 #   (feat → minor, fix → patch, "!" albo BREAKING CHANGE → major),
 # - merge TEGO PR-a tworzy tag vX.Y.Z i GitHub Release z listą zmian,
-# - obraz Dockera z tego commita dostaje dodatkowo tag :X.Y.Z.
-# Sam deploy dalej robi main.yml — release niczego nie wdraża, tylko
-# nazywa wersję, która i tak trafia na produkcję po merge'u.
+# - obraz Dockera z tego commita dostaje tagi :X.Y.Z i :latest,
+# - i dopiero TA wersja idzie na produkcję (deploy.yml).
+# Continuous delivery: merge zwykłego PR-a = gotowe do wydania (ci.yml
+# testuje i buduje obraz), a wdrożenie to osobna, świadoma decyzja — merge
+# release PR-a. Kilka zmian może poczekać i wejść razem jedną wersją.
 on:
   push:
     branches:
@@ -42,9 +44,11 @@ jobs:
           manifest-file: .release-please-manifest.json
 
   # Build once, deploy many: obraz nie jest budowany drugi raz, tylko obraz
-  # z tego samego commita (:sha z main.yml) dostaje drugą nazwę :X.Y.Z.
+  # z tego samego commita (:sha z ci.yml) dostaje nazwy :X.Y.Z i :latest.
   # Na produkcji stoi więc dokładnie ten plik, który przeszedł testy, a
-  # rollback można zrobić po numerze wersji (scripts/rollback.sh 1.2.0).
+  # rollback można zrobić po numerze wersji (deploy.yml albo
+  # scripts/rollback.sh 1.2.0). :latest przesuwa się tylko tutaj, więc
+  # zawsze wskazuje ostatnie wydanie — to, co jest na produkcji.
   tag-image:
     needs: release-please
     if: needs.release-please.outputs.release_created == 'true'
@@ -62,7 +66,7 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # main.yml buduje ten obraz równolegle (ten sam push do master),
+      # ci.yml buduje ten obraz równolegle (ten sam push do master),
       # więc czekamy, aż :sha pojawi się w rejestrze — najwyżej 20 minut
       - name: Wait for the image built from this commit
         run: |
@@ -73,8 +77,21 @@ jobs:
             fi
             sleep 30
           done
-          echo "Obraz $IMAGE:$GITHUB_SHA nie pojawił się w rejestrze (czy main.yml przeszedł?)" >&2
+          echo "Obraz $IMAGE:$GITHUB_SHA nie pojawił się w rejestrze (czy ci.yml przeszedł?)" >&2
           exit 1
 
       - name: Tag the image with the release version
-        run: docker buildx imagetools create --tag "$IMAGE:$VERSION" "$IMAGE:$GITHUB_SHA"
+        run: |
+          docker buildx imagetools create \
+            --tag "$IMAGE:$VERSION" \
+            --tag "$IMAGE:latest" \
+            "$IMAGE:$GITHUB_SHA"
+
+  # Ten sam workflow co ręczny deploy z zakładki Actions — jedna ścieżka
+  # wdrożenia, więc ręczny rollback testuje się przy każdym wydaniu
+  deploy:
+    needs: [release-please, tag-image]
+    uses: ./.github/workflows/deploy.yml
+    with:
+      version: ${{ needs.release-please.outputs.version }}
+    secrets: inherit

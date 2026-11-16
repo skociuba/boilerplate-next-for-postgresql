@@ -1,0 +1,87 @@
+name: CI
+
+# Lint, testy i obraz dla każdego commita na master oraz każdego PR-a do
+# master. NIE wdraża — produkcja idzie tylko z wydania (release.yml →
+# deploy.yml), czyli po merge'u PR-a "chore(master): release X.Y.Z".
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+# Jeden przebieg naraz na gałąź. Na PR nowy push anuluje stary przebieg,
+# na master nie — release.yml czeka na obraz :sha z KAŻDEGO commita
+# release'owego, więc przerwany build zostawiłby wydanie bez obrazu.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  test:
+    # Stała nazwa joba = nazwa wymaganego checka w branch protection
+    name: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Run tests
+        run: npm run test:ci
+
+  # Na PR obraz też się buduje (zepsuty Dockerfile albo next build wychodzi
+  # przed merge'em), ale nie trafia do Docker Huba. Z master idzie tylko
+  # :<sha> — :latest przesuwa release.yml przy wydaniu, więc :latest = to,
+  # co jest na produkcji, a nie ostatni merge.
+  build:
+    name: build
+    needs: [test]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: ${{ github.event_name != 'pull_request' }}
+          # Cache warstw w GitHub Actions: zmiana w kodzie nie przebudowuje od
+          # zera warstwy z npm install, jeśli package-lock się nie zmienił
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
+            NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
+            BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
+          tags: |
+            sebastiankociuba/node-frontend:${{ github.sha }}

@@ -4,27 +4,28 @@ set -euo pipefail
 # Szybki powrót do WCZEŚNIEJSZEGO, znanego-dobrego obrazu frontendu — na
 # wypadek, gdy właśnie wypchnięty deploy jest zepsuty.
 #
-# DZIAŁA, bo .github/workflows/main.yml wypycha na Docker Hub DWA tagi na
-# każdy build: :latest ORAZ :<pełny sha commita>. docker-compose.prod.yml
-# czyta tag ze zmiennej IMAGE_TAG (${IMAGE_TAG:-latest}), więc nie trzeba
-# niczego edytować w pliku — tylko na chwilę nadpisać zmienną.
+# Normalnie rollback robi się z GitHuba: Actions → "Deploy Frontend" →
+# Run workflow → numer starszej wersji (deploy.yml). Ten skrypt jest na
+# sytuację, gdy GitHub Actions nie działa albo trzeba wrócić do obrazu,
+# który nie jest wydaniem.
 #
-# Skąd wziąć <sha>: GitHub → zakładka Actions → poprzedni UDANY run →
-# krok "Build and push frontend image" → w logu widać dokładny tag. Albo:
-# `git log --oneline` na branchu `master` — każdy commit tam = jeden obraz.
+# Każde wydanie ma na Docker Hubie obraz :X.Y.Z (release.yml), a każdy
+# commit na master obraz :<pełny sha> (ci.yml). docker-compose.prod.yml
+# czyta tag ze zmiennej IMAGE_TAG (${IMAGE_TAG:-latest}), więc nie trzeba
+# niczego edytować w pliku.
 #
 # FE nie ma własnej bazy danych, więc (w odróżnieniu od backendu) tu nie
 # ma czego cofać poza samym obrazem — żadnego backupu przed tym krokiem.
 #
-# Albo po numerze wersji: release.yml dokleja do obrazu z wydania tag :X.Y.Z
-# (lista wersji: zakładka Releases na GitHubie albo CHANGELOG.md), np.
+# Lista wersji: zakładka Releases na GitHubie albo CHANGELOG.md, np.
 # ./scripts/rollback.sh 1.1.0
+# Sha: `git log --first-parent --oneline master`.
 #
 # Użycie: ./scripts/rollback.sh <sha-albo-wersja> [katalog-z-docker-compose.prod.yml]
 
 if [ -z "${1:-}" ]; then
-  echo "Użycie: $0 <sha-obrazu-do-przywrócenia> [katalog]" >&2
-  echo "Sha znajdziesz w GitHub Actions (poprzedni udany run) albo w 'git log'." >&2
+  echo "Użycie: $0 <wersja-albo-sha> [katalog]" >&2
+  echo "Wersje: zakładka Releases albo CHANGELOG.md; sha: 'git log'." >&2
   exit 1
 fi
 
@@ -46,5 +47,5 @@ IMAGE_TAG="$SHA" $DC -f docker-compose.prod.yml pull
 IMAGE_TAG="$SHA" $DC -f docker-compose.prod.yml up -d
 
 echo "=== Gotowe. Sprawdź: docker ps / docker logs VPS-2-FE ==="
-echo "Obraz działa teraz na ${IMAGE} — NIE na :latest. Następny normalny"
-echo "deploy (push na branch 'master') wróci do :latest automatycznie."
+echo "Obraz działa teraz na ${IMAGE}. Następne wydanie (merge release"
+echo "PR-a) wdroży nową wersję automatycznie."
