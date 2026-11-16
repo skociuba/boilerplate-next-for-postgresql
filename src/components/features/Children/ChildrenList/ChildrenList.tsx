@@ -31,7 +31,7 @@ export const ChildrenList = () => {
   } = usePage();
 
   return (
-    <div className="ml-8 mt-12 min-h-screen">
+    <div>
       <p className="mb-6 max-w-prose text-gray-500">
         Ten sam mechanizm co w Ściągawce Query: <code>page/limit</code> do paginacji,{' '}
         <code>sortBy/order</code> po kliknięciu nagłówka kolumny, <code>name</code> (zawiera),{' '}
@@ -40,7 +40,7 @@ export const ChildrenList = () => {
 
       <div className="mb-6 flex flex-wrap items-end gap-3">
         <Form form={filterForm} className="flex flex-wrap items-end gap-3">
-          <div className="w-40">
+          <div className="w-full sm:w-40">
             <Input name="name" placeholder="name" />
           </div>
           <div className="w-24">
@@ -66,7 +66,7 @@ export const ChildrenList = () => {
         {/* Osobny <Form> — limit NIE jest częścią filtrów (reaguje od razu,
             "Wyczyść" go nie dotyka), więc dostaje własny mini-formularz
             Formika zamiast dokładania się do filterForm (patrz usePage.tsx) */}
-        <Form form={limitForm} className="ml-auto flex items-center gap-2 text-sm">
+        <Form form={limitForm} className="flex items-center gap-2 text-sm sm:ml-auto">
           na stronę
           <div className="w-20">
             <Select

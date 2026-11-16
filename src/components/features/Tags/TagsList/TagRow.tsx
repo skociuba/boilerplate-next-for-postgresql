@@ -49,8 +49,11 @@ export const TagRow = ({ tag, refetch }: { tag: Tag; refetch: () => void }) => {
 
   if (isEditing) {
     return (
-      <Form form={form} className="mb-4 flex items-center gap-2 border-b pb-2">
-        <div className="w-48">
+      <Form
+        form={form}
+        className="mb-4 flex flex-col gap-2 border-b pb-3 sm:flex-row sm:items-center"
+      >
+        <div className="w-full sm:w-48">
           <Input name="name" />
         </div>
         <div className="flex gap-2">
@@ -64,9 +67,9 @@ export const TagRow = ({ tag, refetch }: { tag: Tag; refetch: () => void }) => {
   }
 
   return (
-    <div className="mb-4 flex items-center border-b pb-2">
-      <div className="flex-1">
-        <span className="font-bold">{tag.name}</span>
+    <div className="mb-4 flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center">
+      <div className="min-w-0 flex-1">
+        <span className="break-words font-bold">{tag.name}</span>
         <span className="ml-2 text-gray-500">
           {tag.posts_count} {tag.posts_count === 1 ? 'post' : 'postów'}
         </span>

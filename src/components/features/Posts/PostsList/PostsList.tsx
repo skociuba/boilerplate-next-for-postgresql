@@ -14,8 +14,8 @@ export const PostsList = ({ data, refetch }: { data: Posts; refetch: () => void 
   const { handleDelete } = usePage({ refetch });
 
   return (
-    <div className="ml-8 mt-12 min-h-screen">
-      <Button className="mb-12" variant="tertiary" type="link" href={`/posts/add`}>
+    <div>
+      <Button className="mb-8" variant="tertiary" type="link" href={`/posts/add`}>
         dodaj wpis
       </Button>
 
@@ -24,9 +24,16 @@ export const PostsList = ({ data, refetch }: { data: Posts; refetch: () => void 
       ) : null}
 
       {data?.map((item: Post) => (
-        <div key={item.id} className="flex items-center mb-4 border-b pb-2">
-          <div className="flex-1">
-            <span className="font-bold">{item.title}</span>
+        // Na telefonie przyciski pod tytułem (flex-col), od sm obok — w jednym
+        // rzędzie długi tytuł ściskał się do kilku liter albo wypychał
+        // przyciski poza ekran. min-w-0 + break-words: tytuł bez spacji też
+        // się zawinie, zamiast rozpychać wiersz.
+        <div
+          key={item.id}
+          className="mb-4 flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center"
+        >
+          <div className="min-w-0 flex-1">
+            <span className="break-words font-bold">{item.title}</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {item.tags?.length ? (
                 item.tags.map((tag) => (
