@@ -2,7 +2,8 @@
 
 import { Tag } from '#/interfaces';
 import { useField } from 'formik';
-import { useEffect, useRef, useState } from 'react';
+import { Check, ChevronDown } from 'lucide-react';
+import { useEffect, useId, useRef, useState } from 'react';
 
 import { cn } from '@/lib/utils/cn';
 
@@ -19,6 +20,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
   const [field, , helpers] = useField<string[]>(name);
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const listId = useId();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -41,22 +43,42 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
 
   return (
     <div ref={ref} className="relative w-full">
+      {/* Ten sam wygląd co Dropdown (@/ui/Dropdown) — pole, strzałka i
+          lista opcji mają wyglądać tak samo w całej aplikacji */}
       <button
         type="button"
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
+        aria-controls={listId}
+        aria-label="Tagi"
         onClick={() => setIsOpen((prev) => !prev)}
+        onKeyDown={(event) => event.key === 'Escape' && setIsOpen(false)}
         className={cn(
-          'flex h-12 w-full items-center justify-between overflow-hidden whitespace-nowrap rounded-xs border border-cloud px-5 text-left focus:border-navy',
-          selected.length ? 'text-black' : 'text-gray-400'
+          'flex h-12 w-full items-center justify-between gap-2 overflow-hidden whitespace-nowrap rounded-xs border bg-white pl-4 pr-3 text-left outline-none transition-shadow hover:border-slate-400 focus-visible:border-navy focus-visible:ring-2 focus-visible:ring-navy/20',
+          isOpen ? 'border-navy ring-2 ring-navy/20' : 'border-slate-300',
+          selected.length ? 'text-slate-900' : 'text-slate-400'
         )}
       >
         <span className="truncate">
           {selected.length ? selected.join(', ') : '— wybierz tagi (wielokrotny wybór) —'}
         </span>
-        <span className="ml-2 shrink-0 text-gray-400">{isOpen ? '▲' : '▼'}</span>
+        <ChevronDown
+          aria-hidden="true"
+          className={cn(
+            'h-4 w-4 shrink-0 text-slate-500 transition-transform',
+            isOpen && 'rotate-180'
+          )}
+        />
       </button>
 
       {isOpen ? (
-        <div className="absolute z-50 mt-1.5 max-h-56 w-full overflow-y-auto rounded-xs border border-cloud bg-white shadow-md">
+        <div
+          id={listId}
+          role="listbox"
+          aria-multiselectable="true"
+          aria-label="Tagi"
+          className="absolute z-50 mt-1.5 max-h-64 w-full overflow-y-auto rounded-xs border border-slate-200 bg-white py-1 shadow-lg"
+        >
           {tags?.length ? (
             tags.map((tag: Tag) => {
               const isSelected = selected.includes(tag.name as string);
@@ -64,24 +86,31 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
               return (
                 <div
                   key={tag.id}
+                  role="option"
+                  aria-selected={isSelected}
                   onClick={() => toggle(tag.name as string)}
                   className={cn(
-                    'flex h-12 w-full cursor-pointer items-center gap-2 border-t border-cloud px-5 first:border-t-0 hover:bg-gray-50',
-                    isSelected && 'bg-blue-50 font-bold'
+                    'flex w-full cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-slate-100',
+                    isSelected ? 'font-semibold text-navy' : 'text-slate-700'
                   )}
                 >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={isSelected}
-                    className="pointer-events-none"
-                  />
+                  {/* Własny kwadrat zamiast systemowego checkboxa — ten
+                      sam znaczek "Check" co przy wybranej opcji w Dropdown */}
+                  <span
+                    aria-hidden="true"
+                    className={cn(
+                      'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
+                      isSelected ? 'border-navy bg-navy text-white' : 'border-slate-300 bg-white'
+                    )}
+                  >
+                    {isSelected ? <Check className="h-3 w-3" strokeWidth={3} /> : null}
+                  </span>
                   {tag.name}
                 </div>
               );
             })
           ) : (
-            <div className="px-5 py-3 text-sm text-gray-400">brak tagów — dodaj je na /tags</div>
+            <div className="px-4 py-3 text-sm text-slate-500">brak tagów — dodaj je na /tags</div>
           )}
         </div>
       ) : null}
