@@ -79,6 +79,7 @@ jobs:
           build-args: |
             NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
+            BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
           tags: |
             sebastiankociuba/node-frontend:latest
             sebastiankociuba/node-frontend:${{ github.sha }}

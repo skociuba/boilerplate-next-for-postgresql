@@ -13,3 +13,8 @@ npm-debug.log
 .husky
 .agent
 .gemini
+# Pliki env nie wchodzą do obrazu: konfiguracja builda przychodzi jawnie
+# przez build-args w CI, a lokalne sekrety nie mogą trafić do warstwy obrazu
+.env
+.env.*
+!.env.example

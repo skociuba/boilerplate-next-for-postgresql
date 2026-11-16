@@ -15,6 +15,13 @@ ENV NEXT_PUBLIC_BASE_URL=$NEXT_PUBLIC_BASE_URL
 ARG NEXT_PUBLIC_BASE_PATH
 ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 
+# Cel rewrite'u /api-proxy (next.config.mjs). next build wpisuje go na stałe
+# do .next/routes-manifest.json, więc zmienna musi być ustawiona TERAZ —
+# BASE_URL ustawiony dopiero przy starcie kontenera nic nie zmienia.
+# Wcześniej wartość przychodziła z przypadkiem commitowanego pliku env.
+ARG BASE_URL
+ENV BASE_URL=$BASE_URL
+
 RUN npm run build
 
 FROM node:22.1.0-alpine AS runner

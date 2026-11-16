@@ -25,7 +25,8 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# local env files
+# local env files — także sam .env, który wcześniej przez pomyłkę był w repo
+.env
 .env*.local
 
 .Dockerfile
