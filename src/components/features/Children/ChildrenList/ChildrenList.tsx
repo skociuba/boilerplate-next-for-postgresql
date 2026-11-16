@@ -77,10 +77,7 @@ export const ChildrenList = () => {
                 value: String(option),
                 label: String(option)
               }))}
-              onChange={(event) => {
-                limitForm.handleChange(event);
-                handleLimitChange(Number(event.target.value));
-              }}
+              onValueChange={(value) => handleLimitChange(Number(value))}
             />
           </div>
         </Form>

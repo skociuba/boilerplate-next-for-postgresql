@@ -4,13 +4,13 @@ import { Tags } from '#/interfaces';
 import { Search, X } from 'lucide-react';
 import { useId } from 'react';
 
-import { NativeSelect } from '@/ui/NativeSelect';
+import { Dropdown } from '@/ui/Dropdown';
 
 import { SORT_OPTIONS, SortValue } from './usePostsFeed';
 
 // Zwykłe kontrolowane pola, nie Formik (Input/Select z @/ui wymagają
 // kontekstu formularza) — filtry działają od razu po zmianie, nie ma tu
-// żadnego "wyślij". Selecty to NativeSelect, ten sam wygląd co w formularzach.
+// żadnego "wyślij". Listy to Dropdown, ten sam komponent co w formularzach.
 const searchClass =
   'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-none transition-shadow hover:border-slate-400 focus:border-navy focus:ring-2 focus:ring-navy/20';
 
@@ -70,14 +70,12 @@ export const PostsToolbar = ({
       </div>
 
       <div>
-        <label htmlFor={`${id}-tag`} className="sr-only">
-          Filtruj po tagu
-        </label>
-        <NativeSelect
+        <Dropdown
           id={`${id}-tag`}
+          aria-label="Filtruj po tagu"
           size="md"
           value={tagId}
-          onChange={(event) => onTagChange(event.target.value)}
+          onChange={onTagChange}
           options={[
             { value: '', label: 'Wszystkie tagi' },
             ...tags.map((tag) => ({
@@ -89,14 +87,12 @@ export const PostsToolbar = ({
       </div>
 
       <div>
-        <label htmlFor={`${id}-sort`} className="sr-only">
-          Sortowanie
-        </label>
-        <NativeSelect
+        <Dropdown
           id={`${id}-sort`}
+          aria-label="Sortowanie"
           size="md"
           value={sort}
-          onChange={(event) => onSortChange(event.target.value as SortValue)}
+          onChange={(value) => onSortChange(value as SortValue)}
           options={[...SORT_OPTIONS]}
         />
       </div>

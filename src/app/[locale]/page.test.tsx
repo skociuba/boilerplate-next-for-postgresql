@@ -114,12 +114,14 @@ describe('HomePage', () => {
     render(<Page />);
     const tagSelect = await screen.findByRole('combobox', { name: 'Filtruj po tagu' });
 
-    expect(screen.queryByRole('option', { name: /pusty/ })).not.toBeInTheDocument();
+    fireEvent.click(tagSelect);
+    // hidden: true — zamknięte listy też są w DOM (ukryte), a tu liczy się,
+    // że tagu bez postów w ogóle nie ma wśród opcji
+    expect(screen.queryByRole('option', { name: /pusty/, hidden: true })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('option', { name: 'news (12)' }));
 
-    fireEvent.change(tagSelect, { target: { value: '1' } });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Sortowanie' }), {
-      target: { value: 'title:asc' }
-    });
+    fireEvent.click(screen.getByRole('combobox', { name: 'Sortowanie' }));
+    fireEvent.click(screen.getByRole('option', { name: 'Tytuł A–Z' }));
 
     expect(lastPostsQuery()).toEqual(
       expect.objectContaining({ tagId: '1', sortBy: 'title', order: 'asc', page: 1 })
