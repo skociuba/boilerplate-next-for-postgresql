@@ -1,0 +1,36 @@
+# Changelog
+
+## [1.1.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.0.0...v1.1.0) (2026-11-16)
+
+
+### Features
+
+* **home:** equal post cards with the full post in a dialog ([40f947b](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/40f947b60aa8dad4eb54fe99b7219c20511f6cb9))
+* **home:** search, tag filter, sorting and pagination for the feed ([2697ce9](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/2697ce95e887c47e789d9f50785f16055c44cc1b))
+* **posts:** add, change and remove a post image ([7b2b265](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/7b2b265dccd8c39053be6b423f64b072cef59505))
+* **posts:** add, change and remove a post image ([d5c3e3c](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/d5c3e3c08077d15caba9fd89f495457ed8e55ff3))
+* **privacy:** add the privacy and cookies policy page ([21ecf5f](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/21ecf5f75efb9830a2af15eecdf61f48cd46ae2e))
+* **privacy:** hide the children module and tidy the cookie notice ([5e6664a](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/5e6664a91d33568a5d84fa14039f860571e6ecdd))
+* **profile:** replace pesel with an editable full name ([fba5024](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/fba5024ca664c8c67141e5ec8a54f9578aa25b32))
+* **ui:** responsive navbar and refreshed layout ([d60d1d5](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/d60d1d5f237989eed05d413b2857fa3f5647a86c))
+
+
+### Bug Fixes
+
+* **auth:** show the seed logins only outside production ([2378624](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/2378624bf4ee133445c0475037eb61d82375dea4))
+* **auth:** show the seed logins only outside production ([a717d2e](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/a717d2eb60286e0c768ba71733070f32ad03625e))
+* **auth:** validate the password and show backend errors ([521d097](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/521d09702f2fc433198acb3383635eeba5b01af4))
+* **deploy:** bind the app to localhost and pass the api url at build time ([5ff8c11](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/5ff8c11f2e13c2b6b4f363ace86b34c731c6f6ef))
+* **ui:** consistent selects and a labelled user form ([c7f7860](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/c7f78600aa633c3c9556f84772ae70e2f80433db))
+* **ui:** consistent selects and a labelled user form ([2a6976e](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/2a6976eef484ac7dcfbd6ff035d633d6dfad1bb5))
+* **ui:** custom dropdown list instead of the native select popup ([011afe8](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/011afe800ac43e192262b643d8724e4559ba2310))
+* **ui:** custom dropdown list instead of the native select popup ([b3ed06e](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/b3ed06e9e76cb106e6cbac40ae91ae48b98203c6))
+* **ui:** make lists and forms usable on mobile, post content as textarea ([913e84f](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/913e84f3badf8fbe68885664cc1ddfd89ae06f3a))
+
+
+### CI/CD
+
+* check pull requests before merge and update actions ([ed46290](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/ed46290b5ecfaf4360da1f01cdbdb222e3738e1a))
+* check pull requests before merge and update actions ([d335071](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/d335071b25f8eaf11ece9d6381da4eefd5bf2ca6))
+* versioned releases with release-please and image version tags ([2c0dbad](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/2c0dbad3ac20d142df78841dd4f72545261436fd))
+* versioned releases with release-please and image version tags ([0d2e8fa](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/0d2e8fab95c7278a5b7d56c5d67b68a5fec242ec))
