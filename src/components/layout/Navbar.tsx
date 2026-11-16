@@ -17,8 +17,10 @@ const NavLinks = [
   { id: 1, name: 'home', path: '/', access: 'public' },
   { id: 2, name: 'customers', path: '/users', access: 'admin' },
   { id: 3, name: 'posts', path: '/posts', access: 'auth' },
-  { id: 4, name: 'tags', path: '/tags', access: 'auth' },
-  { id: 5, name: 'children', path: '/children', access: 'auth' }
+  { id: 4, name: 'tags', path: '/tags', access: 'auth' }
+  // Moduł "Dzieci" ukryty: dane dzieci to dane szczególnie chronione, a
+  // publiczne demo nie ma powodu ich zbierać. Kod modułu zostaje (strona
+  // children/page.tsx zwraca 404) — patrz CHILDREN_MODULE_ENABLED.
 ] as const;
 
 const Navbar = () => {

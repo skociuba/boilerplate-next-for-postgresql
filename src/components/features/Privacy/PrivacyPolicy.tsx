@@ -3,6 +3,9 @@
 // backend, co trzyma localStorage. Zmiana w tych miejscach = zmiana tutaj.
 export const CONTROLLER_NAME = 'Sebastian Kociuba';
 export const CONTACT_EMAIL = 'skociuba.noreply@gmail.com';
+// Zmieniasz treść = zmieniasz datę; użytkownik powinien widzieć, od kiedy
+// obowiązuje wersja, którą czyta.
+const LAST_UPDATED = '16 listopada 2026';
 
 const STORAGE_ROWS = [
   {
@@ -36,8 +39,8 @@ export const PrivacyPolicy = () => (
   <article className="flex max-w-3xl flex-col gap-8 rounded-2xl border border-slate-200 bg-white p-6 sm:p-10">
     <div className="rounded-xs border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
       <strong>To aplikacja demonstracyjna (projekt portfolio).</strong> Możesz założyć konto i
-      wszystko przetestować, ale nie wpisuj prawdziwego numeru PESEL, skanów dokumentów ani danych
-      swoich dzieci — używaj danych wymyślonych.
+      wszystko przetestować, ale nie przesyłaj skanów prawdziwych dokumentów — do testów wystarczy
+      dowolny plik.
     </div>
 
     <Section title="Kto odpowiada za Twoje dane">
@@ -53,16 +56,16 @@ export const PrivacyPolicy = () => (
     <Section title="Jakie dane zbieramy">
       <ul className="list-disc space-y-1 pl-5">
         <li>
-          <strong>Konto:</strong> imię, adres email i hasło. Hasła nie przechowujemy — zapisujemy
-          tylko jego skrót (bcrypt), z którego nie da się odtworzyć hasła.
+          <strong>Konto:</strong> imię i nazwisko, adres email i hasło. Hasła nie przechowujemy —
+          zapisujemy tylko jego skrót (bcrypt), z którego nie da się odtworzyć hasła.
         </li>
         <li>
-          <strong>Profil (opcjonalnie):</strong> PESEL, data urodzenia, telefon, opis, zdjęcie
-          profilowe i przesłany dokument.
+          <strong>Profil (wszystko opcjonalne):</strong> data urodzenia, telefon, zdjęcie profilowe
+          i przesłany dokument. Nie zbieramy numeru PESEL ani innych numerów identyfikacyjnych.
         </li>
         <li>
-          <strong>Treści, które dodajesz:</strong> posty, tagi oraz wpisy w module „Dzieci” (imię,
-          wiek, data urodzenia, notatki).
+          <strong>Treści, które dodajesz:</strong> posty i tagi. Posty, Twoje imię i nazwisko oraz
+          zdjęcie profilowe są widoczne publicznie na stronie głównej.
         </li>
         <li>
           <strong>Dane techniczne:</strong> adres IP — używany na bieżąco do ograniczania liczby
@@ -107,31 +110,34 @@ export const PrivacyPolicy = () => (
     <Section title="Cookies i pamięć przeglądarki">
       <p>
         Zapisujemy w przeglądarce tylko to, bez czego logowanie nie działa. Nie używamy analityki,
-        reklam ani skryptów firm trzecich, dlatego nie prosimy o zgodę — te pliki są niezbędne do
-        działania serwisu.
+        reklam, pikseli śledzących ani skryptów firm trzecich (także fontów — ładujemy je z naszego
+        serwera), dlatego nie prosimy o zgodę — przepisy wymagają jej dla plików, które nie są
+        niezbędne do działania serwisu, a takich tu nie ma.
       </p>
-      <div className="overflow-x-auto rounded-xs border border-slate-200">
-        <table className="w-full min-w-[520px] text-left text-sm">
-          <thead className="bg-slate-50 text-slate-600">
-            <tr>
-              <th className="px-3 py-2 font-medium">Nazwa</th>
-              <th className="px-3 py-2 font-medium">Rodzaj</th>
-              <th className="px-3 py-2 font-medium">Po co</th>
-              <th className="px-3 py-2 font-medium">Jak długo</th>
-            </tr>
-          </thead>
-          <tbody>
-            {STORAGE_ROWS.map((row) => (
-              <tr key={row.name} className="border-t border-slate-200 align-top">
-                <td className="px-3 py-2 font-mono text-xs">{row.name}</td>
-                <td className="px-3 py-2">{row.type}</td>
-                <td className="px-3 py-2">{row.purpose}</td>
-                <td className="px-3 py-2">{row.lifetime}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Lista kart zamiast tabeli: tabela z 4 kolumnami na telefonie albo
+          się ściska do nieczytelności, albo przewija w bok. */}
+      <ul className="flex flex-col gap-3">
+        {STORAGE_ROWS.map((row) => (
+          <li key={row.name} className="rounded-xs border border-slate-200 p-4 text-sm">
+            <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <code className="font-mono font-semibold text-slate-900">{row.name}</code>
+              <span className="text-xs text-slate-500">{row.type}</span>
+            </p>
+            <dl className="mt-2 grid gap-x-4 gap-y-1 sm:grid-cols-[max-content_1fr]">
+              <dt className="text-slate-500">Po co</dt>
+              <dd>{row.purpose}</dd>
+              <dt className="text-slate-500">Jak długo</dt>
+              <dd>{row.lifetime}</dd>
+            </dl>
+          </li>
+        ))}
+      </ul>
+      <p>
+        Możesz je w każdej chwili usunąć w ustawieniach przeglądarki — wylogujesz się wtedy, ale nic
+        więcej się nie zepsuje. Wylogowanie samo usuwa sesję i dane zalogowanej osoby.
+      </p>
     </Section>
+
+    <p className="text-sm text-slate-500">Ostatnia aktualizacja: {LAST_UPDATED}</p>
   </article>
 );

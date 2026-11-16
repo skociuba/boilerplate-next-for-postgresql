@@ -40,9 +40,17 @@ const Page = () => {
     enabled: Boolean(userId)
   });
 
-  // 404 (jeszcze nie ma profilu) i realny błąd wyglądają tu tak samo —
-  // w obu przypadkach najprościej pokazać pusty formularz "stwórz profil"
-  const oldValues = data?.error ? undefined : data;
+  // GET zwraca imię zawsze, a pola profilu jako null, gdy nic jeszcze nie
+  // zapisano — Formik potrzebuje '' zamiast null, inaczej input staje się
+  // "niekontrolowany" i React ostrzega przy pierwszym wpisanym znaku.
+  const profile = data?.error ? undefined : data;
+  const oldValues = profile
+    ? {
+        name: profile.name ?? user?.name ?? '',
+        date_of_birth: profile.date_of_birth ?? '',
+        phone: profile.phone ?? ''
+      }
+    : { name: user?.name ?? '' };
 
   return (
     <RequireAuth>
@@ -53,28 +61,20 @@ const Page = () => {
           loading: isLoading
         }}
       >
-        <>
+        {/* Avatar i dokument nie czekają już na zapis formularza — backend
+            tworzy wiersz profilu przy pierwszym uploadzie (upsert), bo
+            żadne pole profilu nie jest wymagane. */}
+        <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <ProfileForm oldValues={oldValues} userId={userId} onSaved={refetch} />
-          {/* avatar/document wiszą na profilu (upsert.update) — bez profilu
-              (jeszcze nie zapisanego PESEL-u itd.) nie mają czego aktualizować.
-              pesel/date_of_birth są NOT NULL w schema.prisma, więc nie da się
-              "po cichu" stworzyć samego avatara bez tamtych danych. */}
-          {oldValues ? (
-            <div className="mt-8 flex w-full max-w-md flex-col gap-8">
-              <AvatarUpload userId={userId} avatarPath={data?.avatar_path} onSaved={refetch} />
-              <DocumentUpload
-                userId={userId}
-                documentName={data?.document_original_name}
-                onSaved={refetch}
-              />
-            </div>
-          ) : (
-            <p className="mt-8 max-w-md text-gray-500">
-              Zapisz profil (PESEL, data urodzenia, telefon) powyżej — dopiero potem odblokuje się
-              upload avatara i dokumentu.
-            </p>
-          )}
-        </>
+          <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+            <AvatarUpload userId={userId} avatarPath={profile?.avatar_path} onSaved={refetch} />
+            <DocumentUpload
+              userId={userId}
+              documentName={profile?.document_original_name}
+              onSaved={refetch}
+            />
+          </div>
+        </div>
       </Layout>
     </RequireAuth>
   );

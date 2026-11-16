@@ -1,0 +1,108 @@
+'use client';
+
+import { Tags } from '#/interfaces';
+import { Search, X } from 'lucide-react';
+import { useId } from 'react';
+
+import { SORT_OPTIONS, SortValue } from './usePostsFeed';
+
+// Zwykłe kontrolowane pola, nie Formik (Input/Select z @/ui wymagają
+// kontekstu formularza) — filtry działają od razu po zmianie, nie ma tu
+// żadnego "wyślij".
+const fieldClass =
+  'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-none transition-shadow focus:border-navy focus:ring-2 focus:ring-navy/20';
+
+type PostsToolbarProps = {
+  search: string;
+  onSearchChange: (value: string) => void;
+  tagId: string;
+  onTagChange: (value: string) => void;
+  sort: SortValue;
+  onSortChange: (value: SortValue) => void;
+  tags: Tags;
+};
+
+export const PostsToolbar = ({
+  search,
+  onSearchChange,
+  tagId,
+  onTagChange,
+  sort,
+  onSortChange,
+  tags
+}: PostsToolbarProps) => {
+  const id = useId();
+
+  return (
+    <div
+      role="search"
+      className="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]"
+    >
+      <div className="relative sm:col-span-2 lg:col-span-1">
+        <label htmlFor={`${id}-q`} className="sr-only">
+          Szukaj w tytułach i treści postów
+        </label>
+        <Search
+          aria-hidden="true"
+          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+        />
+        <input
+          id={`${id}-q`}
+          type="search"
+          value={search}
+          onChange={(event) => onSearchChange(event.target.value)}
+          placeholder="Szukaj w tytułach i treści…"
+          maxLength={100}
+          className={`${fieldClass} pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden`}
+        />
+        {search ? (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            aria-label="Wyczyść wyszukiwanie"
+            className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-full text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+          >
+            <X aria-hidden="true" className="h-4 w-4" />
+          </button>
+        ) : null}
+      </div>
+
+      <div>
+        <label htmlFor={`${id}-tag`} className="sr-only">
+          Filtruj po tagu
+        </label>
+        <select
+          id={`${id}-tag`}
+          value={tagId}
+          onChange={(event) => onTagChange(event.target.value)}
+          className={`${fieldClass} px-3`}
+        >
+          <option value="">Wszystkie tagi</option>
+          {tags.map((tag) => (
+            <option key={tag.id} value={String(tag.id)}>
+              {tag.name} ({tag.posts_count})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label htmlFor={`${id}-sort`} className="sr-only">
+          Sortowanie
+        </label>
+        <select
+          id={`${id}-sort`}
+          value={sort}
+          onChange={(event) => onSortChange(event.target.value as SortValue)}
+          className={`${fieldClass} px-3`}
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+  );
+};

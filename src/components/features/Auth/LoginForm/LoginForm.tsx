@@ -66,8 +66,7 @@ export const LoginForm = () => {
           <Link href="/privacy" className="text-navy underline">
             politykę prywatności
           </Link>
-          . To aplikacja demonstracyjna — nie wpisuj prawdziwych danych wrażliwych (PESEL,
-          dokumenty).
+          . To aplikacja demonstracyjna — nie przesyłaj skanów prawdziwych dokumentów.
         </p>
       ) : null}
 

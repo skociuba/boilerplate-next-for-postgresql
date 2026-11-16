@@ -16,7 +16,7 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
   const paginationRange = getPaginationRange({ currentPage: page, totalPages });
 
   return (
-    <div className="flex items-center justify-center gap-1.5 py-6">
+    <nav aria-label="Paginacja" className="flex items-center justify-center gap-1.5 py-6">
       <Button
         type="button"
         variant="noStyling"
@@ -24,7 +24,7 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
         label="poprzednia strona"
         handleClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
-        className="h-9 w-9 rounded-xs border border-cloud text-sm"
+        className="h-9 w-9 rounded-xs border border-cloud bg-white text-sm hover:border-navy disabled:opacity-40"
       >
         ‹
       </Button>
@@ -40,10 +40,13 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
             type="button"
             variant="noStyling"
             rounded={false}
+            label={item === page ? `strona ${item}, bieżąca` : `strona ${item}`}
             handleClick={() => onPageChange(item)}
             className={cn(
               'h-9 w-9 rounded-xs border text-sm',
-              item === page ? 'border-navy bg-navy text-white' : 'border-cloud'
+              item === page
+                ? 'border-navy bg-navy text-white'
+                : 'border-cloud bg-white hover:border-navy'
             )}
           >
             {item}
@@ -58,10 +61,10 @@ export const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) 
         label="następna strona"
         handleClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
-        className="h-9 w-9 rounded-xs border border-cloud text-sm"
+        className="h-9 w-9 rounded-xs border border-cloud bg-white text-sm hover:border-navy disabled:opacity-40"
       >
         ›
       </Button>
-    </div>
+    </nav>
   );
 };

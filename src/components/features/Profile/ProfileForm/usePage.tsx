@@ -5,9 +5,14 @@ import { toast } from 'react-toastify';
 
 import { useForm } from '@/ui/useForm';
 
+import { useAuthStore } from '@/lib/authStore';
+
 import { useApiMutation } from '@/hooks/api/useApiMutation';
 
 import { initialValues, profileValidationSchema } from './pageModel';
+
+const notify = (message: string, type: 'success' | 'error') =>
+  toast(message, { position: 'bottom-left', autoClose: 3000, type, theme: 'colored' });
 
 export const usePage = ({
   oldValues,
@@ -18,7 +23,10 @@ export const usePage = ({
   userId: string;
   onSaved: () => void;
 }) => {
-  const { mutate } = useApiMutation({
+  const user = useAuthStore((state) => state.user);
+  const setUser = useAuthStore((state) => state.setUser);
+
+  const { mutate, isLoading } = useApiMutation({
     route: 'USER_PROFILE_SAVE',
     method: 'PUT'
   });
@@ -35,21 +43,23 @@ export const usePage = ({
           // profil to singleton (relacja 1:1), nie lista jak users/posts —
           // nie ma dokąd zrobić redirectu po zapisie, więc zamiast tego
           // dajemy potwierdzenie przez toast (i odświeżamy dane na miejscu)
-          onSuccess: ({ error }) => {
-            if (!error) {
-              toast('Profil zapisany', {
-                position: 'bottom-left',
-                autoClose: 3000,
-                type: 'success',
-                theme: 'colored'
-              });
-              onSaved();
+          onSuccess: (data) => {
+            if (data?.error) {
+              notify(data.error, 'error');
+
+              return;
             }
+            // Nazwa w nawigacji pochodzi z authStore (localStorage), nie z
+            // API — bez tego navbar pokazywałby stare imię do następnego
+            // logowania.
+            if (user && data?.name) setUser({ ...user, name: data.name });
+            notify('Profil zapisany', 'success');
+            onSaved();
           }
         }
       );
     }
   });
 
-  return { form };
+  return { form, isLoading };
 };

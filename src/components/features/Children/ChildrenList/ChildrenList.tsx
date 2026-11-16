@@ -3,10 +3,10 @@
 import { Button } from '@/ui/Button';
 import { Form } from '@/ui/Form';
 import Input from '@/ui/Input';
+import { Pagination } from '@/ui/Pagination/Pagination';
 import Select from '@/ui/Select';
 import { Skeleton } from '@/ui/Skeleton/Skeleton';
 
-import { Pagination } from './Pagination';
 import { SortableHeader } from './SortableHeader';
 import { usePage } from './usePage';
 
