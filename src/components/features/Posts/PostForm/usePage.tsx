@@ -1,6 +1,7 @@
 'use client';
 
 import { FormProps, Tag } from '#/interfaces';
+import { toast } from 'react-toastify';
 
 import { useForm } from '@/ui/useForm';
 
@@ -17,6 +18,16 @@ export const usePage = ({ oldValues, handleSubmit, ...props }: FormProps) => {
     method: 'PUT'
   });
 
+  const { mutate: uploadImage } = useApiMutation({
+    route: 'POST_IMAGE_UPLOAD',
+    method: 'PUT',
+    multipart: true
+  });
+  const { mutate: deleteImage } = useApiMutation({
+    route: 'POST_IMAGE_DELETE',
+    method: 'DELETE'
+  });
+
   const originalTagNames = (oldValues?.tags ?? []).map((tag: Tag) => tag.name);
 
   const form = useForm({
@@ -29,7 +40,38 @@ export const usePage = ({ oldValues, handleSubmit, ...props }: FormProps) => {
     onSubmit: async (values) => {
       // tag_names leci osobnym zapytaniem (PUT /posts/:id/tags), nie jako
       // pole title/content posta
-      const { tag_names: tagNames, ...sendValues } = values;
+      const { tag_names: tagNames, image, remove_image: removeImage, ...sendValues } = values;
+
+      // Ostatni krok łańcucha: zdjęcie potrzebuje id posta, więc idzie po
+      // zapisie posta i tagów — tak samo przy tworzeniu i przy edycji.
+      // Błąd uploadu zostawia post zapisany (toast pokazuje useApiMutation),
+      // dlatego nie przechodzimy wtedy dalej na listę.
+      const saveImage = (postId: string) => {
+        if (image instanceof File) {
+          uploadImage(
+            { params: { postId }, image },
+            {
+              onSuccess: ({ error }) => {
+                if (!error) {
+                  handleSubmit(postId);
+
+                  return;
+                }
+                toast(`Post zapisany, ale zdjęcie nie: ${error}`, {
+                  position: 'bottom-left',
+                  autoClose: 5000,
+                  type: 'error',
+                  theme: 'colored'
+                });
+              }
+            }
+          );
+        } else if (removeImage && oldValues?.image_url) {
+          deleteImage({ params: { postId } }, { onSuccess: () => handleSubmit(postId) });
+        } else {
+          handleSubmit(postId);
+        }
+      };
 
       mutate(sendValues, {
         onSuccess: ({ error, id }) => {
@@ -41,10 +83,7 @@ export const usePage = ({ oldValues, handleSubmit, ...props }: FormProps) => {
 
           // zawsze wysyłamy cały zestaw — pusta tablica poprawnie czyści
           // wszystkie tagi, dokładnie jak odznaczenie wszystkich checkboxów
-          setTags(
-            { params: { postId }, names: tagNames },
-            { onSuccess: () => handleSubmit(postId) }
-          );
+          setTags({ params: { postId }, names: tagNames }, { onSuccess: () => saveImage(postId) });
         }
       });
     }

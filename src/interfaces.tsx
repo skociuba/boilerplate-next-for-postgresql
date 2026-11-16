@@ -25,6 +25,7 @@ export type Post = {
   author_id?: string;
   author_name?: string;
   author_avatar_url?: string | null;
+  image_url?: string | null;
   title?: string;
   content?: string;
   created_at?: string;

@@ -145,6 +145,17 @@ const PostCard = ({ post, locale, onOpen }: { post: Post; locale: string; onOpen
       <h3 className="mt-4 w-full text-lg font-bold leading-snug text-slate-900 [overflow-wrap:anywhere]">
         {post.title}
       </h3>
+      {post.image_url ? (
+        // alt="" — zdjęcie ilustruje post, którego tytuł czytnik już
+        // przeczytał; opis pliku nic by tu nie dodał
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={getUploadUrl(post.image_url)}
+          alt=""
+          loading="lazy"
+          className="mt-3 aspect-video w-full rounded-xs bg-slate-100 object-cover"
+        />
+      ) : null}
       {post.content ? (
         <p className="mt-2 line-clamp-3 w-full text-sm leading-relaxed text-slate-600 [overflow-wrap:anywhere]">
           {post.content}
@@ -285,6 +296,17 @@ export const HomeComponent = () => {
         {openPost ? (
           <div className="flex flex-col gap-5">
             <AuthorBadge post={openPost} locale={locale} size="md" />
+            {/* Pod tytułem (nagłówek okna), nad treścią. Całe zdjęcie
+                (object-contain), bez przycinania jak w kafelku — max-h,
+                żeby pionowe zdjęcie nie wypychało treści poza ekran. */}
+            {openPost.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={getUploadUrl(openPost.image_url)}
+                alt=""
+                className="max-h-[60vh] w-full rounded-xs bg-slate-100 object-contain"
+              />
+            ) : null}
             {openPost.content ? (
               <p className="whitespace-pre-line break-words leading-relaxed text-slate-700">
                 <Linkified text={openPost.content} />

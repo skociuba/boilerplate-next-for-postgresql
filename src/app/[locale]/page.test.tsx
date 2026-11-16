@@ -36,7 +36,10 @@ const tags = [
 ];
 
 // Odpowiada kształtowi GET /posts: { items, pagination }
-const mockApi = ({ items = [post], total }: { items?: (typeof post)[]; total?: number } = {}) => {
+const mockApi = ({
+  items = [post],
+  total
+}: { items?: (typeof post & { image_url?: string })[]; total?: number } = {}) => {
   (useApiQuery as jest.Mock).mockImplementation(({ route }: { route: string }) =>
     route === 'TAGS'
       ? { data: tags, isLoading: false }
@@ -98,6 +101,36 @@ describe('HomePage', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Zamknij' }));
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it('shows the post image in the card and between title and content in the dialog', async () => {
+    mockApi({ items: [{ ...post, image_url: '/uploads/posts/zdjecie.png' }] });
+
+    render(<Page />);
+    const card = await screen.findByRole('button', { name: /Pierwszy post/ });
+
+    expect(card.querySelector('img[src$="/uploads/posts/zdjecie.png"]')).toBeInTheDocument();
+
+    fireEvent.click(card);
+    const dialogImage = screen
+      .getByRole('dialog')
+      .querySelector('img[src$="/uploads/posts/zdjecie.png"]');
+
+    expect(dialogImage).toBeInTheDocument();
+    // kolejność w DOM: zdjęcie przed treścią
+    const content = screen.getByRole('dialog').querySelector('p.whitespace-pre-line');
+    expect(
+      dialogImage!.compareDocumentPosition(content!) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
+
+  it('renders no image when the post has none', async () => {
+    mockApi();
+
+    render(<Page />);
+    const card = await screen.findByRole('button', { name: /Pierwszy post/ });
+
+    expect(card.querySelector('img[src*="/uploads/posts/"]')).not.toBeInTheDocument();
   });
 
   it('shows the empty state when there are no posts', async () => {
