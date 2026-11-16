@@ -4,13 +4,15 @@ import { Tags } from '#/interfaces';
 import { Search, X } from 'lucide-react';
 import { useId } from 'react';
 
+import { NativeSelect } from '@/ui/NativeSelect';
+
 import { SORT_OPTIONS, SortValue } from './usePostsFeed';
 
 // Zwykłe kontrolowane pola, nie Formik (Input/Select z @/ui wymagają
 // kontekstu formularza) — filtry działają od razu po zmianie, nie ma tu
-// żadnego "wyślij".
-const fieldClass =
-  'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-none transition-shadow focus:border-navy focus:ring-2 focus:ring-navy/20';
+// żadnego "wyślij". Selecty to NativeSelect, ten sam wygląd co w formularzach.
+const searchClass =
+  'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-none transition-shadow hover:border-slate-400 focus:border-navy focus:ring-2 focus:ring-navy/20';
 
 type PostsToolbarProps = {
   search: string;
@@ -53,7 +55,7 @@ export const PostsToolbar = ({
           onChange={(event) => onSearchChange(event.target.value)}
           placeholder="Szukaj w tytułach i treści…"
           maxLength={100}
-          className={`${fieldClass} pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden`}
+          className={`${searchClass} pl-9 pr-9 [&::-webkit-search-cancel-button]:hidden`}
         />
         {search ? (
           <button
@@ -71,37 +73,32 @@ export const PostsToolbar = ({
         <label htmlFor={`${id}-tag`} className="sr-only">
           Filtruj po tagu
         </label>
-        <select
+        <NativeSelect
           id={`${id}-tag`}
+          size="md"
           value={tagId}
           onChange={(event) => onTagChange(event.target.value)}
-          className={`${fieldClass} px-3`}
-        >
-          <option value="">Wszystkie tagi</option>
-          {tags.map((tag) => (
-            <option key={tag.id} value={String(tag.id)}>
-              {tag.name} ({tag.posts_count})
-            </option>
-          ))}
-        </select>
+          options={[
+            { value: '', label: 'Wszystkie tagi' },
+            ...tags.map((tag) => ({
+              value: String(tag.id),
+              label: `${tag.name} (${tag.posts_count})`
+            }))
+          ]}
+        />
       </div>
 
       <div>
         <label htmlFor={`${id}-sort`} className="sr-only">
           Sortowanie
         </label>
-        <select
+        <NativeSelect
           id={`${id}-sort`}
+          size="md"
           value={sort}
           onChange={(event) => onSortChange(event.target.value as SortValue)}
-          className={`${fieldClass} px-3`}
-        >
-          {SORT_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+          options={[...SORT_OPTIONS]}
+        />
       </div>
     </div>
   );

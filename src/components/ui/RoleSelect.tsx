@@ -7,12 +7,17 @@ import Select from './Select';
 // w bazie. Tu są tylko dwie, na stałe wpisane w enum (prisma/schema.prisma:
 // enum Role { user admin }), więc dociąganie ich zapytaniem byłoby
 // niepotrzebnym zapytaniem po coś, co i tak się nie zmienia.
+// Widoczny podpis, bo sam select pokazuje tylko wartość ("Użytkownik") —
+// bez etykiety nie wiadomo, że to wybór roli.
 export const RoleSelect = ({ name = 'role' }: { name?: string }) => (
-  <Select
-    name={name}
-    options={[
-      { value: 'user', label: 'Użytkownik' },
-      { value: 'admin', label: 'Administrator' }
-    ]}
-  />
+  <label className="flex flex-col gap-1.5">
+    <span className="text-sm font-medium text-slate-700">Rola</span>
+    <Select
+      name={name}
+      options={[
+        { value: 'user', label: 'Użytkownik' },
+        { value: 'admin', label: 'Administrator' }
+      ]}
+    />
+  </label>
 );
