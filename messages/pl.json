@@ -83,7 +83,7 @@
       "title": "Tytuł",
       "content": "Treść",
       "user_id": "Autor (id usera)",
-      "pesel": "PESEL",
+      "fullName": "Imię i nazwisko",
       "date_of_birth": "Data urodzenia",
       "phone": "Telefon",
       "minAge": "Wiek od",

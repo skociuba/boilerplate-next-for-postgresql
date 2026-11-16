@@ -57,9 +57,11 @@ export type PaginatedChildren = {
 
 export type UserProfile = {
   user_id?: string;
-  pesel?: string;
-  date_of_birth?: string;
-  phone?: string;
+  name?: string;
+  date_of_birth?: string | null;
+  phone?: string | null;
+  avatar_path?: string | null;
+  document_original_name?: string | null;
 };
 
 export type FormProps = {

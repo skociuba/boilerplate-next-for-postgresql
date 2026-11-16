@@ -84,7 +84,7 @@
       "title": "Title",
       "content": "Content",
       "user_id": "Author (user id)",
-      "pesel": "PESEL",
+      "fullName": "Full name",
       "date_of_birth": "Date of birth",
       "phone": "Phone",
       "minAge": "Age from",
