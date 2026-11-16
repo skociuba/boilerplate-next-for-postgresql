@@ -79,6 +79,7 @@
       "name": "Imię",
       "email": "Email",
       "password": "Hasło",
+      "confirmPassword": "Powtórz hasło",
       "title": "Tytuł",
       "content": "Treść",
       "user_id": "Autor (id usera)",

@@ -28,6 +28,7 @@ export const ResetPasswordForm = () => {
     <div className="mx-auto mt-8 max-w-sm">
       <Form form={form} className="flex flex-col gap-3">
         <Input name="password" type="password" placeholder="password" />
+        <Input name="confirmPassword" type="password" placeholder="confirmPassword" />
         {error ? <p className="text-sm text-red-700">{error}</p> : null}
         <Button type="submit" variant="tertiary" fullWidth>
           Ustaw nowe hasło

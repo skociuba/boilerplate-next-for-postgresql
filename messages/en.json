@@ -80,6 +80,7 @@
       "name": "Name",
       "email": "Email",
       "password": "Password",
+      "confirmPassword": "Repeat password",
       "title": "Title",
       "content": "Content",
       "user_id": "Author (user id)",

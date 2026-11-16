@@ -265,9 +265,22 @@ export const fetchRequest = async ({
     if (!res.ok) {
       const body = await res.json().catch(() => ({}));
       const { message, data, errors } = body;
+      // Backend (errorHandler.ts) zwraca { error, details? }, nie { message }
+      // — bez tego każdy błąd z API, także "hasło musi mieć minimum 8
+      // znaków", kończył się ogólnym "Something went wrong". details to
+      // fieldErrors z zoda ({ pole: [komunikaty] }); pierwszy konkretny
+      // komunikat mówi userowi więcej niż ogólne "Nieprawidłowe dane".
+      const firstDetail = body.details
+        ? (Object.values(body.details).flat()[0] as string | undefined)
+        : undefined;
 
       return {
-        error: message || data?.message || 'Something went wrong during fetching!',
+        error:
+          firstDetail ||
+          body.error ||
+          message ||
+          data?.message ||
+          'Something went wrong during fetching!',
         errors: errors || [],
         status
       };

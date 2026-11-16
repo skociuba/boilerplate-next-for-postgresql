@@ -46,6 +46,9 @@ export const LoginForm = () => {
         {mode === 'register' ? <Input name="name" placeholder="name" /> : null}
         <Input name="email" type="email" placeholder="email" />
         <Input name="password" type="password" placeholder="password" />
+        {mode === 'register' ? (
+          <Input name="confirmPassword" type="password" placeholder="confirmPassword" />
+        ) : null}
 
         {error ? <p className="text-sm text-error">{error}</p> : null}
 

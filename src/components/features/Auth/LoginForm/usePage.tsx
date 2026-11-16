@@ -41,7 +41,12 @@ export const usePage = () => {
       const result = await fetchRequest({
         route: mode === 'login' ? 'AUTH_LOGIN' : 'AUTH_REGISTER',
         method: 'POST',
-        values: mode === 'login' ? { email: values.email, password: values.password } : values
+        // Jawna lista pól zamiast całego `values` — confirmPassword jest
+        // tylko do walidacji na froncie i nie ma po co lecieć do API.
+        values:
+          mode === 'login'
+            ? { email: values.email, password: values.password }
+            : { name: values.name, email: values.email, password: values.password }
       });
 
       if (result?.error) {
