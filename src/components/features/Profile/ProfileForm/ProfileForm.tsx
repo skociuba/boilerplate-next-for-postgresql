@@ -20,7 +20,7 @@ export const ProfileForm = ({
   const { form } = usePage({ oldValues, userId, onSaved });
 
   return (
-    <div className="ml-8 mt-12 max-w-md">
+    <div className="w-full max-w-md">
       <p className="mb-6 text-gray-500">
         Relacja 1:1 z Twoim kontem — zapis działa jak upsert (PUT tworzy profil, jeśli go jeszcze
         nie masz, albo nadpisuje istniejący).

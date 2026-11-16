@@ -60,7 +60,7 @@ const Page = () => {
               pesel/date_of_birth są NOT NULL w schema.prisma, więc nie da się
               "po cichu" stworzyć samego avatara bez tamtych danych. */}
           {oldValues ? (
-            <div className="ml-8 mt-8 flex max-w-md flex-col gap-8">
+            <div className="mt-8 flex w-full max-w-md flex-col gap-8">
               <AvatarUpload userId={userId} avatarPath={data?.avatar_path} onSaved={refetch} />
               <DocumentUpload
                 userId={userId}
@@ -69,7 +69,7 @@ const Page = () => {
               />
             </div>
           ) : (
-            <p className="ml-8 mt-8 max-w-md text-gray-500">
+            <p className="mt-8 max-w-md text-gray-500">
               Zapisz profil (PESEL, data urodzenia, telefon) powyżej — dopiero potem odblokuje się
               upload avatara i dokumentu.
             </p>

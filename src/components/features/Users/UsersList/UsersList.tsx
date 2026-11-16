@@ -9,15 +9,21 @@ export const UsersList = ({ data, refetch }: { data: Users; refetch: () => void 
   const { handleDelete } = usePage({ refetch });
 
   return (
-    <div className="ml-8 mt-12 min-h-screen">
-      <Button className="mb-12" variant="tertiary" type="link" href={`/users/add`}>
+    <div>
+      <Button className="mb-8" variant="tertiary" type="link" href={`/users/add`}>
         dodaj użytkownika
       </Button>
       {data?.map((item: User) => (
-        <div key={item.id} className="flex items-center mb-4 border-b pb-2">
-          <div className="flex-1">
+        // Ten sam układ co PostsList: na telefonie przyciski pod danymi.
+        // break-all na emailu — adres nie ma spacji, więc bez tego jeden
+        // długi email rozpychał stronę w poziomie.
+        <div
+          key={item.id}
+          className="mb-4 flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center"
+        >
+          <div className="min-w-0 flex-1">
             <span className="font-bold">{item.name}</span>
-            <span className="text-gray-500 ml-2">({item.email})</span>
+            <span className="ml-2 break-all text-gray-500">({item.email})</span>
             {item.role === 'admin' ? (
               <span className="ml-2 rounded-xs bg-black px-1.5 py-0.5 text-[10px] uppercase text-white">
                 admin

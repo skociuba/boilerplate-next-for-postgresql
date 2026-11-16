@@ -13,13 +13,13 @@ export const UserForm = (props: FormProps) => {
   const { form } = usePage(props);
 
   return (
-    <div className="ml-8 mt-24 min-h-screen">
-      <Form {...{ form, className: 'flex flex-col gap-4 ' }}>
+    <div className="w-full max-w-2xl">
+      <Form {...{ form, className: 'flex flex-col gap-4' }}>
         <Input name="name" />
         <Input name="email" />
         <RoleSelect />
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
           <Button variant="tertiary" type="link" href={`/users`}>
             Cancel
           </Button>

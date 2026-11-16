@@ -12,11 +12,13 @@ export const loginValidationSchema = Yup.object({
 export const registerValidationSchema = Yup.object({
   name: validationSchema.global.string,
   email: validationSchema.global.string,
-  password: validationSchema.global.string
+  password: validationSchema.auth.password,
+  confirmPassword: validationSchema.auth.confirmPassword
 });
 
 export const initialValues: ValidationSchemaType<typeof registerValidationSchema> = {
   name: '',
   email: '',
-  password: ''
+  password: '',
+  confirmPassword: ''
 };
