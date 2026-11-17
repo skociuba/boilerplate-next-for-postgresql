@@ -89,10 +89,14 @@ jobs:
           # zera warstwy z npm install, jeśli package-lock się nie zmienił
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          # Adres backendu po HTTPS (domena z certyfikatem Let's Encrypt na
+          # nginx). BASE_URL wołany jest przez serwer Next.js (rewrite
+          # /api-proxy), więc musi to być pełny publiczny adres, a nie
+          # localhost kontenera. Zmienne repo (vars.*) mają pierwszeństwo.
           build-args: |
-            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
-            BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
+            BASE_URL=${{ vars.BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
           tags: sebastiankociuba/node-frontend:${{ github.sha }}
 
       # Trivy jako obraz przypięty do digestu, a nie aquasecurity/trivy-action
@@ -118,7 +122,7 @@ jobs:
           push: true
           cache-from: type=gha
           build-args: |
-            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
-            BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
+            BASE_URL=${{ vars.BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
           tags: sebastiankociuba/node-frontend:${{ github.sha }}
