@@ -22,6 +22,17 @@ updates:
     commit-message:
       prefix: build
       include: scope
+    # Major tych paczek to decyzja, a nie rutynowa aktualizacja:
+    # - typescript 7 to nowy kompilator (Go) bez starego API dla JS, z
+    #   którego korzystają narzędzia (w backendzie PR z 7.0.2 wywalił testy),
+    # - @types/node ma pasować do Node, na którym aplikacja działa (22 w
+    #   Dockerfile i CI), a nie do najnowszego.
+    # Minor i patch dalej przychodzą normalnie.
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
 
   # Wersje akcji w workflowach (actions/checkout@v4 itd.)
   - package-ecosystem: github-actions
@@ -34,10 +45,14 @@ updates:
     commit-message:
       prefix: ci
 
-  # Obraz bazowy node:22-alpine w Dockerfile
+  # Obraz bazowy node:22-alpine w Dockerfile. Tylko łatki w obrębie Node 22:
+  # zmiana wersji Node musi iść razem z node-version w CI i @types/node.
   - package-ecosystem: docker
     directory: '/'
     schedule:
       interval: weekly
+    ignore:
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
     commit-message:
       prefix: build
