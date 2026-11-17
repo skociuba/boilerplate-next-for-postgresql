@@ -36,6 +36,22 @@ Developer experience first:
 
 All tests are collocated with the source code inside the same directory. So, it makes it easier to find them. Coverage threshold is set to `70%`. In the `.jest` folder there is a custom provider for the all tests.
 
+### End-to-end (Playwright)
+
+`e2e/` runs a real browser against a production build of the frontend, talking to the real
+backend image (`sebastiankociuba/node-backend:latest`), PostgreSQL and MailDev. Covered flows:
+registration with the activation link read from the e-mail, login, session surviving a page
+reload (refresh token cookie), logout, wrong password, and creating/editing/deleting a post.
+
+```sh
+docker compose -f e2e/docker-compose.yml up -d --wait   # db + backend + maildev
+npx playwright install chromium                          # once
+npm run test:e2e                                         # builds and starts the frontend itself
+docker compose -f e2e/docker-compose.yml down
+```
+
+CI runs the same steps in the `e2e` job; the image is built only when both `test` and `e2e` pass.
+
 ## :information_source: How To Use
 
 To use this template you can simply click in **[Use this template](https://github.com/hadrysm/nextjs-boilerplate/generate)** or create your Next.js app based on this template by running:

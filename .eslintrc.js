@@ -19,6 +19,9 @@ module.exports = {
     // Only uses Testing Library lint rules in test files
     {
       files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
+      // e2e/*.spec.ts to Playwright, nie Testing Library — page.getByRole
+      // wygląda jak zapytanie z render(), więc reguły brały go za błąd
+      excludedFiles: ['e2e/**'],
       extends: ['plugin:testing-library/react']
     }
   ],

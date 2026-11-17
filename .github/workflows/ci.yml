@@ -52,13 +52,58 @@ jobs:
       - name: Audit production dependencies
         run: node scripts/audit.mjs
 
+  # Testy E2E: Chromium klika po zbudowanym frontendzie, który rozmawia
+  # z prawdziwym backendem (obraz :latest, czyli to, co jest na produkcji),
+  # bazą i MailDevem (e2e/docker-compose.yml). Równolegle z `test`.
+  e2e:
+    name: e2e
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # --wait: krok kończy się dopiero, gdy healthchecki są zielone
+      # (backend po migracjach odpowiada na /health)
+      - name: Start backend stack
+        run: docker compose -f e2e/docker-compose.yml up -d --wait
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      # Raport HTML ze śladami (zrzuty, DOM, sieć) nieudanych testów —
+      # do pobrania z zakładki Summary przebiegu
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Backend logs
+        if: failure()
+        run: docker compose -f e2e/docker-compose.yml logs api
+
   # Na PR obraz też się buduje (zepsuty Dockerfile albo next build wychodzi
   # przed merge'em), ale nie trafia do Docker Huba. Z master idzie tylko
   # :<sha> — :latest przesuwa release.yml przy wydaniu, więc :latest = to,
   # co jest na produkcji, a nie ostatni merge.
   build:
     name: build
-    needs: [test]
+    needs: [test, e2e]
     runs-on: ubuntu-latest
 
     steps:
