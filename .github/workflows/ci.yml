@@ -43,6 +43,13 @@ jobs:
       - name: Run tests
         run: npm run test:ci
 
+      # Znane podatności w zależnościach produkcyjnych (te, które jadą do
+      # obrazu). --audit-level=high: moderate/low nie blokują PR-a — te łata
+      # Dependabot (.github/dependabot.yml) w swoim tempie. Ten krok zatrzymałby
+      # Next 14 z krytycznym RCE, który stał na produkcji do wersji 1.1.x.
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
   # Na PR obraz też się buduje (zepsuty Dockerfile albo next build wychodzi
   # przed merge'em), ale nie trafia do Docker Huba. Z master idzie tylko
   # :<sha> — :latest przesuwa release.yml przy wydaniu, więc :latest = to,
@@ -69,12 +76,15 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push frontend image
+      # Najpierw build do lokalnego Dockera (load), skan, dopiero potem push
+      # — obraz z podatnością HIGH/CRITICAL nie trafia do rejestru, więc nie
+      # da się go też wydać ani wdrożyć.
+      - name: Build frontend image
         uses: docker/build-push-action@v6
         with:
           context: .
           file: ./Dockerfile
-          push: ${{ github.event_name != 'pull_request' }}
+          load: true
           # Cache warstw w GitHub Actions: zmiana w kodzie nie przebudowuje od
           # zera warstwy z npm install, jeśli package-lock się nie zmienił
           cache-from: type=gha
@@ -83,5 +93,32 @@ jobs:
             NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
             BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
-          tags: |
-            sebastiankociuba/node-frontend:${{ github.sha }}
+          tags: sebastiankociuba/node-frontend:${{ github.sha }}
+
+      # Trivy jako obraz przypięty do digestu, a nie aquasecurity/trivy-action
+      # z tagiem: tagi tej akcji zostały w 2026 przejęte i podmienione na
+      # kradnące sekrety — tag można przesunąć, digestu nie.
+      # --ignore-unfixed: blokujemy tylko to, co da się naprawić.
+      - name: Scan image for vulnerabilities (Trivy)
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:0.76.1@sha256:790fd66d1697395d8693d1acaa1ea702406a20f109b6fc7bac8db623eca6c06c \
+            image --severity HIGH,CRITICAL --ignore-unfixed --exit-code 1 \
+            "sebastiankociuba/node-frontend:${{ github.sha }}"
+
+      # Ten sam build drugi raz, ale wszystkie warstwy są już w cache, więc
+      # to tylko wysłanie gotowego obrazu do rejestru
+      - name: Push frontend image
+        if: github.event_name != 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          cache-from: type=gha
+          build-args: |
+            NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'http://85.215.128.5/api-node' }}
+            NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
+            BASE_URL=${{ vars.BASE_URL || 'http://85.215.128.5/api-node' }}
+          tags: sebastiankociuba/node-frontend:${{ github.sha }}
