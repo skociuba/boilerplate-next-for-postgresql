@@ -25,6 +25,12 @@ jest.mock('#/navigation', () => ({
   usePathname: jest.fn()
 }));
 
+// Id z URL-a strona czyta przez useParams() (Next 15), nie z propsa
+jest.mock('next/navigation', () => ({
+  ...jest.requireActual('next/navigation'),
+  useParams: () => ({ id: '1' })
+}));
+
 describe('User Edit Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -37,19 +43,26 @@ describe('User Edit Page', () => {
       error: null
     });
 
-    render(<Page params={{ id: '1' }} />);
+    render(<Page />);
 
     expect(useApiQuery).toHaveBeenCalledWith({ route: 'USER', id: '1' });
     // Tytuł (layout.users.title) i okruszek "Users"
     expect((await screen.findAllByText('Users')).length).toBeGreaterThan(0);
     expect(await screen.findByText('Edit')).toBeInTheDocument();
+    // Formularz (dynamic, ładowany asynchronicznie) z danymi z API —
+    // czekanie na niego zamyka też jego ładowanie wewnątrz testu
+    expect(await screen.findByDisplayValue('John Doe')).toBeInTheDocument();
   });
 
-  it('does not render the form while loading', () => {
+  it('does not render the form while loading', async () => {
     (useApiQuery as jest.Mock).mockReturnValue({ data: null, isLoading: true, error: null });
 
-    render(<Page params={{ id: '1' }} />);
+    render(<Page />);
 
+    // Najpierw poczekaj, aż strona skończy renderowanie (dynamic() ładuje
+    // formularz asynchronicznie) — inaczej React 19 zgłasza aktualizację
+    // poza act(), a brak pola mógłby znaczyć tylko "jeszcze się nie załadował"
+    expect(await screen.findByText('Edit')).toBeInTheDocument();
     expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   });
 });

@@ -1,15 +1,10 @@
 import createMiddleware from 'next-intl/middleware';
 
-import { locales, localePrefix } from './navigation';
+import { routing } from './navigation';
 
-export default createMiddleware({
-  // A list of all locales that are supported
-  locales,
-  localePrefix,
-  // Used when no locale matches
-  defaultLocale: 'pl',
-  localeDetection: false
-});
+// Języki, domyślny locale i brak autodetekcji — wszystko w routing
+// (src/navigation.js)
+export default createMiddleware(routing);
 
 export const config = {
   // Ten matcher wyłapuje wszystko poza plikami statycznymi, api i _next

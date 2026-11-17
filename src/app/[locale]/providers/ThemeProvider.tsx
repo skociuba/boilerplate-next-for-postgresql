@@ -1,7 +1,7 @@
 'use client';
 
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
-import { type ThemeProviderProps } from 'next-themes/dist/types';
+// next-themes 0.4 eksportuje typy z głównego wejścia (dist/types zniknęło)
+import { ThemeProvider as NextThemesProvider, type ThemeProviderProps } from 'next-themes';
 
 export const ThemeProvider = ({ children, ...props }: ThemeProviderProps) => {
   return <NextThemesProvider {...props}>{children}</NextThemesProvider>;

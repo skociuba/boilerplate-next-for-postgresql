@@ -1,6 +1,8 @@
 import createNextIntlPlugin from 'next-intl/plugin';
 
-const withNextIntl = createNextIntlPlugin();
+// next-intl 4 domyślnie szuka src/i18n/request.ts — u nas konfiguracja
+// leży w src/i18n.js, więc ścieżka podana wprost
+const withNextIntl = createNextIntlPlugin('./src/i18n.js');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

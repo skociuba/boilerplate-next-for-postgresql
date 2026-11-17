@@ -68,4 +68,15 @@ const customJestConfig = {
   }
 };
 
-module.exports = createJestConfig(customJestConfig);
+// next-intl 4 (i jego zależności: use-intl, @formatjs, intl-messageformat) są wydawane tylko jako ESM — Jest w trybie
+// CommonJS musi je przepuścić przez babel, inaczej pada na `export`.
+// Podmiana PO next/jest, bo next/jest dokleja własne '/node_modules/' do
+// transformIgnorePatterns i wyjątek ustawiony w customJestConfig nic nie daje.
+module.exports = async () => {
+  const config = await createJestConfig(customJestConfig)();
+  config.transformIgnorePatterns = [
+    '/node_modules/(?!(next-intl|use-intl|@formatjs|intl-messageformat|@schummar/icu-type-parser|icu-minify)/)',
+    '^.+\\.module\\.(css|sass|scss)$'
+  ];
+  return config;
+};
