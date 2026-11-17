@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.2...v1.1.3) (2026-11-17)
+
+
+### CI/CD
+
+* bump the actions group with 8 updates ([bc8bf5a](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/bc8bf5a5927f9facaf7c5d65b37c7a67c174b712))
+
 ## [1.1.2](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.1...v1.1.2) (2026-11-17)
 
 
