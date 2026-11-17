@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.4](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.3...v1.1.4) (2026-11-17)
+
+
+### CI/CD
+
+* build the frontend against the https backend url ([d98d231](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/d98d231317f4f1df9da601f2e165045a2cbf26cd))
+* build the frontend against the https backend url ([bc84410](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/bc8441068d860f0fb2a0f9a2477cf2daa43eb40a))
+
 ## [1.1.3](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.2...v1.1.3) (2026-11-17)
 
 
