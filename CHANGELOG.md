@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.2](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.1...v1.1.2) (2026-11-17)
+
+
+### Bug Fixes
+
+* **deps:** upgrade to next 15.5 to close critical next 14 vulnerabilities ([a29842b](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/a29842b220fd5c0e6d303d678a5c7d95eec95961))
+
+
+### CI/CD
+
+* audit dependencies, scan the image with trivy and enable dependabot ([3cda7fb](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/3cda7fb36b9b631710b5e393d5b631a8c8a947f5))
+* **dependabot:** skip major updates of typescript, @types/node and node ([5059283](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/50592830487956ff5ea0f63f46689bc79009726f))
+
 ## [1.1.1](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.0...v1.1.1) (2026-11-16)
 
 ### CI/CD
