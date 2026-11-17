@@ -1,0 +1,61 @@
+# Backend do testów E2E: baza, API i skrzynka na maile. Frontend NIE jest
+# tutaj — Playwright buduje i odpala go sam (playwright.config.ts), bo to
+# właśnie jego kod testujemy.
+#
+#   docker compose -f e2e/docker-compose.yml up -d --wait
+#   npm run test:e2e
+#   docker compose -f e2e/docker-compose.yml down
+name: vps2-e2e
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: e2e
+      POSTGRES_PASSWORD: e2e
+      POSTGRES_DB: vps2_e2e
+    # Baza w RAM-ie: po `down` nic nie zostaje, każdy przebieg startuje od
+    # czystej bazy, a zapis jest szybszy niż na dysk
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U e2e -d vps2_e2e']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  # Łapie wszystkie maile z backendu i wystawia je przez REST API — test
+  # rejestracji czyta z niego link aktywacyjny tak, jak zrobiłby to
+  # człowiek ze swojej skrzynki
+  maildev:
+    image: maildev/maildev:2.2.1
+    ports:
+      - '127.0.0.1:1080:1080'
+
+  api:
+    # Ten sam obraz, który chodzi na produkcji (:latest przesuwa dopiero
+    # release backendu), więc frontend jest testowany z backendem, z którym
+    # naprawdę będzie rozmawiał. BACKEND_TAG pozwala sprawdzić konkretną wersję.
+    image: sebastiankociuba/node-backend:${BACKEND_TAG:-latest}
+    # Migracje przed startem, jak w deployu backendu — na pustej bazie
+    # tworzą cały schemat
+    command: ['sh', '-c', './node_modules/.bin/prisma migrate deploy && node dist/index.js']
+    environment:
+      DATABASE_URL: postgres://e2e:e2e@db:5432/vps2_e2e
+      # Sekrety tylko na potrzeby testów, baza i tak znika po przebiegu
+      JWT_ACCESS_SECRET: e2e-access-secret
+      JWT_REFRESH_SECRET: e2e-refresh-secret
+      JWT_ACCESS_EXPIRES: 15m
+      JWT_REFRESH_EXPIRES: 7d
+      SMTP_HOST: maildev
+      SMTP_PORT: 1025
+      EMAIL_FROM: no-reply@e2e.local
+      # Linki w mailach prowadzą do frontendu odpalonego przez Playwrighta
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - '127.0.0.1:3001:3000'
+    depends_on:
+      db:
+        condition: service_healthy
+      maildev:
+        condition: service_started
