@@ -44,11 +44,13 @@ jobs:
         run: npm run test:ci
 
       # Znane podatności w zależnościach produkcyjnych (te, które jadą do
-      # obrazu). --audit-level=high: moderate/low nie blokują PR-a — te łata
+      # obrazu). Tylko HIGH/CRITICAL: moderate/low nie blokują PR-a — te łata
       # Dependabot (.github/dependabot.yml) w swoim tempie. Ten krok zatrzymałby
       # Next 14 z krytycznym RCE, który stał na produkcji do wersji 1.1.x.
+      # Skrypt zamiast gołego npm audit: pozwala na świadome wyjątki
+      # z uzasadnieniem i datą ważności (audit-allowlist.json), gdy łatki nie ma.
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=high
+        run: node scripts/audit.mjs
 
   # Na PR obraz też się buduje (zepsuty Dockerfile albo next build wychodzi
   # przed merge'em), ale nie trafia do Docker Huba. Z master idzie tylko
