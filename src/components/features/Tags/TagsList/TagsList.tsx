@@ -32,7 +32,9 @@ export const TagsList = ({ data, refetch }: { data: Tags; refetch: () => void })
         </Button>
       </Form>
 
-      {data?.map((tag) => <TagRow key={tag.id} tag={tag} refetch={refetch} />)}
+      {data?.map((tag) => (
+        <TagRow key={tag.id} tag={tag} refetch={refetch} />
+      ))}
     </div>
   );
 };

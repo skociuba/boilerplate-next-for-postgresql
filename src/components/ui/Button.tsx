@@ -10,13 +10,7 @@ export type ButtonProps = {
   type?: 'button' | 'submit' | 'reset' | 'link';
   href?: string; // Kluczowe dla przekierowań
   variant?:
-    | 'primary'
-    | 'secondary'
-    | 'tertiary'
-    | 'quaternary'
-    | 'disabled'
-    | 'download'
-    | 'noStyling';
+    'primary' | 'secondary' | 'tertiary' | 'quaternary' | 'disabled' | 'download' | 'noStyling';
   disabled?: boolean;
   className?: string;
   handleClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
