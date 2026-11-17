@@ -57,7 +57,7 @@ jobs:
       # wdrażana wersja dostaje dokładnie tę konfigurację, z którą została
       # wydana
       - name: Checkout the release tag
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: v${{ inputs.version }}
 
@@ -71,7 +71,7 @@ jobs:
           target: '/var/www/frontend-node'
 
       - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10
+        uses: appleboy/ssh-action@v1.2.5
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
