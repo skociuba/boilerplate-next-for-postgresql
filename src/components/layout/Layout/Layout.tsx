@@ -1,3 +1,7 @@
+'use client';
+// Next 15 nie pozwala na dynamic(..., { ssr: false }) w komponencie
+// serwerowym, a Intro jest ładowane tylko w przeglądarce. children nadal
+// mogą być komponentami serwerowymi (np. polityka prywatności).
 import dynamic from 'next/dynamic';
 import Skeleton from 'react-loading-skeleton';
 

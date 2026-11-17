@@ -1,10 +1,13 @@
-FROM node:22.1.0-alpine AS deps
+# node:22-alpine zamiast przypiętego 22.1.0: stary obraz nie dostawał już
+# łatek systemu ani Node, a skan Trivy (ci.yml) by go zatrzymywał.
+# Aktualizacje obrazu bazowego proponuje Dependabot (.github/dependabot.yml).
+FROM node:22-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 
-FROM node:22.1.0-alpine AS builder
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -24,7 +27,7 @@ ENV BASE_URL=$BASE_URL
 
 RUN npm run build
 
-FROM node:22.1.0-alpine AS runner
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -34,6 +37,10 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+# Serwer standalone to sam `node server.js` — npm/npx w obrazie
+# produkcyjnym nie są potrzebne, a to w nich skaner znajduje podatności
+RUN rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./

@@ -1,6 +1,7 @@
 'use client';
 import { useRouter } from '#/navigation';
 import dynamic from 'next/dynamic';
+import { useParams } from 'next/navigation';
 
 import { Layout } from '@/components/layout/Layout/Layout';
 import { RequireAuth } from '@/components/layout/RequireAuth';
@@ -14,7 +15,10 @@ const PostForm = dynamic(
   }
 );
 
-const Page = ({ params }: { params: { id: string } }) => {
+// Next 15: w komponencie klienckim params jako prop to Promise —
+// useParams() daje gotowy obiekt bez React.use()
+const Page = () => {
+  const params = useParams<{ id: string }>();
   const { data, isLoading, error } = useApiQuery({
     route: 'POST',
     id: params.id

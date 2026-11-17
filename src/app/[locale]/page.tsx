@@ -1,3 +1,7 @@
+'use client';
+// Next 15 nie pozwala na dynamic(..., { ssr: false }) w komponencie
+// serwerowym — strona i tak w całości zależy od danych z przeglądarki
+// (useApiQuery), jak pozostałe strony z (pages)
 import dynamic from 'next/dynamic';
 
 import { Layout } from '@/components/layout/Layout/Layout';

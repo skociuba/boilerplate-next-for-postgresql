@@ -1,0 +1,58 @@
+# Dependabot otwiera PR-y z aktualizacjami. Każdy przechodzi te same checki
+# co zwykły PR (lint, testy, audyt, build ze skanem Trivy), więc merge jest
+# bezpieczny, kiedy wszystko jest zielone.
+#
+# Poprzednia konfiguracja (codziennie, osobny PR na każdą paczkę) zostawiła
+# kilkanaście wiszących PR-ów i została usunięta — a bez niej Next 14
+# z krytycznymi podatnościami przeleżał na produkcji. Stąd grupowanie.
+version: 2
+updates:
+  # Paczki npm: minor i patch w JEDNYM zbiorczym PR-ze na tydzień. Major
+  # idzie osobno, bo zwykle wymaga zmian w kodzie (jak Next 14 → 15).
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      npm-minor-patch:
+        update-types: [minor, patch]
+    # Conventional Commits: "build(deps): ..." — release-please chowa typ
+    # build w CHANGELOG, więc aktualizacje nie zaśmiecają listy zmian
+    commit-message:
+      prefix: build
+      include: scope
+    # Major tych paczek to decyzja, a nie rutynowa aktualizacja:
+    # - typescript 7 to nowy kompilator (Go) bez starego API dla JS, z
+    #   którego korzystają narzędzia (w backendzie PR z 7.0.2 wywalił testy),
+    # - @types/node ma pasować do Node, na którym aplikacja działa (22 w
+    #   Dockerfile i CI), a nie do najnowszego.
+    # Minor i patch dalej przychodzą normalnie.
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+
+  # Wersje akcji w workflowach (actions/checkout@v4 itd.)
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
+    commit-message:
+      prefix: ci
+
+  # Obraz bazowy node:22-alpine w Dockerfile. Tylko łatki w obrębie Node 22:
+  # zmiana wersji Node musi iść razem z node-version w CI i @types/node.
+  - package-ecosystem: docker
+    directory: '/'
+    schedule:
+      interval: weekly
+    ignore:
+      - dependency-name: node
+        update-types: ['version-update:semver-major']
+    commit-message:
+      prefix: build

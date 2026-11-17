@@ -16,52 +16,51 @@
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
     "postinstall": "husky install",
-    "generate": "pnpm plop --plopfile ./.plop/plopfile.js"
+    "generate": "plop --plopfile ./.plop/plopfile.js"
   },
   "engines": {
     "node": ">=18.20.2"
   },
-  "packageManager": "pnpm@9.1.1+sha256.9551e803dcb7a1839fdf5416153a844060c7bce013218ce823410532504ac10b",
   "dependencies": {
-    "@t3-oss/env-nextjs": "0.11.1",
-    "@tanstack/react-query": "^5.31.0",
-    "@tanstack/react-query-devtools": "^5.31.0",
+    "@t3-oss/env-nextjs": "0.13.11",
+    "@tanstack/react-query": "^5.107.1",
+    "@tanstack/react-query-devtools": "^5.107.1",
     "clsx": "2.1.1",
     "formik": "^2.4.9",
     "lucide-react": "^0.455.0",
-    "next": "14.2.9",
-    "next-intl": "^3.7.0",
-    "next-themes": "^0.3.0",
+    "next": "15.5.29",
+    "next-intl": "^4.15.1",
+    "next-themes": "^0.4.6",
     "qs": "^6.13.0",
-    "react": "18.3.1",
-    "react-dom": "18.3.1",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
     "react-loading-skeleton": "^3.5.0",
-    "react-toastify": "^10.0.6",
+    "react-toastify": "^11.2.0",
     "tailwind-merge": "2.5.2",
     "yup": "^1.7.1",
-    "zod": "3.23.8",
+    "zod": "4.6.7",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@testing-library/dom": "10.4.2",
     "@testing-library/jest-dom": "6.5.0",
-    "@testing-library/react": "15.0.7",
+    "@testing-library/react": "16.3.3",
     "@testing-library/user-event": "14.5.2",
     "@types/jest": "29.5.12",
     "@types/node": "22.5.4",
-    "@types/react": "18.3.5",
-    "@types/react-dom": "18.3.0",
-    "@types/testing-library__jest-dom": "^6.0.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
     "@typescript-eslint/eslint-plugin": "7.0.0",
     "@typescript-eslint/parser": "6.21.0",
     "autoprefixer": "10.4.20",
     "babel-jest": "29.7.0",
     "eslint": "8.57.0",
-    "eslint-config-next": "14.2.9",
+    "eslint-config-next": "15.5.29",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-import-helpers": "1.3.1",
     "eslint-plugin-prettier": "5.2.1",
     "eslint-plugin-react": "7.35.2",
-    "eslint-plugin-react-hooks": "4.6.2",
+    "eslint-plugin-react-hooks": "5.2.0",
     "eslint-plugin-testing-library": "6.3.0",
     "husky": "9.1.5",
     "identity-obj-proxy": "3.0.0",
@@ -71,7 +70,7 @@
     "lint-staged": "15.2.10",
     "pinst": "3.0.0",
     "plop": "4.0.1",
-    "postcss": "8.4.45",
+    "postcss": "8.5.33",
     "prettier": "3.3.3",
     "prettier-plugin-tailwindcss": "0.6.6",
     "tailwind-scrollbar": "3.1.0",
@@ -83,5 +82,10 @@
       "npm run prettier:format",
       "npm run eslint:format"
     ]
+  },
+  "overrides": {
+    "next": {
+      "postcss": "$postcss"
+    }
   }
 }

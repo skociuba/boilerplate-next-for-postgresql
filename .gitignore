@@ -35,6 +35,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
+# Generowany przez next dev/build/lint, a jego treść zależy od wersji Next
+# i od tego, czy istnieje .next/ — w repo dawał "zmianę" po każdym buildzie
+# (tak samo robi szablon create-next-app)
+next-env.d.ts
 
 # storybook
 storybook-static
