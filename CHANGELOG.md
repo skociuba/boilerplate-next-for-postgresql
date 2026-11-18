@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.5](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.4...v1.1.5) (2026-11-17)
+
+
+### CI/CD
+
+* allow documented exceptions in the dependency audit ([c9b1fc9](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/c9b1fc9b5d6d90612d811864ceaa6e86700a8c03))
+* allow documented exceptions in the dependency audit ([be99d27](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/be99d27f45c1a530b2a5656c57e6a77217b7a080))
+
+
+### Tests
+
+* add playwright end-to-end tests ([bab0edf](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/bab0edf659bd09ea2812cfb3ec5b862bdb24d148))
+* add playwright end-to-end tests ([e685fde](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/e685fde881b5fc243d5455c8a76439b0ef365381))
+
 ## [1.1.4](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.3...v1.1.4) (2026-11-17)
 
 
