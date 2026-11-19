@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.6](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.5...v1.1.6) (2026-11-19)
+
+
+### Bug Fixes
+
+* **docker:** keep the eslint config out of the image build ([b9728e1](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/b9728e1cc28da344d004beea9ef2daa0a78442c4))
+
 ## [1.1.5](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.4...v1.1.5) (2026-11-17)
 
 
