@@ -25,6 +25,15 @@ jobs:
   deploy:
     name: Deploy Frontend Container
     runs-on: ubuntu-latest
+    # Środowisko "production": reguły w Settings → Environments. Deploy
+    # czeka na ręczne zatwierdzenie (Required reviewers), więc merge
+    # release PR-a nie wypycha od razu na produkcję — można jeszcze
+    # obejrzeć, co wchodzi, albo wstrzymać wydanie. Ten sam próg dotyczy
+    # ręcznego deployu/rollbacku z zakładki Actions. Zakładka
+    # Environments pokazuje też historię wdrożeń i link do strony.
+    environment:
+      name: production
+      url: https://skociuba-vps2.duckdns.org/vps2
     # Jeden deploy naraz, bez anulowania — przerwany w połowie (po down,
     # przed up) zostawiłby stronę wyłączoną. Grupa na poziomie joba, bo
     # przy workflow_call ${{ github.workflow }} to nazwa wywołującego.
