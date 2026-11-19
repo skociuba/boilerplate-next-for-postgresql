@@ -8,7 +8,11 @@ docker-compose.yml
 docker-compose.prod.yml
 README.md
 npm-debug.log
-.eslintrc.js
+# Bez konfiguracji ESLinta w obrazie: lint ma własny krok w CI (ci.yml),
+# a w Dockerze `next build` odpaliłby go jeszcze raz, i to bez .prettierrc
+# (wykluczony niżej), więc Prettier z domyślnymi ustawieniami zgłaszałby
+# błąd w każdym pliku
+eslint.config.mjs
 .prettierrc
 .husky
 .agent

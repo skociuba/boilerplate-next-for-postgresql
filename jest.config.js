@@ -78,5 +78,6 @@ module.exports = async () => {
     '/node_modules/(?!(next-intl|use-intl|@formatjs|intl-messageformat|@schummar/icu-type-parser|icu-minify)/)',
     '^.+\\.module\\.(css|sass|scss)$'
   ];
+
   return config;
 };
