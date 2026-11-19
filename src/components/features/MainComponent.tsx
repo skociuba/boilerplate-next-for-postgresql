@@ -20,11 +20,11 @@ import { PAGE_SIZE, usePostsFeed } from './PostsFeed/usePostsFeed';
 // górze karty, nawet gdy avatar jest prawdziwym zdjęciem) — jeden spójny
 // system identyfikacji autora, nie dwa przypadkowe.
 const AUTHOR_TINTS = [
-  { bg: 'bg-navy', chip: 'bg-navy/[0.08] text-navy' },
-  { bg: 'bg-[#2f6690]', chip: 'bg-[#2f6690]/[0.08] text-[#2f6690]' },
-  { bg: 'bg-[#3a7d44]', chip: 'bg-[#3a7d44]/[0.08] text-[#3a7d44]' },
-  { bg: 'bg-[#9c3d54]', chip: 'bg-[#9c3d54]/[0.08] text-[#9c3d54]' },
-  { bg: 'bg-[#a8690a]', chip: 'bg-[#a8690a]/[0.08] text-[#a8690a]' }
+  { bg: 'bg-navy', chip: 'bg-navy/8 text-navy' },
+  { bg: 'bg-[#2f6690]', chip: 'bg-[#2f6690]/8 text-[#2f6690]' },
+  { bg: 'bg-[#3a7d44]', chip: 'bg-[#3a7d44]/8 text-[#3a7d44]' },
+  { bg: 'bg-[#9c3d54]', chip: 'bg-[#9c3d54]/8 text-[#9c3d54]' },
+  { bg: 'bg-[#a8690a]', chip: 'bg-[#a8690a]/8 text-[#a8690a]' }
 ];
 const tintForName = (name: string) => {
   const seed = name.split('').reduce((sum, char) => sum + char.charCodeAt(0), 0);
@@ -131,7 +131,7 @@ const PostCard = ({ post, locale, onOpen }: { post: Post; locale: string; onOpen
     <button
       type="button"
       onClick={onOpen}
-      className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
+      className="group relative flex h-full w-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy"
     >
       <span aria-hidden="true" className={cn('absolute inset-x-0 top-0 h-1', tint.bg)} />
 
@@ -139,10 +139,10 @@ const PostCard = ({ post, locale, onOpen }: { post: Post; locale: string; onOpen
 
       {/* Tytuł zawsze w całości, treść przycięta do 3 linii — wysokość
           kafli wyrównuje siatka (auto-rows-fr), a pełna treść jest w oknie.
-          overflow-wrap:anywhere zamiast break-words: w kolumnie flex długi
+          overflow-wrap:anywhere zamiast wrap-break-word: w kolumnie flex długi
           URL bez spacji i tak rozpychał akapit na szerokość całego adresu
           (break-words nie zmniejsza minimalnej szerokości elementu). */}
-      <h3 className="mt-4 w-full text-lg font-bold leading-snug text-slate-900 [overflow-wrap:anywhere]">
+      <h3 className="mt-4 w-full text-lg font-bold leading-snug text-slate-900 wrap-anywhere">
         {post.title}
       </h3>
       {post.image_url ? (
@@ -157,7 +157,7 @@ const PostCard = ({ post, locale, onOpen }: { post: Post; locale: string; onOpen
         />
       ) : null}
       {post.content ? (
-        <p className="mt-2 line-clamp-3 w-full text-sm leading-relaxed text-slate-600 [overflow-wrap:anywhere]">
+        <p className="mt-2 line-clamp-3 w-full text-sm leading-relaxed text-slate-600 wrap-anywhere">
           {post.content}
         </p>
       ) : null}
@@ -179,11 +179,11 @@ const CardSkeleton = () => (
   >
     <div className="flex items-center gap-3">
       <div className="h-10 w-10 rounded-full bg-slate-200" />
-      <div className="h-3 w-24 rounded bg-slate-200" />
+      <div className="h-3 w-24 rounded-sm bg-slate-200" />
     </div>
-    <div className="mt-6 h-4 w-3/4 rounded bg-slate-200" />
-    <div className="mt-3 h-3 w-full rounded bg-slate-100" />
-    <div className="mt-2 h-3 w-5/6 rounded bg-slate-100" />
+    <div className="mt-6 h-4 w-3/4 rounded-sm bg-slate-200" />
+    <div className="mt-3 h-3 w-full rounded-sm bg-slate-100" />
+    <div className="mt-2 h-3 w-5/6 rounded-sm bg-slate-100" />
   </li>
 );
 
@@ -208,8 +208,8 @@ export const HomeComponent = () => {
   return (
     <div className="w-full">
       <header className="relative mb-6 overflow-hidden rounded-2xl bg-navy px-6 py-10 text-white sm:px-12 sm:py-14">
-        <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-56 rounded-full bg-white/[0.06]" />
-        <div className="pointer-events-none absolute -bottom-20 right-20 h-40 w-40 rounded-full bg-white/[0.04]" />
+        <div className="pointer-events-none absolute -right-12 -top-16 h-56 w-56 rounded-full bg-white/6" />
+        <div className="pointer-events-none absolute -bottom-20 right-20 h-40 w-40 rounded-full bg-white/4" />
         <p className="relative text-xs font-bold uppercase tracking-[0.25em] text-white/60">
           Aktualności
         </p>
@@ -233,7 +233,7 @@ export const HomeComponent = () => {
             filtra — inaczej osoba niewidoma nie wie, że lista się zmieniła */}
         <div
           aria-live="polite"
-          className="mb-4 flex min-h-[1.5rem] flex-wrap items-center justify-between gap-2 text-sm text-slate-500"
+          className="mb-4 flex min-h-6 flex-wrap items-center justify-between gap-2 text-sm text-slate-500"
         >
           {feed.total > 0 ? (
             <p>
@@ -308,7 +308,7 @@ export const HomeComponent = () => {
               />
             ) : null}
             {openPost.content ? (
-              <p className="whitespace-pre-line break-words leading-relaxed text-slate-700">
+              <p className="whitespace-pre-line wrap-break-word leading-relaxed text-slate-700">
                 <Linkified text={openPost.content} />
               </p>
             ) : (

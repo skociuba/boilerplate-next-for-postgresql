@@ -66,7 +66,7 @@ const Page = () => {
             żadne pole profilu nie jest wymagane. */}
         <div className="grid w-full gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
           <ProfileForm oldValues={oldValues} userId={userId} onSaved={refetch} />
-          <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+          <div className="flex flex-col gap-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8">
             <AvatarUpload userId={userId} avatarPath={profile?.avatar_path} onSaved={refetch} />
             <DocumentUpload
               userId={userId}

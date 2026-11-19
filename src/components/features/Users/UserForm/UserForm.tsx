@@ -24,7 +24,7 @@ export const UserForm = (props: FormProps) => {
   const { form } = usePage(props);
 
   return (
-    <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="w-full max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8">
       <Form {...{ form, className: 'flex flex-col gap-4' }}>
         <Field label="Imię i nazwisko">
           <Input name="name" placeholder="fullName" autoComplete="off" />

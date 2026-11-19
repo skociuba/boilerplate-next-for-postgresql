@@ -26,14 +26,14 @@ export const PostsList = ({ data, refetch }: { data: Posts; refetch: () => void 
       {data?.map((item: Post) => (
         // Na telefonie przyciski pod tytułem (flex-col), od sm obok — w jednym
         // rzędzie długi tytuł ściskał się do kilku liter albo wypychał
-        // przyciski poza ekran. min-w-0 + break-words: tytuł bez spacji też
+        // przyciski poza ekran. min-w-0 + wrap-break-word: tytuł bez spacji też
         // się zawinie, zamiast rozpychać wiersz.
         <div
           key={item.id}
           className="mb-4 flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center"
         >
           <div className="min-w-0 flex-1">
-            <span className="break-words font-bold">{item.title}</span>
+            <span className="wrap-break-word font-bold">{item.title}</span>
             <div className="flex flex-wrap gap-1 mt-1">
               {item.tags?.length ? (
                 item.tags.map((tag) => (

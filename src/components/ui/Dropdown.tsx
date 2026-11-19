@@ -167,7 +167,7 @@ export const Dropdown = ({
         onKeyDown={handleKeyDown}
         onBlur={onBlur}
         className={cn(
-          'flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-xs border bg-white pl-4 pr-3 text-left text-slate-900 outline-none transition-shadow',
+          'flex w-full cursor-pointer select-none items-center justify-between gap-2 rounded-xs border bg-white pl-4 pr-3 text-left text-slate-900 outline-hidden transition-shadow',
           'hover:border-slate-400 focus-visible:ring-2',
           size === 'lg' ? 'h-12' : 'h-11 text-sm',
           invalid

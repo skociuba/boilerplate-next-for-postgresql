@@ -29,7 +29,7 @@ export const ProfileForm = ({
   const { form, isLoading } = usePage({ oldValues, userId, onSaved });
 
   return (
-    <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <section className="w-full rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8">
       <h2 className="text-lg font-semibold text-slate-900">Dane profilu</h2>
       <p className="mb-6 mt-1 text-sm text-slate-500">
         Imię i nazwisko widać przy Twoich postach. Data urodzenia i telefon są opcjonalne i widzisz

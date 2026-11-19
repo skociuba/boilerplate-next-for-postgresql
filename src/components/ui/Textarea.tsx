@@ -35,7 +35,7 @@ const Textarea = ({ className, error, placeholder, name, rows = 6, ...props }: T
         className={cn(
           // resize-y: user może powiększyć pole w pionie, ale nie rozepchnie
           // go w poziomie poza ekran telefonu
-          'w-full resize-y rounded-xs border bg-white px-4 py-3 text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus:ring-2',
+          'w-full resize-y rounded-xs border bg-white px-4 py-3 text-slate-900 outline-hidden transition-shadow placeholder:text-slate-400 focus:ring-2',
           displayError
             ? 'border-error focus:border-error focus:ring-error/20'
             : 'border-slate-300 focus:border-navy focus:ring-navy/15',

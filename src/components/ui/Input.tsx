@@ -36,7 +36,7 @@ const Input = ({ className, error, type, placeholder, name, ...props }: InputPro
           // jako zwykły "text", co ciche psuło np. natywny date-picker
           type={type === 'password' ? (isPasswordType ? 'password' : 'text') : (type ?? 'text')}
           className={cn(
-            'h-12 w-full rounded-xs border bg-white px-4 text-slate-900 outline-none transition-shadow placeholder:text-slate-400 focus:ring-2',
+            'h-12 w-full rounded-xs border bg-white px-4 text-slate-900 outline-hidden transition-shadow placeholder:text-slate-400 focus:ring-2',
             // wcześniej focus:border-cloud nadpisywał focus:border-navy, więc
             // kliknięte pole w ogóle nie zmieniało wyglądu
             displayError

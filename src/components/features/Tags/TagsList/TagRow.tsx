@@ -69,7 +69,7 @@ export const TagRow = ({ tag, refetch }: { tag: Tag; refetch: () => void }) => {
   return (
     <div className="mb-4 flex flex-col gap-3 border-b pb-3 sm:flex-row sm:items-center">
       <div className="min-w-0 flex-1">
-        <span className="break-words font-bold">{tag.name}</span>
+        <span className="wrap-break-word font-bold">{tag.name}</span>
         <span className="ml-2 text-gray-500">
           {tag.posts_count} {tag.posts_count === 1 ? 'post' : 'postów'}
         </span>

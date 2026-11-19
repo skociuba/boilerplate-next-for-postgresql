@@ -1,3 +1,47 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/*
+  Tailwind 4 trzyma konfigurację w CSS — tailwind.config.js już nie ma.
+  Pliki do skanowania wykrywa sam (wszystko poza .gitignore), więc lista
+  `content` też odpadła.
+*/
+
+/* Ciemny motyw przez klasę .dark (next-themes, attribute="class"), a nie
+   przez prefers-color-scheme — tak jak darkMode: ['class'] w v3 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Kolory używane w całym projekcie (Button, Input, LoginForm...).
+     --color-gray bez numeru = sama klasa "text-gray"; skala gray-50…950
+     zostaje. */
+  --color-navy: #1b2a4a;
+  --color-cloud: #d9dee6;
+  --color-gray: #6b7280;
+  --color-error: #b91c1c;
+
+  /* Button/Input mają rounded-xs od początku. W v4 rounded-xs istnieje
+     (2px), ale projekt był rysowany pod 6px — nadpisujemy. */
+  --radius-xs: 6px;
+}
+
+/*
+  Domyślne wartości, które v4 zmieniło względem v3. Bez tego wygląd
+  zmieniłby się po cichu:
+  - obramowanie bez koloru (samo "border") było gray-200, w v4 jest
+    currentColor, czyli czarne;
+  - <button> miał cursor: pointer, w v4 ma domyślny kursor.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}

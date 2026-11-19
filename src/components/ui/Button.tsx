@@ -21,7 +21,7 @@ export type ButtonProps = {
 const ButtonVariants: Record<string, string> = {
   primary:
     'bg-white text-slate-800 border border-slate-300 hover:border-slate-400 hover:bg-slate-50',
-  secondary: 'bg-white text-navy border border-slate-300 hover:border-navy hover:bg-navy/[0.04]',
+  secondary: 'bg-white text-navy border border-slate-300 hover:border-navy hover:bg-navy/4',
   tertiary: 'bg-navy text-white border border-navy hover:bg-[#13203b]',
   quaternary: 'text-navy font-bold hover:underline',
   disabled:
@@ -44,7 +44,7 @@ export const Button = ({
   className
 }: ButtonProps) => {
   const commonStyles = cn(
-    'box-border h-12 cursor-pointer px-6 font-medium inline-flex items-center justify-center text-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy',
+    'box-border h-12 cursor-pointer px-6 font-medium inline-flex items-center justify-center text-center transition-colors focus-visible:outline-solid focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-navy',
     rounded && 'rounded-xs',
     fullWidth && 'w-full',
     ButtonVariants[variant],
