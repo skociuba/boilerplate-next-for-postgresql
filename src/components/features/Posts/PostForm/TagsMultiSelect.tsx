@@ -54,7 +54,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
         onClick={() => setIsOpen((prev) => !prev)}
         onKeyDown={(event) => event.key === 'Escape' && setIsOpen(false)}
         className={cn(
-          'flex h-12 w-full items-center justify-between gap-2 overflow-hidden whitespace-nowrap rounded-xs border bg-white pl-4 pr-3 text-left outline-none transition-shadow hover:border-slate-400 focus-visible:border-navy focus-visible:ring-2 focus-visible:ring-navy/20',
+          'flex h-12 w-full items-center justify-between gap-2 overflow-hidden whitespace-nowrap rounded-xs border bg-white pl-4 pr-3 text-left outline-hidden transition-shadow hover:border-slate-400 focus-visible:border-navy focus-visible:ring-2 focus-visible:ring-navy/20',
           isOpen ? 'border-navy ring-2 ring-navy/20' : 'border-slate-300',
           selected.length ? 'text-slate-900' : 'text-slate-400'
         )}
@@ -99,7 +99,7 @@ export const TagsMultiSelect = ({ name = 'tag_names' }: { name?: string }) => {
                   <span
                     aria-hidden="true"
                     className={cn(
-                      'flex h-4 w-4 shrink-0 items-center justify-center rounded border',
+                      'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border',
                       isSelected ? 'border-navy bg-navy text-white' : 'border-slate-300 bg-white'
                     )}
                   >

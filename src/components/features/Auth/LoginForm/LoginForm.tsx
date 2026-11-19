@@ -14,7 +14,7 @@ export const LoginForm = () => {
   const { mode, setMode, form, error } = usePage();
 
   return (
-    <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="mx-auto w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8">
       <div className="mb-6 flex gap-5 text-sm">
         <Button
           type="button"

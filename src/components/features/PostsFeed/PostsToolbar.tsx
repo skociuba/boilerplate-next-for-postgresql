@@ -12,7 +12,7 @@ import { SORT_OPTIONS, SortValue } from './usePostsFeed';
 // kontekstu formularza) — filtry działają od razu po zmianie, nie ma tu
 // żadnego "wyślij". Listy to Dropdown, ten sam komponent co w formularzach.
 const searchClass =
-  'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-none transition-shadow hover:border-slate-400 focus:border-navy focus:ring-2 focus:ring-navy/20';
+  'h-11 w-full rounded-xs border border-slate-300 bg-white text-sm text-slate-900 outline-hidden transition-shadow hover:border-slate-400 focus:border-navy focus:ring-2 focus:ring-navy/20';
 
 type PostsToolbarProps = {
   search: string;
@@ -38,7 +38,7 @@ export const PostsToolbar = ({
   return (
     <div
       role="search"
-      className="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]"
+      className="mb-6 grid gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-xs sm:grid-cols-2 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]"
     >
       <div className="relative sm:col-span-2 lg:col-span-1">
         <label htmlFor={`${id}-q`} className="sr-only">
