@@ -6,6 +6,16 @@ map "$scheme://$host" $redirect_to_https {
     "http://{{ vps2_domain }}"   1;
 }
 
+# HSTS tylko po HTTPS: przeglądarka zapamiętuje, że domena działa wyłącznie
+# po HTTPS, i sama zamienia http:// na https:// (bez przekierowania, którego
+# nikt nie przechwyci). Po HTTP — a tak działa VPS1 po samym IP — pusta
+# wartość, czyli nagłówka nie ma. Rok, bez includeSubDomains/preload: wiąże
+# tylko tę jedną nazwę, a certbot odnawia certyfikat sam.
+map $scheme $hsts_header {
+    https   "max-age=31536000";
+    default "";
+}
+
 server {
     server_name {{ vps2_domain }};
     listen 80 default_server;
@@ -18,6 +28,12 @@ server {
     if ($redirect_to_https) {
         return 301 https://$host$request_uri;
     }
+
+    # Bez wersji nginx w nagłówku Server i na stronach błędów
+    server_tokens off;
+    # Uwaga: add_header w bloku location KASUJE te z poziomu server — każdy
+    # location z własnym add_header musi powtórzyć tę linię
+    add_header Strict-Transport-Security $hsts_header always;
 
     # --- VPS 1: Frontend (Next.js) na porcie 3000 ---
     location / {
@@ -40,6 +56,23 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Nagłówki bezpieczeństwa frontendu dla samej strony głównej: Next.js
+        # gubi je dla /vps2 przy basePath (src/securityHeaders.js w repo
+        # frontendu — te same wartości). hide + add: zawsze dokładnie jedna
+        # kopia, także gdyby Next kiedyś zaczął je wysyłać sam.
+        proxy_hide_header Content-Security-Policy;
+        proxy_hide_header X-Frame-Options;
+        proxy_hide_header X-Content-Type-Options;
+        proxy_hide_header Referrer-Policy;
+        proxy_hide_header Permissions-Policy;
+        add_header Content-Security-Policy "frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'" always;
+        add_header X-Frame-Options "DENY" always;
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), microphone=(), geolocation=(), browsing-topics=()" always;
+        # Powtórzone, bo add_header powyżej kasuje to z poziomu server
+        add_header Strict-Transport-Security $hsts_header always;
     }
 
     # --- VPS 2: NOWY Frontend (Node-Frontend) na porcie 3002 ---
