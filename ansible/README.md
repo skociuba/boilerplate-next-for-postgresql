@@ -4,12 +4,12 @@ The VPS that runs this frontend and the [backend](https://github.com/skociuba/ba
 described as code. GitHub Actions deploys the applications (images, `docker-compose`, scripts);
 this playbook sets up what they run on.
 
-| Role      | What it manages                                                                    |
-| --------- | ---------------------------------------------------------------------------------- |
-| `base`    | Docker and Compose v2, application directories                                     |
-| `certbot` | certbot and its nginx plugin; checks that the Let's Encrypt certificate exists     |
-| `nginx`   | the shared site config (VPS1, VPS2, VPS3 on one server), validated before reload   |
-| `backup`  | `age` and `rclone`, `/etc/vps2-backup` (B2 credentials from the vault), daily cron |
+| Role      | What it manages                                                                                  |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| `base`    | Docker and Compose v2, daemon defaults (log limits, live-restore), app directories               |
+| `certbot` | certbot and its nginx plugin; checks that the Let's Encrypt certificate exists                   |
+| `nginx`   | the shared site config (VPS1, VPS2, VPS3 on one server), validated before reload                 |
+| `backup`  | `age` and `rclone`, `/etc/vps2-backup` (B2 credentials from the vault), daily cron, log rotation |
 
 Not managed here: application `.env` files (created by hand on the server) and the other projects
 that share the server (VPS1, VPS3).

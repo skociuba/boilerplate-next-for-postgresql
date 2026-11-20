@@ -11,6 +11,23 @@
     update_cache: true
     cache_valid_time: 86400
 
+# Ustawienia demona dla WSZYSTKICH kontenerów na serwerze (też VPS1, VPS3):
+# - limit logów: domyślnie Docker trzyma log kontenera w jednym pliku bez
+#   limitu, aż zapełni dysk (a z nim bazę),
+# - live-restore: restart demona (np. po aktualizacji paczki docker.io) nie
+#   zatrzymuje kontenerów — bez tego leżały wszystkie strony naraz.
+# validate: zły plik nie trafia na dysk — demon z błędną konfiguracją nie
+# wstałby przy następnym restarcie razem z żadnym kontenerem.
+- name: Configure the Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+    validate: dockerd --validate --config-file %s
+  notify: Reload docker
+
 - name: Keep Docker running and enabled at boot
   ansible.builtin.service:
     name: docker

@@ -61,3 +61,13 @@
     owner: root
     group: root
     mode: '0644'
+
+# Cron dopisuje do logu codziennie — bez rotacji plik rósłby bez końca.
+# 8 tygodni historii wystarczy, żeby sprawdzić, od kiedy kopie nie wychodzą.
+- name: Rotate the backup log
+  ansible.builtin.template:
+    src: vps2-backup.logrotate.j2
+    dest: /etc/logrotate.d/vps2-backup
+    owner: root
+    group: root
+    mode: '0644'
