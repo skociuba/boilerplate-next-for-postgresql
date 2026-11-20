@@ -1,0 +1,49 @@
+# Docker z paczek Ubuntu (docker.io), tak jak jest na serwerze, i Compose
+# v2 — deploy i rollback obu aplikacji wołają `docker compose`, a stare
+# docker-compose (v1) wywala się przy podmianie kontenera ("ContainerConfig").
+# v1 zostaje zainstalowane: używają go inne projekty na tym serwerze.
+- name: Install Docker and Compose v2
+  ansible.builtin.apt:
+    name:
+      - docker.io
+      - docker-compose-v2
+    state: present
+    update_cache: true
+    cache_valid_time: 86400
+
+# Ustawienia demona dla WSZYSTKICH kontenerów na serwerze (też VPS1, VPS3):
+# - limit logów: domyślnie Docker trzyma log kontenera w jednym pliku bez
+#   limitu, aż zapełni dysk (a z nim bazę),
+# - live-restore: restart demona (np. po aktualizacji paczki docker.io) nie
+#   zatrzymuje kontenerów — bez tego leżały wszystkie strony naraz.
+# validate: zły plik nie trafia na dysk — demon z błędną konfiguracją nie
+# wstałby przy następnym restarcie razem z żadnym kontenerem.
+- name: Configure the Docker daemon
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: '0644'
+    validate: dockerd --validate --config-file %s
+  notify: Reload docker
+
+- name: Keep Docker running and enabled at boot
+  ansible.builtin.service:
+    name: docker
+    state: started
+    enabled: true
+
+# Katalogi aplikacji: zawartość (docker-compose, skrypty) kopiuje deploy z
+# GitHub Actions, a .env z sekretami tworzy się ręcznie — Ansible pilnuje
+# tylko, żeby katalogi istniały
+- name: Create application directories
+  ansible.builtin.file:
+    path: '{{ item }}'
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - '{{ vps2_backend_dir }}'
+    - '{{ vps2_frontend_dir }}'

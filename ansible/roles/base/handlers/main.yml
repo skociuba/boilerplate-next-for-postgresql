@@ -1,0 +1,8 @@
+# Reload (SIGHUP), nie restart: live-restore włącza się bez zatrzymywania
+# kontenerów. Domyślne log-opts Docker czyta dopiero przy pełnym restarcie
+# demona i stosuje do kontenerów tworzonych później — każdy deploy i tak
+# tworzy kontenery od nowa, więc nie trzeba niczego restartować ręcznie.
+- name: Reload docker
+  ansible.builtin.service:
+    name: docker
+    state: reloaded

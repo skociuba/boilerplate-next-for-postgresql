@@ -1,0 +1,73 @@
+# Kopia bazy i plików poza serwer: scripts/backup-db.sh z repo backendu
+# szyfruje ją (age, klucz publiczny) i wysyła rclone'em do Backblaze B2.
+# Skrypt kopiuje na serwer deploy backendu; tu jest wszystko, czego
+# potrzebuje: narzędzia, konfiguracja i cron.
+- name: Install age and rclone
+  ansible.builtin.apt:
+    name:
+      - age
+      - rclone
+    state: present
+
+- name: Create the configuration directory (root only)
+  ansible.builtin.file:
+    path: /etc/vps2-backup
+    state: directory
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Write backup.conf
+  ansible.builtin.template:
+    src: backup.conf.j2
+    dest: /etc/vps2-backup/backup.conf
+    owner: root
+    group: root
+    mode: '0600'
+
+# Dane dostępowe do B2 pochodzą z vault.yml (zaszyfrowany). no_log: diff
+# i log Ansible nie mogą pokazać klucza.
+- name: Write rclone.conf with the write-only B2 key
+  ansible.builtin.copy:
+    content: '{{ vault_rclone_conf }}'
+    dest: /etc/vps2-backup/rclone.conf
+    owner: root
+    group: root
+    mode: '0600'
+  no_log: true
+  when: vault_rclone_conf is defined
+
+# Bez vaulta (np. pierwsze uruchomienie, zanim powstanie vault.yml) plik
+# nie jest ruszany, ale musi istnieć — inaczej kopia zostaje tylko na
+# serwerze, a skrypt jedynie ostrzega w logu
+- name: Check rclone.conf when the vault is not available
+  when: vault_rclone_conf is not defined
+  block:
+    - name: Look for rclone.conf
+      ansible.builtin.stat:
+        path: /etc/vps2-backup/rclone.conf
+      register: backup_rclone_conf
+
+    - name: Stop if rclone.conf is missing
+      ansible.builtin.assert:
+        that: backup_rclone_conf.stat.exists
+        fail_msg: Brak /etc/vps2-backup/rclone.conf, a vault.yml nie podaje vault_rclone_conf.
+        quiet: true
+
+- name: Schedule the daily backup
+  ansible.builtin.template:
+    src: vps2-backup.cron.j2
+    dest: /etc/cron.d/vps2-backup
+    owner: root
+    group: root
+    mode: '0644'
+
+# Cron dopisuje do logu codziennie — bez rotacji plik rósłby bez końca.
+# 8 tygodni historii wystarczy, żeby sprawdzić, od kiedy kopie nie wychodzą.
+- name: Rotate the backup log
+  ansible.builtin.template:
+    src: vps2-backup.logrotate.j2
+    dest: /etc/logrotate.d/vps2-backup
+    owner: root
+    group: root
+    mode: '0644'

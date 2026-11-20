@@ -1,0 +1,17 @@
+# Wzór pliku vault.yml (ten sam katalog). Prawdziwy vault.yml jest
+# zaszyfrowany przez ansible-vault, więc może leżeć w repo:
+#
+#   ansible-vault create group_vars/vps2/vault.yml
+#
+# i wpisz w nim to, co niżej, z prawdziwymi wartościami. Ten plik (example)
+# nie jest ładowany: Ansible czyta z group_vars tylko pliki .yml/.yaml/.json,
+# a ".yml.example" do nich nie należy. Gdyby nazywał się vault.example.yml,
+# przykładowe wartości nadpisałyby klucz B2 na serwerze.
+
+# Pełna treść /etc/vps2-backup/rclone.conf — klucz B2 z prawem TYLKO do
+# zapisu (serwer nie może kasować ani czytać kopii)
+vault_rclone_conf: |
+  [b2]
+  type = b2
+  account = <keyID>
+  key = <applicationKey>

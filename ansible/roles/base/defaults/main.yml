@@ -1,0 +1,3 @@
+# Limit logów każdego kontenera: 3 pliki po 10 MB (najstarszy kasowany)
+base_docker_log_max_size: 10m
+base_docker_log_max_file: '3'

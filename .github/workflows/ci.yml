@@ -55,6 +55,30 @@ jobs:
   # Testy E2E: Chromium klika po zbudowanym frontendzie, który rozmawia
   # z prawdziwym backendem (obraz :latest, czyli to, co jest na produkcji),
   # bazą i MailDevem (e2e/docker-compose.yml). Równolegle z `test`.
+  # Playbook serwera (ansible/) — składnia i ansible-lint na profilu
+  # production. Błąd w konfiguracji serwera wychodzi w PR-ze, a nie dopiero
+  # przy uruchomieniu na produkcji.
+  ansible:
+    name: ansible
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ansible
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Install ansible-lint and ansible-core
+        # --include-deps: udostępnia też ansible-playbook z ansible-core
+        run: pipx install --include-deps ansible-lint
+
+      - name: Syntax check
+        run: ansible-playbook site.yml --syntax-check
+
+      - name: Lint
+        run: ansible-lint --profile production site.yml roles
+
   e2e:
     name: e2e
     runs-on: ubuntu-latest
