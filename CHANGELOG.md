@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.7...v1.2.0) (2026-11-20)
+
+
+### Features
+
+* report frontend errors to sentry ([b3e9c4c](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/b3e9c4c2ddb9d79258cac9f475daf8d0dd590a18))
+
 ## [1.1.7](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.6...v1.1.7) (2026-11-19)
 
 
