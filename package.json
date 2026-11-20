@@ -15,9 +15,9 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "test:ci": "jest --ci",
-    "postinstall": "husky install",
     "generate": "plop --plopfile ./.plop/plopfile.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "prepare": "husky || true"
   },
   "engines": {
     "node": ">=18.20.2"
@@ -82,10 +82,11 @@
     "typescript-eslint": "8.73.0"
   },
   "lint-staged": {
-    "src/**/*": [
-      "npm run prettier:format",
-      "npm run eslint:format"
-    ]
+    "*.{js,jsx,ts,tsx,mjs}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,css,yml,yaml}": "prettier --write"
   },
   "overrides": {
     "next": {
