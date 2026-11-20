@@ -10,6 +10,9 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.js');
 const nextConfig = {
   output: 'standalone',
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  // Bez "X-Powered-By: Next.js" — nie ma powodu mówić, na czym stoi strona.
+  // Pozostałe nagłówki bezpieczeństwa: src/securityHeaders.js (middleware)
+  poweredByHeader: false,
   async rewrites() {
     return [
       {
