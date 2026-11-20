@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.3.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.2.0...v1.3.0) (2026-11-20)
+
+
+### Features
+
+* **ansible:** docker log limits, live-restore and backup log rotation ([c416b09](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/c416b099c5db0e9e380f2245bbd14258dd1d0f0e))
+* describe the server configuration with ansible ([5239e55](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/5239e555f3ccdffc14d2bcdb410e88b1c60533b4))
+* describe the server configuration with ansible ([a1f7003](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/a1f7003bbf897fa2ce0f55e02a6ce3e0181aa8e1))
+
 ## [1.2.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.1.7...v1.2.0) (2026-11-20)
 
 
