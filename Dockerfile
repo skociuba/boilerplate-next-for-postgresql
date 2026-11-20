@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 # node:22-alpine zamiast przypiętego 22.1.0: stary obraz nie dostawał już
 # łatek systemu ani Node, a skan Trivy (ci.yml) by go zatrzymywał.
 # Aktualizacje obrazu bazowego proponuje Dependabot (.github/dependabot.yml).
@@ -25,7 +26,20 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 ARG BASE_URL
 ENV BASE_URL=$BASE_URL
 
-RUN npm run build
+# Sentry (src/sentry.shared.ts): DSN wpisywany w kod przeglądarki i wersja
+# wydania (sha commita). Oba jawne — DSN i tak widzi każdy w przeglądarce.
+ARG NEXT_PUBLIC_SENTRY_DSN
+ENV NEXT_PUBLIC_SENTRY_DSN=$NEXT_PUBLIC_SENTRY_DSN
+ARG SENTRY_RELEASE
+ENV SENTRY_RELEASE=$SENTRY_RELEASE
+
+# Token Sentry do wysłania source map jako build SECRET, nie ARG: wartości
+# ARG zostają w metadanych obrazu (docker history) i każdy, kto pobierze
+# obraz z Docker Huba, mógłby go odczytać. Secret jest widoczny tylko w
+# trakcie tego jednego RUN. Bez sekretu (PR-y, lokalny build) wysyłka
+# map jest pomijana.
+RUN --mount=type=secret,id=sentry_auth_token,env=SENTRY_AUTH_TOKEN \
+    npm run build
 
 FROM node:22-alpine AS runner
 WORKDIR /app

@@ -5,7 +5,7 @@ export const CONTROLLER_NAME = 'Sebastian Kociuba';
 export const CONTACT_EMAIL = 'skociuba.noreply@gmail.com';
 // Zmieniasz treść = zmieniasz datę; użytkownik powinien widzieć, od kiedy
 // obowiązuje wersja, którą czyta.
-const LAST_UPDATED = '16 listopada 2026';
+const LAST_UPDATED = '20 listopada 2026';
 
 const STORAGE_ROWS = [
   {
@@ -71,6 +71,11 @@ export const PrivacyPolicy = () => (
           <strong>Dane techniczne:</strong> adres IP — używany na bieżąco do ograniczania liczby
           prób logowania i rejestracji oraz zapisywany w logach serwera.
         </li>
+        <li>
+          <strong>Raporty błędów:</strong> gdy w aplikacji wystąpi nieoczekiwany błąd, wysyłamy
+          raport techniczny: treść błędu, miejsce w kodzie, adres strony, przeglądarkę i system.
+          Raport nie zawiera Twojego imienia, adresu email, haseł, cookies ani treści formularzy.
+        </li>
       </ul>
     </Section>
 
@@ -78,7 +83,8 @@ export const PrivacyPolicy = () => (
       <p>
         Dane konta i profilu przetwarzamy, żeby prowadzić Twoje konto i udostępniać funkcje
         aplikacji (art. 6 ust. 1 lit. b RODO). Adres IP i logi — żeby chronić aplikację przed
-        nadużyciami, np. zgadywaniem haseł (art. 6 ust. 1 lit. f RODO).
+        nadużyciami, np. zgadywaniem haseł, a raporty błędów — żeby wykrywać i naprawiać usterki
+        (art. 6 ust. 1 lit. f RODO).
       </p>
     </Section>
 
@@ -86,7 +92,11 @@ export const PrivacyPolicy = () => (
       <ul className="list-disc space-y-1 pl-5">
         <li>dostawcy serwera VPS, na którym działa aplikacja i baza danych,</li>
         <li>
-          Google (Gmail) — przez skrzynkę Gmail wysyłamy maile aktywacyjne i maile do resetu hasła.
+          Google (Gmail) — przez skrzynkę Gmail wysyłamy maile aktywacyjne i maile do resetu hasła,
+        </li>
+        <li>
+          Sentry (Functional Software, Inc.) — odbiera raporty błędów opisane wyżej; dane są
+          przechowywane w centrum danych Sentry w Unii Europejskiej (Niemcy).
         </li>
       </ul>
       <p>Nie sprzedajemy danych i nie używamy ich do reklam.</p>
@@ -110,9 +120,10 @@ export const PrivacyPolicy = () => (
     <Section title="Cookies i pamięć przeglądarki">
       <p>
         Zapisujemy w przeglądarce tylko to, bez czego logowanie nie działa. Nie używamy analityki,
-        reklam, pikseli śledzących ani skryptów firm trzecich (także fontów — ładujemy je z naszego
-        serwera), dlatego nie prosimy o zgodę — przepisy wymagają jej dla plików, które nie są
-        niezbędne do działania serwisu, a takich tu nie ma.
+        reklam, pikseli śledzących ani skryptów ładowanych z serwerów firm trzecich (także fontów —
+        ładujemy je z naszego serwera). Kod raportowania błędów jest częścią naszej aplikacji i
+        niczego nie zapisuje w przeglądarce. Dlatego nie prosimy o zgodę — przepisy wymagają jej dla
+        plików, które nie są niezbędne do działania serwisu, a takich tu nie ma.
       </p>
       {/* Lista kart zamiast tabeli: tabela z 4 kolumnami na telefonie albo
           się ściska do nieczytelności, albo przewija w bok. */}

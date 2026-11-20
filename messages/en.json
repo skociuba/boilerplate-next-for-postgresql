@@ -95,5 +95,10 @@
       "postImage": "Add photo",
       "postImageChange": "Change photo"
     }
+  },
+  "Error": {
+    "title": "Something went wrong",
+    "content": "An unexpected error occurred. We have already been notified.",
+    "retry": "Try again"
   }
 }

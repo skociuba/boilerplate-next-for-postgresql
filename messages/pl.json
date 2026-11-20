@@ -94,5 +94,10 @@
       "postImage": "Dodaj zdjęcie",
       "postImageChange": "Zmień zdjęcie"
     }
+  },
+  "Error": {
+    "title": "Coś poszło nie tak",
+    "content": "Wystąpił nieoczekiwany błąd. Zgłoszenie już do nas trafiło.",
+    "retry": "Spróbuj ponownie"
   }
 }

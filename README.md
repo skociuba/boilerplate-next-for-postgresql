@@ -78,6 +78,22 @@ pnpm build
 pnpm start
 ```
 
+## 📈 Monitoring and error tracking
+
+- **Uptime** — [public status page](https://stats.uptimerobot.com/BinXvsm3RH): UptimeRobot checks
+  the site and the API health endpoint every 5 minutes and emails on downtime.
+- **Errors** — Sentry ([src/sentry.shared.ts](src/sentry.shared.ts)) reports unexpected errors
+  from the browser and from server-side rendering, tagged with the commit the image was built
+  from. Users see an error screen with a retry button instead of a blank page
+  ([src/app/[locale]/error.tsx](src/app/[locale]/error.tsx)). Cookies, headers and request bodies
+  are not sent; there is no tracing or session replay.
+- **Readable stack traces** — CI uploads source maps to Sentry while building the image (token
+  passed as a Docker build secret, so it never ends up in the image) and removes them from the
+  build, so the original source is not served publicly.
+
+Configuration: repository variable `NEXT_PUBLIC_SENTRY_DSN` and secret `SENTRY_AUTH_TOKEN`.
+Without the DSN (local, tests, E2E) Sentry stays off.
+
 ## :gear: Generating components
 
 ```bash
