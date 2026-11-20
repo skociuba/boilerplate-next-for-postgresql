@@ -1,8 +1,1 @@
-[
-  {
-    "id": "GHSA-fc5q-39xc-vjpf",
-    "package": "picomatch (next-intl > @parcel/watcher > picomatch)",
-    "reason": "Brak poprawionej wersji. @parcel/watcher to obserwator plików ekstraktora tłumaczeń next-intl, działa tylko przy buildzie/dev i nie trafia do .next/standalone; wzorce glob nie pochodzą od użytkownika.",
-    "expires": "2027-01-31"
-  }
-]
+[]

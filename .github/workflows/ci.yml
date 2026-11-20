@@ -144,6 +144,13 @@ jobs:
             NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
             BASE_URL=${{ vars.BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            SENTRY_RELEASE=${{ github.sha }}
+          # Token Sentry tylko poza PR-ami: build z master wysyła source mapy.
+          # Musi go dostać TEN krok, nie "Push": sekrety nie wchodzą do klucza
+          # cache BuildKita, więc push użyłby gotowej warstwy z tego buildu.
+          secrets: |
+            ${{ github.event_name != 'pull_request' && format('sentry_auth_token={0}', secrets.SENTRY_AUTH_TOKEN) || '' }}
           tags: sebastiankociuba/node-frontend:${{ github.sha }}
 
       # Trivy jako obraz przypięty do digestu, a nie aquasecurity/trivy-action
@@ -172,4 +179,6 @@ jobs:
             NEXT_PUBLIC_BASE_URL=${{ vars.NEXT_PUBLIC_BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
             NEXT_PUBLIC_BASE_PATH=${{ vars.NEXT_PUBLIC_BASE_PATH || '/vps2' }}
             BASE_URL=${{ vars.BASE_URL || 'https://skociuba-vps2.duckdns.org/api-node' }}
+            NEXT_PUBLIC_SENTRY_DSN=${{ vars.NEXT_PUBLIC_SENTRY_DSN }}
+            SENTRY_RELEASE=${{ github.sha }}
           tags: sebastiankociuba/node-frontend:${{ github.sha }}
