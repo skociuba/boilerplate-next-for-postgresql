@@ -26,7 +26,7 @@ const nextConfig = {
 // build secret — lokalnie i w E2E go nie ma i wysyłka jest pomijana.
 export default withSentryConfig(withNextIntl(nextConfig), {
   org: 'skociuba',
-  project: 'javascript-nextjs',
+  project: 'vps2-frontend',
   authToken: process.env.SENTRY_AUTH_TOKEN,
   // Wydanie = commit, z którego zbudowano obraz (build-arg w CI). Obraz
   // powstaje raz, przy merge'u na master, a numer wersji dostaje dopiero
