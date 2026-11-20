@@ -1,4 +1,35 @@
-#!/bin/sh
-# . "$(dirname "$0")/_/husky.sh"
+# Przed wysłaniem na GitHuba: najpierw zasady gitowe (szybkie), potem szybkie
+# testy. Pełne sprawdzenie (E2E, build obrazu, audyt) robi CI — tu chodzi o
+# to, żeby oczywisty błąd wyszedł po kilkunastu sekundach na laptopie, a nie
+# po kilku minutach w PR-ze. Da się obejść (--no-verify); prawdziwą blokadą
+# jest ochrona brancha master na GitHubie.
 
-#  pnpm test:ci
+. "$(dirname "$0")/branch-name.sh"
+
+# git podaje na stdin linie: <local_ref> <local_sha> <remote_ref> <remote_sha>
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref _remote_sha; do
+  branch=${remote_ref#refs/heads/}
+  [ "$branch" = "$remote_ref" ] && continue # tagi itp.
+
+  if [ "$branch" = "master" ] || [ "$branch" = "main" ]; then
+    echo "✖ Wysyłanie na $branch zablokowane — otwórz PR z brancha feat/... / fix/..."
+    exit 1
+  fi
+
+  # Usuwanie brancha zdalnego — nazwa nie ma znaczenia
+  [ "$local_sha" = "$zero" ] && continue
+
+  # Upstream na inny branch = wysyłka z IDE (Sync) ląduje gdzie indziej, niż myślisz
+  local_branch=${local_ref#refs/heads/}
+  if [ "$local_branch" != "$local_ref" ] && [ "$local_branch" != "$branch" ]; then
+    echo "✖ Wysyłanie $local_branch → $branch zablokowane. Ustaw upstream na tę samą nazwę:"
+    echo "  git push -u origin $local_branch"
+    exit 1
+  fi
+
+  check_branch_name "$branch" || exit 1
+done
+
+echo "▶ pre-push: lint, typy, testy jednostkowe (pominięcie: --no-verify)"
+npm run lint --silent && npx tsc --noEmit && npm run test:ci --silent

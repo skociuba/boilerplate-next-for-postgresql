@@ -1,4 +1,19 @@
-#!/bin/sh
-# . "$(dirname "$0")/_/husky.sh"
+# Przy każdym commicie (Twoim i Claude):
+# 1) blokuje commit na master/main i na branchu o złej nazwie,
+# 2) poprawia ESLintem i formatuje Prettierem TYLKO pliki dodane do commita
+#    (package.json → "lint-staged"). Wcześniej uruchamiał `prettier --write .`
+#    na całym repo i przeformatowywał niezwiązane pliki, np. CHANGELOG.md.
+
+. "$(dirname "$0")/branch-name.sh"
+
+# Detached HEAD (rebase, cherry-pick) — nie ma brancha do sprawdzenia
+if branch=$(git symbolic-ref --short HEAD 2>/dev/null); then
+  if [ "$branch" = "master" ] || [ "$branch" = "main" ]; then
+    echo "✖ Nie commitujemy bezpośrednio na $branch — zmiany wchodzą przez PR."
+    echo "  Przenieś pracę na branch: git switch -c feat/<opis>"
+    exit 1
+  fi
+  check_branch_name "$branch" || exit 1
+fi
 
 npx lint-staged
