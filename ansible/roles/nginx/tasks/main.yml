@@ -1,0 +1,56 @@
+- name: Install nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+
+# Jeden plik dla wszystkich projektów na serwerze (VPS1, VPS2, VPS3) —
+# nginx słucha na 80/443 raz, więc nie da się go podzielić na pliki per
+# projekt bez przenoszenia wspólnego server{}.
+#
+# block/rescue: nowa konfiguracja trafia na dysk, `nginx -t` ją sprawdza,
+# a przy błędzie wraca poprzednia wersja (backup) — zła konfiguracja nie
+# może położyć wszystkich stron przy następnym reloadzie.
+- name: Deploy site configuration
+  block:
+    - name: Write /etc/nginx/sites-available/project
+      ansible.builtin.template:
+        src: project.conf.j2
+        dest: /etc/nginx/sites-available/project
+        owner: root
+        group: root
+        mode: '0644'
+        backup: true
+      register: nginx_site
+      notify: Reload nginx
+
+    # Zawsze, nie tylko po zmianie: to tani test, a przy błędzie rescue
+    # musi zadziałać od razu, zanim handler przeładuje nginx
+    - name: Check nginx configuration
+      ansible.builtin.command: nginx -t
+      changed_when: false
+
+  rescue:
+    - name: Restore the previous configuration
+      ansible.builtin.copy:
+        src: '{{ nginx_site.backup_file }}'
+        dest: /etc/nginx/sites-available/project
+        remote_src: true
+        mode: '0644'
+      when: nginx_site.backup_file is defined
+
+    - name: Stop after an invalid configuration
+      ansible.builtin.fail:
+        msg: nginx -t nie przeszedł — przywrócono poprzednią konfigurację, nic nie zostało przeładowane.
+
+- name: Enable the site
+  ansible.builtin.file:
+    src: /etc/nginx/sites-available/project
+    dest: /etc/nginx/sites-enabled/project
+    state: link
+  notify: Reload nginx
+
+- name: Keep nginx running and enabled at boot
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true

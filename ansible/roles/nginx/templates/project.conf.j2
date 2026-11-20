@@ -1,0 +1,90 @@
+# Domena po HTTP → przekierowanie na HTTPS. Po samym IP zostaje HTTP (VPS1).
+# Jeden blok server słucha na 80 i 443, więc nie da się tego rozróżnić
+# osobnym server{} z tą samą nazwą (nginx bierze pierwszy i ignoruje drugi).
+map "$scheme://$host" $redirect_to_https {
+    default                              0;
+    "http://{{ vps2_domain }}"   1;
+}
+
+server {
+    server_name {{ vps2_domain }};
+    listen 80 default_server;
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/{{ vps2_domain }}/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/{{ vps2_domain }}/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+
+    if ($redirect_to_https) {
+        return 301 https://$host$request_uri;
+    }
+
+    # --- VPS 1: Frontend (Next.js) na porcie 3000 ---
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # Dokładnie "/vps2" bez ukośnika, inaczej pętla przekierowań z Nextem
+    location = /vps2 {
+        # Stare linki po IP: ciasteczko sesji ma Secure, więc działa tylko po HTTPS
+        if ($host = {{ vps2_server_ip }}) {
+            return 301 https://{{ vps2_domain }}$request_uri;
+        }
+        proxy_pass http://127.0.0.1:3002;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- VPS 2: NOWY Frontend (Node-Frontend) na porcie 3002 ---
+    location /vps2/ {
+        # Stare linki po IP: ciasteczko sesji ma Secure, więc działa tylko po HTTPS
+        if ($host = {{ vps2_server_ip }}) {
+            return 301 https://{{ vps2_domain }}$request_uri;
+        }
+        proxy_pass http://127.0.0.1:3002;   # BEZ "/" na końcu — przekazuje pełne /vps2/... dalej,
+                                              # appka (basePath: '/vps2') sama tego prefiksu oczekuje
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # --- VPS 3: NOWY Frontend (gitlab-Frontend) na porcie 3003 ---
+    location /vps3/ {
+        proxy_pass http://127.0.0.1; # Ważny "/" na końcu, aby ucinać /vps2/ przy przekazywaniu
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+
+    # --- VPS 1: Backend (Laravel) na porcie 8000 ---
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # --- VPS 2: Backend (Node.js) na porcie 3001 ---
+    location /api-node/ {
+        proxy_pass http://127.0.0.1:3001/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}

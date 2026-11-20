@@ -62,6 +62,9 @@ pnpm create next-app -e https://github.com/hadrysm/nextjs-boilerplate
 
 ## 🚀 Deploy to production
 
+The server itself (Docker, nginx with HTTPS, backups) is configured with Ansible — see
+[ansible/README.md](ansible/README.md).
+
 Install command on Vercel:
 
 ```

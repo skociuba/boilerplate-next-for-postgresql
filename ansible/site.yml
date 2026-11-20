@@ -1,0 +1,18 @@
+# Konfiguracja serwera VPS2 jako kod. Aplikacje (obrazy, docker-compose,
+# skrypty) wdraża GitHub Actions — tu jest to, co pod nimi: Docker, nginx
+# z HTTPS i kopie zapasowe. Uruchamianie: README.md w tym katalogu.
+- name: Configure the VPS2 server
+  hosts: vps2
+  become: true
+
+  # Kolejność ma znaczenie: konfiguracja nginx wskazuje na pliki
+  # certyfikatu, więc certbot musi być sprawdzony przed nginx
+  roles:
+    - role: base
+      tags: [base]
+    - role: certbot
+      tags: [certbot]
+    - role: nginx
+      tags: [nginx]
+    - role: backup
+      tags: [backup]

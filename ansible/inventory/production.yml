@@ -1,0 +1,7 @@
+all:
+  children:
+    vps2:
+      hosts:
+        vps2-prod:
+          ansible_host: 85.215.128.5
+          ansible_user: root

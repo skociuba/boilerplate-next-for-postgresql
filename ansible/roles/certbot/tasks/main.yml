@@ -1,0 +1,25 @@
+# Certyfikat Let's Encrypt dla domeny. Certbot sam go odnawia (cron
+# /etc/cron.d/certbot z paczki), Ansible pilnuje paczek i tego, że
+# certyfikat jest — konfiguracja nginx (rola nginx) wskazuje na jego pliki.
+- name: Install certbot with the nginx plugin
+  ansible.builtin.apt:
+    name:
+      - certbot
+      - python3-certbot-nginx
+    state: present
+
+# Wystawienie certyfikatu to jednorazowa, interaktywna sprawa (adres
+# email, akceptacja regulaminu) i wymaga działającego DNS, więc Ansible go
+# nie wystawia, tylko sprawdza. Na nowym serwerze: README → "New server".
+- name: Check that the certificate exists
+  ansible.builtin.stat:
+    path: /etc/letsencrypt/live/{{ vps2_domain }}/fullchain.pem
+  register: certbot_cert
+
+- name: Stop if the certificate is missing
+  ansible.builtin.assert:
+    that: certbot_cert.stat.exists
+    fail_msg: >-
+      Brak certyfikatu dla {{ vps2_domain }}. Wystaw go raz ręcznie:
+      certbot certonly --nginx -d {{ vps2_domain }}
+    quiet: true

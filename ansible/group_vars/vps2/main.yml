@@ -1,0 +1,16 @@
+# Wartości jawne. Sekrety (dane dostępowe do B2) są w vault.yml,
+# zaszyfrowanym przez ansible-vault — patrz vault.yml.example.
+
+vps2_domain: skociuba-vps2.duckdns.org
+vps2_server_ip: 85.215.128.5
+
+# Katalogi, do których deploy (GitHub Actions) kopiuje docker-compose i
+# skrypty. Same aplikacje wdraża CI, Ansible tylko przygotowuje serwer.
+vps2_backend_dir: /var/www/backend-node
+vps2_frontend_dir: /var/www/frontend-node
+
+# Kopia poza serwerem (scripts/backup-db.sh w repo backendu). Klucz age to
+# klucz PUBLICZNY — prywatny jest tylko w sekrecie GitHuba i u właściciela.
+backup_remote: b2:skociuba-vps2-backups
+backup_age_recipient: age1ksss64hazse3zv92enmg3mkrgsmeavzmwe5a0nfy9ulv55ns537qjym5a2
+backup_cron_schedule: '30 3 * * *'

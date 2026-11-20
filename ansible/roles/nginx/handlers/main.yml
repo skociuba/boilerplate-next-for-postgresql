@@ -1,0 +1,7 @@
+# Reload, a nie restart: nginx wczytuje nową konfigurację bez zrywania
+# trwających połączeń. Handler odpala się raz, na końcu, i tylko wtedy,
+# gdy coś się zmieniło (a nginx -t przeszedł).
+- name: Reload nginx
+  ansible.builtin.service:
+    name: nginx
+    state: reloaded
