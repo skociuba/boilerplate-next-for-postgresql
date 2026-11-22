@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.4.0...v1.4.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* **ci:** stop a pending deploy approval from blocking releases ([9f9676a](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/9f9676a1ac9a07e488c79fbea94605dd639fe2aa))
+
 ## [1.4.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.3.0...v1.4.0) (2026-11-22)
 
 
