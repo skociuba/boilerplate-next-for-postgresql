@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.4.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.3.0...v1.4.0) (2026-11-22)
+
+
+### Features
+
+* **ansible:** hsts and hidden nginx version ([537eb23](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/537eb23ff42b3b1e1f1a6b2adf04d3df87b6a45a))
+* send security headers with every page ([0f6787c](https://github.com/skociuba/boilerplate-next-for-postgresql/commit/0f6787c76d76f91904fbdb076a320ff12bf59c56))
+
 ## [1.3.0](https://github.com/skociuba/boilerplate-next-for-postgresql/compare/v1.2.0...v1.3.0) (2026-11-20)
 
 
