@@ -7,16 +7,26 @@
 # z krytycznymi podatnościami przeleżał na produkcji. Stąd grupowanie.
 version: 2
 updates:
-  # Paczki npm: minor i patch w JEDNYM zbiorczym PR-ze na tydzień. Major
-  # idzie osobno, bo zwykle wymaga zmian w kodzie (jak Next 14 → 15).
+  # Paczki npm: raz w miesiącu, maksymalnie dwa PR-y — jeden zbiorczy z
+  # minor i patch (zwykle do merge'a od ręki) i jeden zbiorczy z majorami.
+  # Major zwykle wymaga zmian w kodzie, więc ten drugi bywa czerwony: służy
+  # za listę "co jest do zrobienia" — przegląda się go i zamyka albo bierze
+  # jedną paczkę na osobny branch. Wcześniej (co tydzień, major osobno na
+  # każdą paczkę) sam frontend dostał 12 PR-ów od Dependabota w miesiąc.
+  #
+  # Harmonogram i limit nie dotyczą łatek bezpieczeństwa: jeśli w ustawieniach
+  # repo włączone są "Dependabot security updates", PR z łatką przychodzi
+  # od razu po zgłoszeniu podatności.
   - package-ecosystem: npm
     directory: '/'
     schedule:
-      interval: weekly
-    open-pull-requests-limit: 5
+      interval: monthly
+    open-pull-requests-limit: 2
     groups:
       npm-minor-patch:
         update-types: [minor, patch]
+      npm-major:
+        update-types: [major]
     # Conventional Commits: "build(deps): ..." — release-please chowa typ
     # build w CHANGELOG, więc aktualizacje nie zaśmiecają listy zmian
     commit-message:
@@ -63,7 +73,7 @@ updates:
   - package-ecosystem: docker
     directory: '/'
     schedule:
-      interval: weekly
+      interval: monthly
     ignore:
       - dependency-name: node
         update-types: ['version-update:semver-major']
