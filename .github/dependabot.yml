@@ -26,12 +26,25 @@ updates:
     # - typescript 7 to nowy kompilator (Go) bez starego API dla JS, z
     #   którego korzystają narzędzia (w backendzie PR z 7.0.2 wywalił testy),
     # - @types/node ma pasować do Node, na którym aplikacja działa (22 w
-    #   Dockerfile i CI), a nie do najnowszego.
+    #   Dockerfile i CI), a nie do najnowszego,
+    # - eslint-config-next idzie w parze z Next (16 jest dla Next 16 i ma już
+    #   natywny flat config, więc FlatCompat w eslint.config.mjs przestaje
+    #   działać) — podbijamy go razem z Next, nie osobno,
+    # - @eslint/js 10 wymaga eslint 10, a eslint-plugin-react, -import
+    #   i -jsx-a11y deklarują najwyżej eslint 9 — sam @eslint/js wywala
+    #   npm ci (konflikt peer dependencies). ESLint 10 przenosimy w całości,
+    #   jednym PR-em, kiedy pluginy go wesprą.
     # Minor i patch dalej przychodzą normalnie.
     ignore:
       - dependency-name: typescript
         update-types: ['version-update:semver-major']
       - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      - dependency-name: eslint-config-next
+        update-types: ['version-update:semver-major']
+      - dependency-name: eslint
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
         update-types: ['version-update:semver-major']
 
   # Wersje akcji w workflowach (actions/checkout@v4 itd.)
